@@ -22,7 +22,7 @@ public class GreetingResource {
     @Inject
     GenerateTask generateTask;
 
-    @ConfigItem(name = "quarkus.rest.client.rex-api.url")
+    @ConfigItem(name = "rex_api_url")
     String rexClientUrl;
 
     @GET
@@ -34,6 +34,7 @@ public class GreetingResource {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public String startProcess() throws Exception {
+        Log.info("Rex client url is: " + rexClientUrl);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(rexClientUrl)
                 .addConverterFactory(JacksonConverterFactory.create())
