@@ -1,11 +1,9 @@
 package org.jboss.pnc.dingrogu.rest;
 
 import io.quarkus.logging.Log;
-import io.quarkus.runtime.annotations.ConfigItem;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.GenerateTask;
 import org.jboss.pnc.dingrogu.rest.client.RexClient;
-import org.jboss.pnc.rex.api.TaskEndpoint;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -13,8 +11,13 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.pnc.rex.dto.TaskDTO;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import java.util.Set;
 
 @Path("/hello")
 public class GreetingResource {
@@ -22,7 +25,7 @@ public class GreetingResource {
     @Inject
     GenerateTask generateTask;
 
-    @ConfigItem(name = "rex_api_url")
+    @ConfigProperty(name = "rexclient.url")
     String rexClientUrl;
 
     @GET
@@ -39,9 +42,13 @@ public class GreetingResource {
                 .baseUrl(rexClientUrl)
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
-        RexClient rexClient = retrofit.create(RexClient.class);
-        rexClient.start(generateTask.generateSingleRequest());
         Log.info("Request started");
+        RexClient rexClient = retrofit.create(RexClient.class);
+        Call<Set<TaskDTO>> response = rexClient.start(generateTask.generateSingleRequest());
+        Response<Set<TaskDTO>> realResponse = response.execute();
+        Log.info("Is successful: " + realResponse.isSuccessful());
+        Log.info("Code: " + realResponse.toString());
+
         return "oh hey";
     }
 }

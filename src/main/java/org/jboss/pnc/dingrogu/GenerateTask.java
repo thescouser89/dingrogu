@@ -1,6 +1,6 @@
 package org.jboss.pnc.dingrogu;
 
-import io.quarkus.runtime.annotations.ConfigItem;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -15,7 +15,7 @@ import java.util.Set;
 @ApplicationScoped
 public class GenerateTask {
 
-    @ConfigItem(name = "dingrogu.url")
+    @ConfigProperty(name = "dingrogu.url")
     String url;
 
     public CreateGraphRequest generateSingleRequest() throws Exception {
