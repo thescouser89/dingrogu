@@ -9,6 +9,7 @@ import org.jboss.pnc.rex.dto.requests.FinishRequest;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,8 +21,10 @@ public class GenerateTask {
 
     public CreateGraphRequest generateSingleRequest() throws Exception {
 
-        Request remoteStart = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/start"));
-        Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"));
+        Request.Header header = new Request.Header("Content-Type", "application/json");
+        List<Request.Header> headers = List.of(header);
+        Request remoteStart = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/start"), headers);
+        Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 
         CreateTaskDTO taskDTO = CreateTaskDTO.builder()
                 .name("elvis")
