@@ -24,7 +24,7 @@ public class GenerateTask {
 
         Request.Header header = new Request.Header("Content-Type", "application/json");
         List<Request.Header> headers = List.of(header);
-        UUID uuid = new UUID();
+        UUID uuid = UUID.randomUUID();
         Request remoteStart = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/start"), headers);
         Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 
