@@ -2,6 +2,8 @@ package org.jboss.pnc.dingrogu.rest;
 
 
 import io.quarkus.logging.Log;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.Produces;
 import org.jboss.pnc.dingrogu.GenerateTask;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
@@ -12,6 +14,8 @@ import jakarta.ws.rs.Path;
 import java.util.concurrent.CompletableFuture;
 
 @Path("receive-from-rex")
+@Consumes("application/json")
+@Produces("application/json")
 public class InternalBleed {
 
     @Inject
