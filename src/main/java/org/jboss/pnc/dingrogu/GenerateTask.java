@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @ApplicationScoped
 public class GenerateTask {
@@ -23,24 +24,25 @@ public class GenerateTask {
 
         Request.Header header = new Request.Header("Content-Type", "application/json");
         List<Request.Header> headers = List.of(header);
+        UUID uuid = new UUID();
         Request remoteStart = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/start"), headers);
         Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 
         CreateTaskDTO taskDTO = CreateTaskDTO.builder()
-                .name("elvis")
+                .name("elvis" + uuid.toString())
                 .remoteStart(remoteStart)
                 .remoteCancel(remoteCancel)
                 .build();
 
         CreateTaskDTO taskDTOCharles = CreateTaskDTO.builder()
-                .name("charles")
+                .name("charles" + uuid.toString())
                 .remoteStart(remoteStart)
                 .remoteCancel(remoteCancel)
                 .build();
 
-        Map<String, CreateTaskDTO> vertices = Map.of("elvis", taskDTO, "charles", taskDTOCharles);
+        Map<String, CreateTaskDTO> vertices = Map.of("elvis" + uuid.toString(), taskDTO, "charles" + uuid.toString(), taskDTOCharles);
 
-        EdgeDTO edgeDTO = EdgeDTO.builder().source("elvis").target("charles").build();
+        EdgeDTO edgeDTO = EdgeDTO.builder().source("elvis" + uuid.toString()).target("charles" + uuid.toString()).build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
         return new CreateGraphRequest("elvis", edges, vertices);
