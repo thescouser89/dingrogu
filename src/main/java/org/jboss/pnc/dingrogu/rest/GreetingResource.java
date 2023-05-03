@@ -1,6 +1,8 @@
 package org.jboss.pnc.dingrogu.rest;
 
 import io.quarkus.logging.Log;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.GenerateTask;
 import org.jboss.pnc.dingrogu.rest.client.RexClient;
@@ -17,6 +19,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.util.List;
 import java.util.Set;
 
 @Path("/hello")
@@ -36,7 +39,15 @@ public class GreetingResource {
 
     @POST
     @Produces(MediaType.TEXT_PLAIN)
-    public String startProcess() throws Exception {
+    public String startProcess(@Context HttpHeaders headers) throws Exception {
+        List<String> authHeader = headers.getRequestHeader("Authentication");
+        String authentication = "";
+        if (authHeader.size() > 0) {
+            Log.info("Auth header specified");
+            authentication = authHeader.get(0);
+        } else {
+            Log.info("No auth header");
+        }
         Log.info("Rex client url is: " + rexClientUrl);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(rexClientUrl)
@@ -44,7 +55,7 @@ public class GreetingResource {
                 .build();
         Log.info("Request started");
         RexClient rexClient = retrofit.create(RexClient.class);
-        Call<Set<TaskDTO>> response = rexClient.start(generateTask.generateSingleRequest());
+        Call<Set<TaskDTO>> response = rexClient.start(authentication, generateTask.generateSingleRequest());
         Response<Set<TaskDTO>> realResponse = response.execute();
         Log.info("Is successful: " + realResponse.isSuccessful());
         Log.info("Code: " + realResponse.toString());
