@@ -29,9 +29,15 @@ public class GenerateTask {
                 .remoteCancel(remoteCancel)
                 .build();
 
-        Map<String, CreateTaskDTO> vertices = Map.of("elvis", taskDTO);
+        CreateTaskDTO taskDTOCharles = CreateTaskDTO.builder()
+                .name("charles")
+                .remoteStart(remoteStart)
+                .remoteCancel(remoteCancel)
+                .build();
 
-        EdgeDTO edgeDTO = EdgeDTO.builder().build();
+        Map<String, CreateTaskDTO> vertices = Map.of("elvis", taskDTO, "charles", taskDTOCharles);
+
+        EdgeDTO edgeDTO = EdgeDTO.builder().source("elvis").target("charles").build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
         return new CreateGraphRequest("elvis", edges, vertices);
