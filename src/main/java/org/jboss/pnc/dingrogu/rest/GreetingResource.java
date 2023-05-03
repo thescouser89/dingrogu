@@ -40,11 +40,11 @@ public class GreetingResource {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public String startProcess(@Context HttpHeaders headers) throws Exception {
-        List<String> authHeader = headers.getRequestHeader("Authentication");
-        String authentication = "";
+        List<String> authHeader = headers.getRequestHeader("Authorization");
+        String authorization = "";
         if (authHeader.size() > 0) {
             Log.info("Auth header specified");
-            authentication = authHeader.get(0);
+            authorization = authHeader.get(0);
         } else {
             Log.info("No auth header");
         }
@@ -55,7 +55,7 @@ public class GreetingResource {
                 .build();
         Log.info("Request started");
         RexClient rexClient = retrofit.create(RexClient.class);
-        Call<Set<TaskDTO>> response = rexClient.start(authentication, generateTask.generateSingleRequest());
+        Call<Set<TaskDTO>> response = rexClient.start(authorization, generateTask.generateSingleRequest());
         Response<Set<TaskDTO>> realResponse = response.execute();
         Log.info("Is successful: " + realResponse.isSuccessful());
         Log.info("Code: " + realResponse.toString());

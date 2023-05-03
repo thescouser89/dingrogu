@@ -11,5 +11,5 @@ import java.util.Set;
 
 public interface RexClient {
     @POST("/rest/tasks")
-    Call<Set<TaskDTO>> start(@Header("Authentication") String authentication, @Body CreateGraphRequest createGraphRequest);
+    Call<Set<TaskDTO>> start(@Header("Authorization") String authentication, @Body CreateGraphRequest createGraphRequest);
 }
