@@ -1,10 +1,11 @@
-package org.jboss.pnc.dingrogu.rest;
-
+package org.jboss.pnc.dingrogu.rest.server;
 
 import io.quarkus.logging.Log;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
-import org.jboss.pnc.dingrogu.GenerateTask;
+import org.jboss.pnc.dingrogu.common.GenerateTask;
+import org.jboss.pnc.dingrogu.rest.client.RexClient;
+import org.jboss.pnc.rex.dto.requests.FinishRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -22,6 +23,9 @@ public class InternalBleed {
     @Inject
     GenerateTask generateTask;
 
+    @Inject
+    RexClient rexClient;
+
     @POST
     @Path("/start")
     public String getRequestStart(StartRequest startRequest) {
@@ -32,7 +36,11 @@ public class InternalBleed {
                 Log.info("oh lala : " + e);
             }
             Log.info("Sending callback for start request");
-            generateTask.callbackReply(true, "all good");
+            try {
+                rexClient.invokeCallback(startRequest.getCallback(), new FinishRequest(true, "all good"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return null;
         });
 
@@ -51,7 +59,7 @@ public class InternalBleed {
                 Log.info("oh lala : " + e);
             }
             Log.info("Sending callback for cancel request");
-            generateTask.callbackReply(true, "all good");
+            // TODO: wtf does cancel want
             return null;
         });
 

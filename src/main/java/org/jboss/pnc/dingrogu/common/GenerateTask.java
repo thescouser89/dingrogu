@@ -1,7 +1,10 @@
-package org.jboss.pnc.dingrogu;
+package org.jboss.pnc.dingrogu.common;
 
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.dingrogu.rest.client.RexClient;
+import org.jboss.pnc.dingrogu.workflows.RepositoryCreation;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -16,6 +19,9 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class GenerateTask {
+
+    @Inject
+    RepositoryCreation repositoryCreation;
 
     @ConfigProperty(name = "dingrogu.url")
     String url;
@@ -40,15 +46,37 @@ public class GenerateTask {
                 .remoteCancel(remoteCancel)
                 .build();
 
-        Map<String, CreateTaskDTO> vertices = Map.of("elvis" + uuid.toString(), taskDTO, "charles" + uuid.toString(), taskDTOCharles);
+        Map<String, CreateTaskDTO> vertices = Map
+                .of("elvis" + uuid.toString(), taskDTO, "charles" + uuid.toString(), taskDTOCharles);
 
-        EdgeDTO edgeDTO = EdgeDTO.builder().source("elvis" + uuid.toString()).target("charles" + uuid.toString()).build();
+        EdgeDTO edgeDTO = EdgeDTO.builder()
+                .source("elvis" + uuid.toString())
+                .target("charles" + uuid.toString())
+                .build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
         return new CreateGraphRequest("elvis", edges, vertices);
     }
 
-    public FinishRequest callbackReply(boolean status, Object response) {
-        return new FinishRequest(status, response);
+    public CreateGraphRequest generateRepositoryCreation(String externalUrl) throws Exception {
+
+        Request.Header header = new Request.Header("Content-Type", "application/json");
+        List<Request.Header> headers = List.of(header);
+        UUID uuid = UUID.randomUUID();
+
+        Request remoteStart = new Request(
+                Request.Method.POST,
+                new URI(url + "/receive-from-rex/start"),
+                headers,
+                repositoryCreation.getRepourCreateInternalRepository(externalUrl));
+        Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
+
+        CreateTaskDTO taskDTO = CreateTaskDTO.builder()
+                .name("elvis" + uuid.toString())
+                .remoteStart(remoteStart)
+                .remoteCancel(remoteCancel)
+                .build();
+
+        return null;
     }
 }
