@@ -11,6 +11,7 @@ import okhttp3.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.pnc.rex.dto.requests.FinishRequest;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 
 import java.net.URI;
 
@@ -35,10 +36,12 @@ public class RexClient {
                 .build(RexTaskEndpoint.class);
     }
 
-    public void invokeCallback(String callbackUrl, FinishRequest finishRequest) throws Exception {
+    public void invokeCallback(org.jboss.pnc.api.dto.Request callback, FinishRequest finishRequest) throws Exception {
+        // TODO: truly respect what the callback wants
+
         MediaType json = MediaType.get("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(json, objectMapper.writeValueAsString(finishRequest));
-        Request request = new Request.Builder().url(callbackUrl)
+        Request request = new Request.Builder().url(callback.getUri().toURL())
                 .post(requestBody)
                 .addHeader("Authentication", "Bearer " + token.getAccessToken())
                 .build();
