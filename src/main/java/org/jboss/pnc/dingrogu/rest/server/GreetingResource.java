@@ -4,7 +4,6 @@ import io.quarkus.logging.Log;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import org.jboss.pnc.dingrogu.common.GenerateTask;
-import org.jboss.pnc.dingrogu.rest.client.RexTaskEndpoint;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -12,6 +11,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.TaskDTO;
 
 import java.util.Set;
@@ -20,7 +20,7 @@ import java.util.Set;
 public class GreetingResource {
 
     @Inject
-    RexTaskEndpoint rexTaskEndpoint;
+    TaskEndpoint rexTaskEndpoint;
 
     @Inject
     GenerateTask generateTask;

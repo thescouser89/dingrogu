@@ -29,11 +29,11 @@ public class RexClient {
     Tokens token;
 
     @Produces
-    public RexTaskEndpoint getRexTaskEndpoint() {
+    public TaskEndpoint getRexTaskEndpoint() {
         return RestClientBuilder.newBuilder()
                 .baseUri(URI.create(rexClientUrl))
                 .register(OidcClientRequestFilter.class)
-                .build(RexTaskEndpoint.class);
+                .build(TaskEndpoint.class);
     }
 
     public void invokeCallback(org.jboss.pnc.api.dto.Request callback, FinishRequest finishRequest) throws Exception {
