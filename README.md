@@ -44,10 +44,12 @@ The `Request` we define in the graph request gets transformed into:
 by Rex before sending the data to the service. The `Request` attachment becomes the `StartRequest` payload.
 
 ```mermaid
-graph LR
+graph TD
     A(CreateGraphRequest generated from Grogu) --> Rex(Rex tasks)
-    Rex --> GroguAdapterService1(Grogu Adapter Endpoint Service 1) --> ActualService1 (Actual Service 1 API)
-    Rex --> GroguAdapterService2(Grogu Adapter Endpoint Service 2) --> ActualService2 (Actual Service 2 API)
+    Rex --> GroguAdapterService1(Grogu Adapter Endpoint Service 1) 
+    GroguAdapterService1--> ActualService1 (Actual Service 1 API)
+    Rex --> GroguAdapterService2(Grogu Adapter Endpoint Service 2) 
+    GroguAdapterService2 --> ActualService2 (Actual Service 2 API)
 ```
 
 ## Running the application in dev mode
