@@ -30,6 +30,26 @@ Rex then sends to the endpoint the `StartRequest` DTO which contains:
 - mdc map
 - taskResults map (in case a task needs the result of a dependant task)
 
+# Rex Tutorial
+When creating the tasks to send to Rex, we'll create a graph request containing tasks, and the dependencies between tasks.
+
+The task uses the `Request` DTO to tell Rex:
+- which service it needs to send the request
+- the payload and headers and HTTP method
+
+The `Request` we define in the graph request gets transformed into:
+- `StartRequest`
+- `StopRequest`
+
+by Rex before sending the data to the service. The `Request` attachment becomes the `StartRequest` payload.
+
+```mermaid
+graph LR
+    A(CreateGraphRequest generated from Grogu) --> Rex(Rex tasks)
+    RexTask1 --> GroguAdapter(Grogu Adapter Endpoint) --> ActualService (Actual Service API)
+    RexTask2 --> GroguAdapter(Grogu Adapter Endpoint) --> ActualService (Actual Service API)
+```
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
