@@ -1,11 +1,18 @@
 # Information
 
 This package is used to hold any adapter REST endpoints. The latter is used to translate Rex's `StartRequest`
-and `StopRequest` DTO for a particular service to the service's API.
+and `StopRequest` DTO to the service's API payload. The endpoint will do the DTO translation **and**
+send the request to the service.
 
-This is necessary to avoid deeply coupling Rex's DTOs to a service's API, and to ease migration from BPM to Rex.
+This is necessary to avoid deeply coupling Rex's DTOs to a service's API payload, and to ease migration from BPM to Rex.
 
 All the endpoints **are** stateless and not dependent on the workflow endpoints.
+
+```mermaid
+graph TD
+    RexTask(Rex Task) -->|StartRequest| GroguAdapter(Grogu Adapter Endpoint) 
+    GroguAdapter-->|Service Payload| ServiceAPI(Service's API)
+```
 
 ## Concerns
 
