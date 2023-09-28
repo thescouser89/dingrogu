@@ -46,8 +46,8 @@ by Rex before sending the data to the service. The `Request` attachment becomes 
 ```mermaid
 graph LR
     A(CreateGraphRequest generated from Grogu) --> Rex(Rex tasks)
-    RexTask1 --> GroguAdapter(Grogu Adapter Endpoint) --> ActualService (Actual Service API)
-    RexTask2 --> GroguAdapter(Grogu Adapter Endpoint) --> ActualService (Actual Service API)
+    Rex --> GroguAdapterService1(Grogu Adapter Endpoint Service 1) --> ActualService1 (Actual Service 1 API)
+    Rex --> GroguAdapterService2(Grogu Adapter Endpoint Service 2) --> ActualService2 (Actual Service 2 API)
 ```
 
 ## Running the application in dev mode
