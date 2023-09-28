@@ -9,7 +9,7 @@ This is necessary to avoid deeply coupling Rex's DTOs to a service's API payload
 All the endpoints **are** stateless and not dependent on the workflow endpoints.
 
 ```mermaid
-graph TD
+graph LR 
     RexTask(Rex Task) -->|StartRequest| GroguAdapter(Grogu Adapter Endpoint) 
     GroguAdapter-->|Service Payload| ServiceAPI(Service's API)
 ```
