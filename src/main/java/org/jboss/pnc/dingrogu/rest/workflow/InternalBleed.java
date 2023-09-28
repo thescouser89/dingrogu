@@ -1,10 +1,10 @@
-package org.jboss.pnc.dingrogu.rest.server;
+package org.jboss.pnc.dingrogu.rest.workflow;
 
 import io.quarkus.logging.Log;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
-import org.jboss.pnc.dingrogu.common.GenerateTask;
-import org.jboss.pnc.dingrogu.rest.client.RexClient;
+import org.jboss.pnc.dingrogu.rex.GenerateTask;
+import org.jboss.pnc.dingrogu.rex.RexClient;
 import org.jboss.pnc.rex.dto.requests.FinishRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;

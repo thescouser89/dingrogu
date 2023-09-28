@@ -1,4 +1,4 @@
-package org.jboss.pnc.dingrogu.rest.client;
+package org.jboss.pnc.dingrogu.rex;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;

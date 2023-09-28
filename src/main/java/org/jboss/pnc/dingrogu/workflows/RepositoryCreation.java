@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
 import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
-import org.jboss.pnc.dingrogu.common.GenerateTask;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;

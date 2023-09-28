@@ -1,9 +1,9 @@
-package org.jboss.pnc.dingrogu.rest.server;
+package org.jboss.pnc.dingrogu.rest.workflow;
 
 import io.quarkus.logging.Log;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
-import org.jboss.pnc.dingrogu.common.GenerateTask;
+import org.jboss.pnc.dingrogu.rex.GenerateTask;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;

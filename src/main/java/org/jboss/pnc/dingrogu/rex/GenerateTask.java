@@ -1,14 +1,12 @@
-package org.jboss.pnc.dingrogu.common;
+package org.jboss.pnc.dingrogu.rex;
 
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.dingrogu.rest.client.RexClient;
 import org.jboss.pnc.dingrogu.workflows.RepositoryCreation;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
-import org.jboss.pnc.rex.dto.requests.FinishRequest;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import java.net.URI;

@@ -1,8 +1,33 @@
 # dingrogu
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+The application configures workflows to run on [Rex](https://github.com/project-ncl/rex). A particular workflow can consists of multiple Rex tasks interlinked together.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+We want to have workflows for:
+- repository creation (talking with [Repour](https://github.com/project-ncl/repour))
+- milestone release
+- build process
+
+# Architecture
+This application consists of 2 parts:
+- The creation of the workflow to send to Rex
+- An adapter part that translates Rex's `StartRequest` and `StopRequest` DTOs to the specific application (if necessary)
+
+The adapter part might be necessary to not couple Rex's particular DTO requests with the specific downstream's
+application API.
+
+## Workflow Creation
+Rex requires that we specify for each task:
+- an endpoint to start the request and its payload
+- and endpoint to cancel the request and its payload
+- mdc values
+
+Rex then sends to the endpoint the `StartRequest` DTO which contains:
+- positiveCallback
+- negativeCallback
+- payload
+- mdc map
+- taskResults map (in case a task needs the result of a dependant task)
+
 
 ## Running the application in dev mode
 
