@@ -15,6 +15,8 @@ This application consists of 2 parts:
 The adapter part might be necessary to not couple Rex's particular DTO requests with the specific downstream's
 application API.
 
+The project is configured to build a uber-jar by default.
+
 ## Workflow Creation
 Rex requires that we specify for each task:
 - an endpoint to start the request and its payload
@@ -27,7 +29,6 @@ Rex then sends to the endpoint the `StartRequest` DTO which contains:
 - payload
 - mdc map
 - taskResults map (in case a task needs the result of a dependant task)
-
 
 ## Running the application in dev mode
 
@@ -44,17 +45,6 @@ The application can be packaged using:
 ```shell script
 ./mvnw package
 ```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
 
 ## Creating a native executable
 
@@ -71,11 +61,3 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/dingrogu-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
-
-## Provided Code
-
-### RESTEasy Reactive
-
-Easily start your Reactive RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
