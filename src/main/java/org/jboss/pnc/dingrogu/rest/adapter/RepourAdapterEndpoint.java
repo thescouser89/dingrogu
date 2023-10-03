@@ -6,7 +6,6 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
-
 /**
  * The RepourAdapterEndpoint is used to translate Rex's StartRequest and StopRequest to Repour APIs
  */
@@ -14,8 +13,8 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 public class RepourAdapterEndpoint {
 
     /**
-     * Send a request to create an internal repository for Repour.
-     * Repour doesn't require a callback for this endpoint, so the response contains the result from Repour
+     * Send a request to create an internal repository for Repour. Repour doesn't require a callback for this endpoint,
+     * so the response contains the result from Repour
      *
      * @param request request DTO from Rex
      * @return whether the request to Repour was successful or not
@@ -44,9 +43,9 @@ public class RepourAdapterEndpoint {
      * @param request request DTO from Rex
      * @return whether the stop request to Repour was successful or not
      */
-    @Path("clone-repository-stop")
+    @Path("clone-repository-cancel")
     @POST
-    public Response cloneRepositoryStop(StopRequest request) {
+    public Response cloneRepositoryCancel(StopRequest request) {
         return null;
     }
 }

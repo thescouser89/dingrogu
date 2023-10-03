@@ -1,10 +1,12 @@
 package org.jboss.pnc.dingrogu.workflows;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
 import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -14,6 +16,9 @@ import java.util.*;
 
 @ApplicationScoped
 public class RepositoryCreation {
+
+    @ConfigProperty(name = "dingrogu.url")
+    public String ownUrl;
 
     public static final String REPOSITORY_CREATION_KEY = "repository-creation:";
 
@@ -27,11 +32,6 @@ public class RepositoryCreation {
     }
 
     public RepourCloneRepositoryRequest getRepourCloneRepository(String externalUrl, String readWriteUrl, String ref) {
-        // RepourCloneCallback callback = RepourCloneCallback
-        // .builder()
-        // .url(systemVariables.getCallbackUrl())
-        // .method(systemVariables.getCallbackMethod())
-        // .build();
 
         // TODO: the way rex does callback is different. handle this
         return RepourCloneRepositoryRequest.builder()
@@ -43,7 +43,7 @@ public class RepositoryCreation {
                 .build();
     }
 
-    public CreateGraphRequest generateWorkflow(String repourUrl, String externalUrl, String ref) throws Exception {
+    public CreateGraphRequest generateWorkflow(String externalUrl, String ref) throws Exception {
 
         Request.Header header = new Request.Header("Content-Type", "application/json");
         List<Request.Header> headers = List.of(header);
@@ -51,25 +51,27 @@ public class RepositoryCreation {
 
         Request startInternalScm = new Request(
                 Request.Method.POST,
-                new URI(repourUrl + "/internal-scm"),
+                new URI(ownUrl + "/adapter/repour/create-repository-start"),
                 headers,
                 getRepourCreateInternalRepository(externalUrl));
-        // TODO: it's really /cancel/taskId
-        Request cancelInternalScm = new Request(Request.Method.POST, new URI(repourUrl + "/cancel"), headers);
 
         CreateTaskDTO taskInternalScm = CreateTaskDTO.builder()
                 .name(REPOSITORY_CREATION_KEY + ":internal-scm:" + uuid.toString())
                 .remoteStart(startInternalScm)
-                .remoteCancel(cancelInternalScm)
+                .configuration(new ConfigurationDTO(false, true))
                 .build();
 
+        // TODO: FIX ME HERE WTF DUSTIN
         Request startCloneScm = new Request(
                 Request.Method.POST,
-                new URI(repourUrl + "/clone"),
+                new URI(ownUrl + "/adapter/repour/clone-repository-start"),
                 headers,
-                getRepourCloneRepository(externalUrl, "", ref));
+                getRepourCloneRepository("null", "null", ref));
         // TODO: it's really /cancel/taskId
-        Request cancelCloneScm = new Request(Request.Method.POST, new URI(repourUrl + "/cancel"), headers);
+        Request cancelCloneScm = new Request(
+                Request.Method.POST,
+                new URI(ownUrl + "/adapter/repour/clone-repository-cancel"),
+                headers);
 
         // TODO: need to notify PNC-Orch
 
