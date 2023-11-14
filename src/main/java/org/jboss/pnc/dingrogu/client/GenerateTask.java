@@ -1,4 +1,4 @@
-package org.jboss.pnc.dingrogu.rex;
+package org.jboss.pnc.dingrogu.client;
 
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;

@@ -4,8 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
-import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
-import org.jboss.pnc.dingrogu.common.GitUrlParser;
+import org.jboss.pnc.dingrogu.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -22,12 +21,11 @@ public class RepositoryCreation {
 
     public static final String REPOSITORY_CREATION_KEY = "repository-creation:";
 
-    public RepourCreateRepositoryRequest getRepourCreateInternalRepository(String externalUrl) {
+    public RepourCreateRepositoryDTO getRepourCreateInternalRepository(String repourUrl, String externalUrl) {
 
-        return RepourCreateRepositoryRequest.builder()
-                .project(GitUrlParser.generateInternalGitRepoName(externalUrl))
-                .ownerGroups(Collections.singletonList("ldap/jboss-prod"))
-                .parentProject("jboss-prod-permissions")
+        return RepourCreateRepositoryDTO.builder()
+                .repourUrl(repourUrl)
+                .externalUrl(externalUrl)
                 .build();
     }
 
@@ -45,6 +43,9 @@ public class RepositoryCreation {
 
     public CreateGraphRequest generateWorkflow(String externalUrl, String ref) throws Exception {
 
+        // TODO
+        String repourUrl = "http://repour-url-placeholder";
+
         Request.Header header = new Request.Header("Content-Type", "application/json");
         List<Request.Header> headers = List.of(header);
         UUID uuid = UUID.randomUUID();
@@ -53,7 +54,7 @@ public class RepositoryCreation {
                 Request.Method.POST,
                 new URI(ownUrl + "/adapter/repour/create-repository-start"),
                 headers,
-                getRepourCreateInternalRepository(externalUrl));
+                getRepourCreateInternalRepository(repourUrl, externalUrl));
 
         CreateTaskDTO taskInternalScm = CreateTaskDTO.builder()
                 .name(REPOSITORY_CREATION_KEY + ":internal-scm:" + uuid.toString())
