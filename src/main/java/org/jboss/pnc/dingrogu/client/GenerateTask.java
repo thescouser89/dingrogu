@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.client;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.dingrogu.tasks.CreateRepositoryTask;
 import org.jboss.pnc.dingrogu.workflows.RepositoryCreation;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -68,7 +69,7 @@ public class GenerateTask {
                 Request.Method.POST,
                 new URI(url + "/receive-from-rex/start"),
                 headers,
-                repositoryCreation.getRepourCreateInternalRepository(null, externalUrl));
+                CreateRepositoryTask.getRepourCreateInternalRepository(null, externalUrl));
         Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 
         CreateTaskDTO taskDTO = CreateTaskDTO.builder()

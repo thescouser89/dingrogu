@@ -3,7 +3,6 @@ package org.jboss.pnc.dingrogu.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
-import io.quarkus.oidc.client.filter.OidcClientRequestFilter;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -30,10 +29,7 @@ public class RexClient {
 
     @Produces
     public TaskEndpoint getRexTaskEndpoint() {
-        return RestClientBuilder.newBuilder()
-                .baseUri(URI.create(rexClientUrl))
-                .register(OidcClientRequestFilter.class)
-                .build(TaskEndpoint.class);
+        return RestClientBuilder.newBuilder().baseUri(URI.create(rexClientUrl)).build(TaskEndpoint.class);
     }
 
     public void invokeCallback(org.jboss.pnc.api.dto.Request callback, FinishRequest finishRequest) throws Exception {

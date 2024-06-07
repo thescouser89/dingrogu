@@ -4,11 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.MilestoneReleaseRequest;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
-import org.jboss.pnc.rex.model.Task;
 
 import java.net.URI;
 import java.util.List;
@@ -26,15 +26,17 @@ public class MilestoneRelease {
     CreateTaskDTO getMilestoneReleaseRequest(String milestoneId) throws Exception {
         MilestoneReleaseRequest request = MilestoneReleaseRequest.builder().milestoneId(milestoneId).build();
 
-        Request.Header header = new Request.Header("Content-Type", "application/json");
-        List<Request.Header> headers = List.of(header);
         Request startRequest = new Request(
                 Request.Method.POST,
-                new URI(ownUrl + "/causeway-endpoint"),
-                headers,
+                new URI(ownUrl + "/adapter/causeway"),
+                List.of(TaskHelper.getJsonHeader()),
                 request);
 
-        Request cancelRequest = new Request(Request.Method.POST, new URI("fix me later"), headers, request);
+        Request cancelRequest = new Request(
+                Request.Method.POST,
+                new URI("fix me later"),
+                List.of(TaskHelper.getJsonHeader()),
+                request);
 
         return CreateTaskDTO.builder()
                 .name(MILESTONE_RELEASE_KEY + milestoneId)
