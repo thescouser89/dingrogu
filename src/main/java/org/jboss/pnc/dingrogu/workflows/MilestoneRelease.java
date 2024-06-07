@@ -34,30 +34,25 @@ public class MilestoneRelease {
                 headers,
                 request);
 
-        Request cancelRequest = new Request(
-            Request.Method.POST,
-            new URI("fix me later"),
-            headers,
-            request);
+        Request cancelRequest = new Request(Request.Method.POST, new URI("fix me later"), headers, request);
 
-        return CreateTaskDTO
-                .builder()
+        return CreateTaskDTO.builder()
                 .name(MILESTONE_RELEASE_KEY + milestoneId)
                 .remoteStart(startRequest)
                 .remoteCancel(cancelRequest)
-                .configuration(new ConfigurationDTO(true, false))
+                .configuration(new ConfigurationDTO())
                 .build();
     }
+
     public CreateGraphRequest generateWorkflow(String milestoneId) throws Exception {
 
         CreateTaskDTO milestoneRelease = getMilestoneReleaseRequest(milestoneId);
 
-        Map<String, CreateTaskDTO> vertices = Map
-                .of(milestoneRelease.name, milestoneRelease);
+        Map<String, CreateTaskDTO> vertices = Map.of(milestoneRelease.name, milestoneRelease);
 
         EdgeDTO edgeDTO = EdgeDTO.builder().source(milestoneRelease.name).target(null).build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-        return new CreateGraphRequest(MILESTONE_RELEASE_KEY + "::" + milestoneId, edges, vertices);
+        return new CreateGraphRequest(MILESTONE_RELEASE_KEY + "::" + milestoneId, null, edges, vertices);
     }
 }

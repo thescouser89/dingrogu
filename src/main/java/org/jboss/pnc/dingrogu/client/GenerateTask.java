@@ -53,7 +53,8 @@ public class GenerateTask {
                 .build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-        return new CreateGraphRequest("elvis", edges, vertices);
+        // TODO: remove those nulls
+        return new CreateGraphRequest(null, null, edges, vertices);
     }
 
     public CreateGraphRequest generateRepositoryCreation(String externalUrl) throws Exception {
@@ -62,11 +63,12 @@ public class GenerateTask {
         List<Request.Header> headers = List.of(header);
         UUID uuid = UUID.randomUUID();
 
+        // TODO: remove that null here
         Request remoteStart = new Request(
                 Request.Method.POST,
                 new URI(url + "/receive-from-rex/start"),
                 headers,
-                repositoryCreation.getRepourCreateInternalRepository(externalUrl));
+                repositoryCreation.getRepourCreateInternalRepository(null, externalUrl));
         Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 
         CreateTaskDTO taskDTO = CreateTaskDTO.builder()

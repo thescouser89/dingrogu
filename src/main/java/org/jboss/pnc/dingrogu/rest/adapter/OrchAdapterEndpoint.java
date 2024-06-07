@@ -9,6 +9,6 @@ public class OrchAdapterEndpoint {
 
     @Path("/notify-orch-of-causeway")
     public Response notifyOrchOfCauseway(StartRequest request) {
-
+        return null;
     }
 }

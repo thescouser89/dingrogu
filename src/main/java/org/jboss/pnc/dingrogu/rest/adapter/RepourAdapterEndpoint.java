@@ -35,8 +35,7 @@ public class RepourAdapterEndpoint {
     public RepourCreateRepositoryResponse createInternalRepo(StartRequest rexData) {
         RepourCreateRepositoryDTO data = (RepourCreateRepositoryDTO) rexData.getPayload();
 
-        RepourCreateRepositoryRequest request = RepourCreateRepositoryRequest
-                .builder()
+        RepourCreateRepositoryRequest request = RepourCreateRepositoryRequest.builder()
                 .project(GitUrlParser.generateInternalGitRepoName(data.getExternalUrl()))
                 .ownerGroups(Collections.singletonList("ldap/jboss-prod"))
                 .parentProject("jboss-prod-permissions")
@@ -74,8 +73,7 @@ public class RepourAdapterEndpoint {
         }
 
         // TODO: add callback to that request
-        RepourCloneRepositoryRequest request = RepourCloneRepositoryRequest
-                .builder()
+        RepourCloneRepositoryRequest request = RepourCloneRepositoryRequest.builder()
                 .type("git")
                 .originRepoUrl(data.getExternalUrl())
                 .targetRepoUrl(response.getReadwriteUrl())
@@ -87,8 +85,6 @@ public class RepourAdapterEndpoint {
     }
 
     private RepourClient getRepourClient(String url) {
-        return QuarkusRestClientBuilder.newBuilder()
-                .baseUri(URI.create(url))
-                .build(RepourClient.class);
+        return QuarkusRestClientBuilder.newBuilder().baseUri(URI.create(url)).build(RepourClient.class);
     }
 }

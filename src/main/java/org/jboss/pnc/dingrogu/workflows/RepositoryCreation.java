@@ -23,10 +23,7 @@ public class RepositoryCreation {
 
     public RepourCreateRepositoryDTO getRepourCreateInternalRepository(String repourUrl, String externalUrl) {
 
-        return RepourCreateRepositoryDTO.builder()
-                .repourUrl(repourUrl)
-                .externalUrl(externalUrl)
-                .build();
+        return RepourCreateRepositoryDTO.builder().repourUrl(repourUrl).externalUrl(externalUrl).build();
     }
 
     public RepourCloneRepositoryRequest getRepourCloneRepository(String externalUrl, String readWriteUrl, String ref) {
@@ -59,7 +56,7 @@ public class RepositoryCreation {
         CreateTaskDTO taskInternalScm = CreateTaskDTO.builder()
                 .name(REPOSITORY_CREATION_KEY + ":internal-scm:" + uuid.toString())
                 .remoteStart(startInternalScm)
-                .configuration(new ConfigurationDTO(false, true))
+                .configuration(new ConfigurationDTO())
                 .build();
 
         // TODO: FIX ME HERE WTF DUSTIN
@@ -89,6 +86,7 @@ public class RepositoryCreation {
         EdgeDTO edgeDTO = EdgeDTO.builder().source(taskCloneScm.name).target(taskInternalScm.name).build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-        return new CreateGraphRequest(REPOSITORY_CREATION_KEY + "::" + uuid.toString(), edges, vertices);
+        // TODO: deal with that null
+        return new CreateGraphRequest(REPOSITORY_CREATION_KEY + "::" + uuid.toString(), null, edges, vertices);
     }
 }
