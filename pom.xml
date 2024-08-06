@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.jboss.pnc.rex</groupId>
       <artifactId>rex-model</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.squareup.retrofit2</groupId>
