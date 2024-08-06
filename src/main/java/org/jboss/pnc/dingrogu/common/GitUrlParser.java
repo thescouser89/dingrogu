@@ -1,12 +1,5 @@
 package org.jboss.pnc.dingrogu.common;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.jboss.pnc.api.constants.HttpHeaders;
-import org.jboss.pnc.api.dto.Request;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -2,18 +2,12 @@ package org.jboss.pnc.dingrogu.workflows;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
-import org.jboss.pnc.dingrogu.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.tasks.CloneRepositoryTask;
 import org.jboss.pnc.dingrogu.tasks.CreateRepositoryTask;
-import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
-import java.net.URI;
 import java.util.*;
 
 @ApplicationScoped

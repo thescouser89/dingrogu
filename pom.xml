@@ -74,6 +74,11 @@
       <version>1.0.0</version>
     </dependency>
     <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-api</artifactId>
+      <version>3.0.4</version>
+    </dependency>
+    <dependency>
       <groupId>com.squareup.retrofit2</groupId>
       <artifactId>retrofit</artifactId>
       <version>2.11.0</version>
@@ -124,7 +129,6 @@
         </executions>
         <configuration>
           <finalName>dingrogu</finalName>
-          <skipOriginalJarRename>true</skipOriginalJarRename>
         </configuration>
       </plugin>
       <plugin>
@@ -166,19 +170,81 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>net.revelc.code.formatter</groupId>
-        <artifactId>formatter-maven-plugin</artifactId>
-        <version>2.24.1</version>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.43.0</version>
+        <configuration>
+          <java>
+            <removeUnusedImports />
+            <eclipse>
+              <file>eclipse-codeStyle.xml</file>
+            </eclipse>
+            <lineEndings>UNIX</lineEndings>
+          </java>
+        </configuration>
         <executions>
           <execution>
-            <id>java-format</id>
             <goals>
-              <goal>format</goal>
+              <goal>apply</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>4.9.10</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <configuration>
+          <!--
+            If you'd like to tell the plugin where your .git directory is,
+            use this setting, otherwise we'll perform a search trying to
+            figure out the right directory. It's better to add it explicite IMHO.
+          -->
+          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+
+          <!-- false is default here, it prints some more information during the build -->
+          <verbose>true</verbose>
+
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>replace</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <configFile>eclipse-codeStyle.xml</configFile>
+          <file>src/main/templates/org/jboss/pnc/dingrogu/Constants.java</file>
+          <outputFile>src/main/java/org/jboss/pnc/dingrogu/Constants.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@version@</token>
+              <value>${project.version}</value>
+            </replacement>
+            <replacement>
+              <token>@commit-id@</token>
+              <value>${git.commit.id.abbrev}</value>
+            </replacement>
+            <replacement>
+              <token>@build-time@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
         </configuration>
       </plugin>
     </plugins>
