@@ -13,18 +13,15 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-public class CreateRepositoryTask {
+public class RepourAdapterCreateRepositoryTask implements TaskCreator<RepourCreateRepositoryDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
 
     public static final String REPOSITORY_CREATION_KEY = "repository-creation:";
 
-    public CreateTaskDTO getTask() throws Exception {
-
-        // TODO
-        String repourUrl = "http://repour-url-placeholder";
-        String externalUrl = "hahaha";
+    @Override
+    public CreateTaskDTO getTask(RepourCreateRepositoryDTO repourDTO) throws Exception {
 
         UUID uuid = UUID.randomUUID();
 
@@ -32,7 +29,7 @@ public class CreateRepositoryTask {
                 Request.Method.POST,
                 new URI(ownUrl + "/adapter/repour/create-repository-start"),
                 List.of(TaskHelper.getJsonHeader()),
-                getRepourCreateInternalRepository(repourUrl, externalUrl));
+                repourDTO);
 
         CreateTaskDTO taskInternalScm = CreateTaskDTO.builder()
                 .name(REPOSITORY_CREATION_KEY + ":internal-scm:" + uuid)
@@ -41,9 +38,5 @@ public class CreateRepositoryTask {
                 .build();
 
         return taskInternalScm;
-    }
-
-    public static RepourCreateRepositoryDTO getRepourCreateInternalRepository(String repourUrl, String externalUrl) {
-        return RepourCreateRepositoryDTO.builder().repourUrl(repourUrl).externalUrl(externalUrl).build();
     }
 }

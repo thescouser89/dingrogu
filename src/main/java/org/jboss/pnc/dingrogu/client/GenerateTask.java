@@ -3,7 +3,7 @@ package org.jboss.pnc.dingrogu.client;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.dingrogu.tasks.CreateRepositoryTask;
+import org.jboss.pnc.dingrogu.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.workflows.RepositoryCreation;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -65,11 +65,14 @@ public class GenerateTask {
         UUID uuid = UUID.randomUUID();
 
         // TODO: remove that null here
+        RepourCreateRepositoryDTO dto = RepourCreateRepositoryDTO.builder().repourUrl(null).externalUrl(externalUrl).build();
+
         Request remoteStart = new Request(
                 Request.Method.POST,
                 new URI(url + "/receive-from-rex/start"),
                 headers,
-                CreateRepositoryTask.getRepourCreateInternalRepository(null, externalUrl));
+                dto);
+
         Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 
         CreateTaskDTO taskDTO = CreateTaskDTO.builder()
