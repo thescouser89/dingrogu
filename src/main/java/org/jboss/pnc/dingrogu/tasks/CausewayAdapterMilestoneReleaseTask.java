@@ -26,7 +26,9 @@ public class CausewayAdapterMilestoneReleaseTask implements TaskCreator<Mileston
 
     @Override
     public CreateTaskDTO getTask(MilestoneReleaseDTO milestoneReleaseDTO) throws Exception {
-        MilestoneReleaseRequest request = MilestoneReleaseRequest.builder().milestoneId(milestoneReleaseDTO.getMilestoneId()).build();
+        MilestoneReleaseRequest request = MilestoneReleaseRequest.builder()
+                .milestoneId(milestoneReleaseDTO.getMilestoneId())
+                .build();
 
         Request startRequest = new Request(
                 Request.Method.POST,
