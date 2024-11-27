@@ -65,13 +65,12 @@ public class GenerateTask {
         UUID uuid = UUID.randomUUID();
 
         // TODO: remove that null here
-        RepourCreateRepositoryDTO dto = RepourCreateRepositoryDTO.builder().repourUrl(null).externalUrl(externalUrl).build();
+        RepourCreateRepositoryDTO dto = RepourCreateRepositoryDTO.builder()
+                .repourUrl(null)
+                .externalUrl(externalUrl)
+                .build();
 
-        Request remoteStart = new Request(
-                Request.Method.POST,
-                new URI(url + "/receive-from-rex/start"),
-                headers,
-                dto);
+        Request remoteStart = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/start"), headers, dto);
 
         Request remoteCancel = new Request(Request.Method.POST, new URI(url + "/receive-from-rex/cancel"), headers);
 

@@ -26,8 +26,15 @@ public class RepositoryCreation {
     public CreateGraphRequest generateWorkflow(String externalUrl, String ref) throws Exception {
 
         UUID uuid = UUID.randomUUID();
-        RepourCreateRepositoryDTO repourCreateRepositoryDTO = RepourCreateRepositoryDTO.builder().repourUrl("1234").externalUrl(externalUrl).build();
-        RepourCloneRepositoryDTO repourCloneRepositoryDTO = RepourCloneRepositoryDTO.builder().repourUrl("1234").externalUrl(externalUrl).ref(ref).build();
+        RepourCreateRepositoryDTO repourCreateRepositoryDTO = RepourCreateRepositoryDTO.builder()
+                .repourUrl("1234")
+                .externalUrl(externalUrl)
+                .build();
+        RepourCloneRepositoryDTO repourCloneRepositoryDTO = RepourCloneRepositoryDTO.builder()
+                .repourUrl("1234")
+                .externalUrl(externalUrl)
+                .ref(ref)
+                .build();
         CreateTaskDTO taskInternalScm = createRepositoryTask.getTask(repourCreateRepositoryDTO);
         CreateTaskDTO taskCloneScm = cloneRepositoryTask.getTask(repourCloneRepositoryDTO);
 
