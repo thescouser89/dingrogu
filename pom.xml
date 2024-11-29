@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss.pnc</groupId>
   <artifactId>dingrogu</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1</version>
 
    <name>dingrogu</name>
    <description>The best RHPAM replacement tool for your needs</description>
@@ -42,7 +42,7 @@
     <connection>scm:git:https://github.com/project-ncl/dingrogu.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/dingrogu.git</developerConnection>
     <url>https://github.com/project-ncl/dingrogu/</url>
-    <tag>HEAD</tag>
+    <tag>0.1.1${tagSuffix}</tag>
   </scm>
 
   <developers>
