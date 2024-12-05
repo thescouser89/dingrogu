@@ -6,16 +6,32 @@ We want to have workflows for:
 - repository creation (talking with [Repour](https://github.com/project-ncl/repour))
 - milestone release
 - build process
+- deliverables analyzer
 
 # Architecture
 This application consists of 2 parts:
 - The creation of the workflow to send to Rex
-- An adapter part that translates Rex's `StartRequest` and `StopRequest` DTOs to the specific application (if necessary)
+- An adapter part that translates Rex's `StartRequest` and `StopRequest` DTOs to the specific application, as well as handling of callbacks from the applications back to Rex
 
-The adapter part might be necessary to not couple Rex's particular DTO requests with the specific downstream's
+The adapter part is necessary to decouple Rex's particular DTO requests with the specific downstream's
 application API.
 
 The project is configured to build a uber-jar by default.
+
+## Endpoints
+Workflow Management
+```
+/workflow/<name>/start
+/workflow/<name>/cancel/<id>
+```
+
+Adapter Management
+```
+/adapter/<application>/start
+/adapter/<application>/callback/<id>
+```
+
+As for the ids, we need to pick one that will allow the adapter to link the request to the Rex task.
 
 ## Workflow Creation
 Rex requires that we specify for each task:
@@ -52,6 +68,11 @@ graph TD
     GroguAdapterService2 -->|Service 2 Body| ActualService2(Actual Service 2 API)
 ```
 
+## Future Rex features to explore
+- Unique queue per workflow to have QoS and its own queue size
+- Atomic running of group of tasks; if there's a failure, the group of tasks are run again
+- Query Rex for the current state of affairs to get previous run data
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
@@ -87,3 +108,5 @@ If you want to learn more about building native executables, please consult http
 # House Rules
 
 - We only use Jackson for JSON serialization
+- Lombok usage is allowed
+- Syncing happens in the PNC Devs Slack channel
