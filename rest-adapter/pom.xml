@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jboss.pnc.dingrogu</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>rest-adapter</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.pnc.dingrogu</groupId>
+            <artifactId>api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-arc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.rex</groupId>
+            <artifactId>rex-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.rex</groupId>
+            <artifactId>rex-model</artifactId>
+        </dependency>
+    </dependencies>
+</project>

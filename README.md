@@ -1,26 +1,44 @@
 # dingrogu
 
-The application configures workflows to run on [Rex](https://github.com/project-ncl/rex). A particular workflow can consists of multiple Rex tasks interlinked together.
+The application configures workflows to run on [Rex](https://github.com/project-ncl/rex). A particular workflow can consists of multiple Rex tasks interlinked together. Those Rex tasks will then coordinate with our services via this application's `adapter` endpoints. The latter acts as the bridge between the Rex world (generic task coordinator) and PNC services.
 
 We want to have workflows for:
 - repository creation (talking with [Repour](https://github.com/project-ncl/repour))
 - milestone release
 - build process
+- deliverables-analysis
+
+## Packaging and Running the application
+
+You can run your application using:
+```shell script
+./mvnw clean install -DskipTests=true
+java -jar application/target/dingrogu-runner.jar
+```
+
+# House Rules
+- We only use Jackson for JSON serialization
 
 # Architecture
 This application consists of 2 parts:
-- The creation of the workflow to send to Rex
-- An adapter part that translates Rex's `StartRequest` and `StopRequest` DTOs to the specific application (if necessary)
+- The creation of the workflow to send to Rex (`rest-workflow` module)
+- An adapter part that translates Rex's `StartRequest` and `StopRequest` DTOs to the specific application, as well as
+handling of callbacks from the applications back to Rex
 
-The adapter part might be necessary to not couple Rex's particular DTO requests with the specific downstream's
+The adapter part is necessary to decouple Rex's particular DTO requests with the specific downstream's
 application API.
 
 The project is configured to build a uber-jar by default.
 
+- `api` module holds any DTOs and REST interfaces that could be used to generate both client and server code
+- `common` module holds any code that can be shared with different modules
+- `rest-adapter` and `rest-workflow` modules are the REST server code that implements the REST interface.
+- `application` module combines all the modules together to form the final Quarkus runner jar
+
 ## Workflow Creation
 Rex requires that we specify for each task:
 - an endpoint to start the request and its payload
-- and endpoint to cancel the request and its payload
+- an endpoint to cancel the request and its payload
 - mdc values
 
 Rex then sends to the endpoint the `StartRequest` DTO which contains:
@@ -51,39 +69,7 @@ graph TD
     Rex -->|StartRequest| GroguAdapterService2(Grogu Adapter Endpoint Service 2) 
     GroguAdapterService2 -->|Service 2 Body| ActualService2(Actual Service 2 API)
 ```
-
-## Running the application in dev mode
-
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
-
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
-
-## Packaging and running the application
-
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-
-## Creating a native executable
-
-You can create a native executable using: 
-```shell script
-./mvnw package -Pnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/dingrogu-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
-
-# House Rules
-
-- We only use Jackson for JSON serialization
+## Future Rex features to explore
+- Unique queue per workflow to have QoS and its own queue size
+- Atomic running of group of tasks; if there's a failure, the group of tasks are run again
+- Query Rex for the current state of affairs to get previous run data 

@@ -40,4 +40,4 @@ nb-configuration.xml
 .env
 
 # Ignore auto-generated java code
-/src/main/java/org/jboss/pnc/dingrogu/Constants.java
+/common/src/main/java/org/jboss/pnc/dingrogu/common/Constants.java
