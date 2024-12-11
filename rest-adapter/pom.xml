@@ -15,6 +15,10 @@
             <artifactId>api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.pnc.dingrogu</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>

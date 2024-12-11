@@ -3,7 +3,11 @@ dingrogu:
   url: http://localhost:8080
 rexclient:
   url: http://rex-newcastle-devel.apps.ocp-c1.prod.psi.redhat.com
+
 quarkus:
+  arc:
+    # Do not remove the adapter implementations since we'll dynamically use them in the adapter endpoint
+    unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
   oidc:
     enabled: false
   oidc-client:

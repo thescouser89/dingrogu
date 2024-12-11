@@ -1,4 +1,4 @@
-package org.jboss.pnc.dingrogu.restworkflow.rest.version;
+package org.jboss.pnc.dingrogu.restworkflow.rest;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -8,6 +8,9 @@ import org.jboss.pnc.dingrogu.common.Constants;
 
 import java.time.ZonedDateTime;
 
+/**
+ * Version endpoint I wasn't sure whether to put it here or in the rest-adapter module so it just stays here for now!
+ */
 @Path("/version")
 public class Version {
 

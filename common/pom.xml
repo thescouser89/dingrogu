@@ -23,6 +23,14 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.rex</groupId>
+            <artifactId>rex-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.rex</groupId>
+            <artifactId>rex-model</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
