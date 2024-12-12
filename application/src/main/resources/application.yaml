@@ -10,6 +10,9 @@ quarkus:
     unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
   swagger-ui:
     always-include: true
+  otel:
+    sdk:
+      disabled: true
   oidc:
     enabled: false
   oidc-client:
