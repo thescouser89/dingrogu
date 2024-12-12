@@ -5,8 +5,8 @@ import jakarta.ws.rs.Path;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
 import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
-import org.jboss.pnc.dingrogu.api.dto.RepourCloneResponse;
-import org.jboss.pnc.dingrogu.api.dto.RepourCreateRepositoryResponse;
+import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneResponse;
+import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryResponse;
 
 @Path("/")
 @RegisterRestClient

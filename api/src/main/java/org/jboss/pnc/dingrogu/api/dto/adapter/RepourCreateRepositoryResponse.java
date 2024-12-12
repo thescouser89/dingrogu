@@ -1,4 +1,4 @@
-package org.jboss.pnc.dingrogu.api.dto;
+package org.jboss.pnc.dingrogu.api.dto.adapter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

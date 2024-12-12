@@ -1,12 +1,15 @@
 # dingrogu
 
-The application configures workflows to run on [Rex](https://github.com/project-ncl/rex). A particular workflow can consists of multiple Rex tasks interlinked together. Those Rex tasks will then coordinate with our services via this application's `adapter` endpoints. The latter acts as the bridge between the Rex world (generic task coordinator) and PNC services.
+The application configures workflows to run on [Rex](https://github.com/project-ncl/rex). A particular workflow can consist of multiple Rex tasks
+interlinked together. Each Rex task represents a particular step that needs to be run to achieve the overall goal of the
+workflow. Each Rex task will coordinate with a PNC service via Dingrogu's `adapter` endpoint.
+The latter acts as the bridge between the Rex world (generic task coordinator with its own DTOs) and the PNC services.
 
 We want to have workflows for:
 - repository creation (talking with [Repour](https://github.com/project-ncl/repour))
-- milestone release
-- build process
-- deliverables-analysis
+- brew push (talking with [Causeway](https://github.com/project-ncl/causeway))
+- build process (multiple applications)
+- deliverables-analysis (talking with [Deliverables Analyzer](https://github.com/project-ncl/deliverables-analyzer/))
 
 ## Packaging and Running the application
 
@@ -16,73 +19,60 @@ You can run your application using:
 java -jar application/target/dingrogu-runner.jar
 ```
 
-# House Rules
-- We only use Jackson for JSON serialization
-
-# Architecture
-This application consists of 2 parts:
-- The creation of the workflow to send to Rex (`rest-workflow` module)
-- An adapter part that translates Rex's `StartRequest` and `StopRequest` (aka cancel) DTOs to the specific application, as well as
-handling of callbacks from the applications back to Rex
-
-Rex, the adapter part, and how everything is internlinked is explained in the following sections.
-
-The adapter part is necessary to decouple Rex's particular DTO requests with the specific downstream's
-application API.
-
 The project is configured to build a uber-jar by default.
 
-- `api` module holds any DTOs and REST interfaces that could be used to generate both client and server code
-- `common` module holds any code that can be shared with different modules
-- `rest-adapter` and `rest-workflow` modules are the REST server code that implements the REST interface.
-- `application` module combines all the modules together to form the final Quarkus runner jar
-
 # Rex Tutorial
-When creating the tasks to send to Rex, we'll create a graph request containing tasks, and the dependencies between tasks. Each graph request has a unique correlation id.
+When creating the tasks to send to Rex, we'll create a graph request (aka `workflow` in Dingrogu) containing tasks, and
+the dependencies between the tasks. Each graph request has its own unique correlation id.
 
-The task uses the `Request` DTO to tell Rex:
-- which service it needs to send the request
+## Task
+Each task uses the `Request` DTO to tell Rex:
+
+- an endpoint to start the request and its payload
+- an endpoint to cancel the request and its payload
 - the payload and headers and the HTTP method
+- mdc values
 
 The `Request` we define in the graph request gets transformed by Rex into:
 - `StartRequest`
 - `StopRequest`
+DTOs before sending that DTO to the target service.
 
-DTOs before sending that DTO to the service. The `Request` attachment becomes the `StartRequest` payload.
-
-```mermaid
-graph TD
-    A(CreateGraphRequest) -->|Request| Rex(Rex tasks)
-    Rex -->|StartRequest| Service 
-```
-## Workflow
-A workflow is the set of tasks we need to run to coordinate a particular process, and the dependency link between them to run the tasks in sequence. This is equivalent to a BPM workflow if you are familar with BPM. A workflow in Dingrogu is equivalent to the graph we'll send to Rex to coordinate the tasks.
-
-```mermaid
-graph TD
-    A(CreateGraphRequest generated from Dingrogu) -->|Request| Rex(Rex tasks)
-    Rex -->|StartRequest| DinGroguAdapterService1(Dingrogu Adapter Endpoint Service 1) 
-    DinGroguAdapterService1-->|Service 1 Body| ActualService1(Actual Service 1 API)
-    Rex -->|StartRequest| DinGroguAdapterService2(Dingrogu Adapter Endpoint Service 2) 
-    DinGroguAdapterService2 -->|Service 2 Body| ActualService2(Actual Service 2 API)
-```
-Rex requires that we specify for each task:
-- an endpoint to start the request and its payload
-- an endpoint to cancel the request and its payload
-- mdc values
-
-Rex then sends to the endpoint the `StartRequest` DTO which contains:
+The `StartRequest` DTO contains:
 - positiveCallback
 - negativeCallback
 - payload
 - mdc map
 - taskResults map (in case a task needs the result of a dependant task)
+ 
+```mermaid
+graph TD
+    Rex(Rex Task) -->|StartRequest| Service
+    Rex -->|StopRequest for cancel| Service 
+```
 
-Since Rex sends the `StartRequest` DTO to the targetted service, and none of the PNC service understands that DTO, we need an adapter endpoint to translate the `StartRequest` DTO to the service's DTO.
+## Workflow
+A workflow (Dingrogu term) is the set of tasks we need to run to coordinate a particular process, and the dependency
+link between them to run the tasks in sequence. A workflow in Dingrogu is equivalent to the graph we'll send to Rex to
+coordinate the tasks.
+
+```mermaid
+graph TD
+    A(CreateGraphRequest generated from Dingrogu) -->|Request 1| Rex1(Rex task 1)
+    A(CreateGraphRequest generated from Dingrogu) -->|Request 2| Rex2(Rex task 2)
+    Rex1 -->|StartRequest| DinGroguAdapterService1(Dingrogu Adapter Endpoint Service 1) 
+    DinGroguAdapterService1-->|Service 1 Body| ActualService1(Actual Service 1 API)
+    Rex2 -->|StartRequest| DinGroguAdapterService2(Dingrogu Adapter Endpoint Service 2) 
+    DinGroguAdapterService2 -->|Service 2 Body| ActualService2(Actual Service 2 API)
+```
+
+## Adapter Endpoint purpose
+Since Rex sends the `StartRequest` DTO to the targeted service, and none of the PNC services understands that DTO,
+we need an adapter endpoint to translate the `StartRequest` DTO to the service's DTO.
 
 This in turn requires the need to share enough information to the adapter endpoints to be able to send the right request.
 
-### Coordination between workflow, adapter endpoint, and Rex
+# Coordination between workflow, adapter endpoint, and Rex
 To be able to track the relationship between a particular workflow, the adapter endpoint, and Rex, we do the following:
 
 ```mermaid
@@ -92,11 +82,14 @@ graph TD
     Dingrogu -->|2 Dingrogu generates a unique correlation id for the graph request to Rex| Rex
 ```
 
-When a requestor sends a request to start a workflow, Dingrogru generates a unique correlation id and sends it back to the requestor. The requestor can then use that id to cancel the workflow, or to track the progress of the workflow.
+When a requester sends a request to start a workflow, Dingrogru generates a unique correlation id and sends it back to
+the requester. The requester can then use that id to cancel the workflow, or to track the progress of the workflow.
 
-Dingrogu uses the same correlation id for the graph request to Rex. This allows Dingrogu to forward any future request from the requestor for that workflow to Rex easily (like cancelling a workflow run).
+Dingrogu uses the same correlation id for the graph request it submits to Rex. This allows Dingrogu to forward any
+future request from the requester for that workflow to Rex (like cancelling a workflow run).
 
-This is also useful for the adapter endpoints: they will be provided with the correlation id for both the request and the callback, which they can potentially use to query Rex on the status of the different tasks for that correlation id.
+This is also useful for the adapter endpoints: they will be provided with the correlation id for both the request and
+the callback, which they can potentially use to query Rex on the status of the different tasks for that correlation id.
 
 Sending a request from a Rex task to the PNC service via the adapter
 ```mermaid
@@ -122,7 +115,7 @@ Workflow:
 POST /workflow/<name>/start
 
 # Cancelling a workflow
-POST /workflow/<name>/cancel
+POST /workflow/id/<correlation id>/cancel
 ```
 
 Adapter:
@@ -139,6 +132,27 @@ POST /adapter/<name of adapter task>/<correlation id>/cancel
 
 For now, a specific adapter endpoint is implemented to only satisfy a specific Rex task. We may change this in the future.
 
+# Architecture
+This application consists of 2 parts:
+- The creation of the workflow to send to Rex (`rest-workflow` module)
+- An adapter part (`rest-adapter` module) that translates Rex's `StartRequest` and `StopRequest` (aka cancel) DTOs to
+  the specific application DTO, as well as handling of callbacks from the application back to Rex
+
+Rex, the adapter part, and how everything is interlinked together is explained in the following sections.
+
+- `common` module holds any code that can be shared with different modules
+- `api` module holds any DTOs and REST interfaces that could be used to generate both client and server code
+- `rest-adapter` and `rest-workflow` modules are the REST server code that implements the REST interface.
+- `application` module combines all the modules together to form the final Quarkus runner jar
+
+The WorkflowEndpoint uses the implementations of the `Workflow` interface to generate the full graph request for Rex.
+The `Workflow` implementations use the `Adapter` implementations to generate the specific Rex task DTO, then links the
+Rex tasks together.
+
+The `Adapter` implementations are also used to handle the translation of Rex's `StartRequest` and `StopRequest` to the
+specific PNC service.
+
+Each Rex task has a corresponding `Adapter` implementation.
 
 ## Future Rex features to explore
 - Unique queue per workflow to have QoS and its own queue size
