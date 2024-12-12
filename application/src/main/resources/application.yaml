@@ -8,6 +8,8 @@ quarkus:
   arc:
     # Do not remove the adapter implementations since we'll dynamically use them in the adapter endpoint
     unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
+  swagger-ui:
+    always-include: true
   oidc:
     enabled: false
   oidc-client:

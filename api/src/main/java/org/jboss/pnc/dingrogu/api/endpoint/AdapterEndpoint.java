@@ -7,6 +7,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -17,6 +18,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/")
+@Tag(name = "Adapter", description = "Endpoints to receive Rex task request and submit request to PNC service")
 public interface AdapterEndpoint {
 
     String START = "/adapter/{name}/{correlationId}/start";
