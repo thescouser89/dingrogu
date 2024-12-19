@@ -34,6 +34,10 @@
             <groupId>org.jboss.pnc.dingrogu</groupId>
             <artifactId>rest-adapter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-opentelemetry</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
