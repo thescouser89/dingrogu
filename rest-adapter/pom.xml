@@ -34,5 +34,13 @@
             <groupId>org.jboss.pnc.rex</groupId>
             <artifactId>rex-model</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-modules-jackson</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -132,6 +132,18 @@
                 <version>1.18.36</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.konghq</groupId>
+                <artifactId>unirest-java-core</artifactId>
+                <version>4.4.5</version>
+            </dependency>
+
+            <!-- OR maybe you like Jackson better? -->
+            <dependency>
+                <groupId>com.konghq</groupId>
+                <artifactId>unirest-modules-jackson</artifactId>
+                <version>4.4.5</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <repositories>

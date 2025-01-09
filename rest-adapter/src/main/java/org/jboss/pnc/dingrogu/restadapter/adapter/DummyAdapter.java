@@ -28,7 +28,7 @@ public class DummyAdapter implements Adapter<Object> {
 
     @Override
     public void callback(String correlationId, Object object) {
-        // do nothing
+        // TODO: send result to Rex via the positive/negative callback
     }
 
     @Override
