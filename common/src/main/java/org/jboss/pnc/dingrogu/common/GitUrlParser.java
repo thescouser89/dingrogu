@@ -1,5 +1,9 @@
 package org.jboss.pnc.dingrogu.common;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +17,7 @@ import static java.util.regex.Pattern.compile;
  *
  * @author Jakub Senko
  */
+@Slf4j
 public class GitUrlParser {
     public static class GitUrlData {
         private String domain;
@@ -127,4 +132,33 @@ public class GitUrlParser {
             }
         }
     }
+
+    /**
+     * Transforms the readwrite SCM url to the readoonly one. It assumes we are using Gerrit with git+ssh protocol in
+     * url or GitLab with SCP-like git url format.
+     *
+     * For Gerrit it replaces the protocol for "https" and adds "/gerrit" as the first path element.
+     *
+     * For GitLab it replaces the "git@" username with "https" protocol and replaces colon separating the hostname from
+     * path with a slash.
+     */
+    public static String scmRepoURLReadOnly(String scmUrl) {
+
+        if (scmUrl.startsWith("git@")) {
+            // GitLab
+            String result = scmUrl.replaceFirst("^git@", "https://");
+            return result.replaceAll("(://[^:/]+):(.*)$", "$1/$2");
+        } else {
+            // Gerrit
+            try {
+                URI uri = new URI(scmUrl);
+                return "https" + "://" + uri.getHost() + "/gerrit" + uri.getPath();
+
+            } catch (URISyntaxException e) {
+                log.error("Cannot parse scm: {} to generate readonly repo", scmUrl, e);
+                return null;
+            }
+        }
+    }
+
 }
