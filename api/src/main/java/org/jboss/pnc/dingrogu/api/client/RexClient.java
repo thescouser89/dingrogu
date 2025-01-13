@@ -50,6 +50,9 @@ public class RexClient {
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
+            Log.info(response.message());
+            Log.info("Is successful? " + response.isSuccessful());
+            Log.info(response.toString());
             Log.info(response.body().string());
         }
 
@@ -68,6 +71,9 @@ public class RexClient {
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
+            Log.info(response.message());
+            Log.info("Is successful? " + response.isSuccessful());
+            Log.info(response.toString());
             Log.info(response.body().string());
         }
     }
