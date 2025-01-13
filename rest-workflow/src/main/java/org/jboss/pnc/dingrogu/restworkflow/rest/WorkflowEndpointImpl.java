@@ -7,6 +7,7 @@ import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.BuildWorkflow;
@@ -59,8 +60,8 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     }
 
     @Override
-    public CorrelationId startDummyWorkflow(Object object) {
-        return dummyWorkflow.submitWorkflow(object);
+    public CorrelationId startDummyWorkflow(DummyWorkflowDTO dummyWorkflowDTO) {
+        return dummyWorkflow.submitWorkflow(dummyWorkflowDTO);
     }
 
     public Response cancelWorkflow(String correlationId) {

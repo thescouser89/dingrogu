@@ -25,7 +25,7 @@ import java.util.List;
  */
 @ApplicationScoped
 @Slf4j
-public class DummyAdapter implements Adapter<Object> {
+public class DummyAdapter implements Adapter<DummyDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     String dingroguUrl;
@@ -65,13 +65,13 @@ public class DummyAdapter implements Adapter<Object> {
     }
 
     @Override
-    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, Object object) throws Exception {
+    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, DummyDTO dummyDTO) throws Exception {
 
         Request dummyRequest = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
-                object);
+                dummyDTO);
 
         return CreateTaskDTO.builder()
                 .name(correlationId + getName())
