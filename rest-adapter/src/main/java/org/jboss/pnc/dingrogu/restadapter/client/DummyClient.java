@@ -15,11 +15,15 @@ public class DummyClient {
 
         DummyServiceRequestDTO request = DummyServiceRequestDTO.builder().callbackUrl(callbackUrl).build();
         HttpResponse<JsonNode> response = Unirest.post(dummyUrl)
-                .header("accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
                 .body(request)
                 .asJson();
 
         if (!response.isSuccess()) {
+            Log.info(response.getStatus());
+            Log.info(response.getStatusText());
+            Log.info(response.getBody().toPrettyString());
             throw new RuntimeException("Request didn't go through");
         }
     }
