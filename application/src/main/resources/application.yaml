@@ -16,7 +16,7 @@ quarkus:
   oidc:
     enabled: false
   oidc-client:
-    enabled: false
+    enabled: true
     auth-server-url: http://localhost:8180/auth/realms/quarkus
     client-id: dustin
     credentials:
