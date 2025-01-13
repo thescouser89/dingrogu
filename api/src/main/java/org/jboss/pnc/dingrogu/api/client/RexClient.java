@@ -46,7 +46,7 @@ public class RexClient {
 
         Request request = new Request.Builder().url(url)
                 .post(requestBody)
-                .addHeader("Authentication", "Bearer " + token.getAccessToken())
+                .addHeader("Authorization", "Bearer " + token.getAccessToken())
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -67,7 +67,7 @@ public class RexClient {
         Log.info("About to submit callback: " + objectMapper.writeValueAsString(object));
         Request request = new Request.Builder().url(url)
                 .post(requestBody)
-                .addHeader("Authentication", "Bearer " + token.getAccessToken())
+                .addHeader("Authorization", "Bearer " + token.getAccessToken())
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
