@@ -1,5 +1,7 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -36,16 +38,20 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     @Inject
     RexClient rexClient;
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @Override
     public void start(String correlationId, StartRequest startRequest) {
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
-        DummyDTO dummyDTO = (DummyDTO) startRequest.getPayload();
+        Log.info(startRequest.getPayload().toString());
+        DummyDTO dummyDTO = objectMapper.convertValue(startRequest.getPayload(), DummyDTO.class);
         dummyClient.start(dummyDTO.getDummyServiceUrl(), callbackUrl);
     }
 
     @Override
     public void callback(String correlationId, Object object) {
-        DummyServiceResponseDTO response = (DummyServiceResponseDTO) object;
+        DummyServiceResponseDTO response = objectMapper.convertValue(object, DummyServiceResponseDTO.class);
         log.info("DummyService replied with: {}", response.status);
         try {
             rexClient.invokeSuccessCallback(correlationId + getName(), response);
