@@ -1,9 +1,16 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.dingrogu.api.client.RexClient;
+import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
+import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.dingrogu.restadapter.client.DummyClient;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -17,23 +24,40 @@ import java.util.List;
  * Dummy workflow
  */
 @ApplicationScoped
+@Slf4j
 public class DummyAdapter implements Adapter<Object> {
+
+
+    @ConfigProperty(name = "dingrogu.url")
+    String dingroguUrl;
+
+    @Inject
+    DummyClient dummyClient;
+
+    @Inject
+    RexClient rexClient;
 
     @Override
     public void start(String correlationId, StartRequest startRequest) {
-        Request callback = startRequest.getPositiveCallback();
-
-        // TODO: wait a bit, then send the callback to Rex
+        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
+        DummyDTO dummyDTO = (DummyDTO) startRequest.getPayload();
+        dummyClient.start(dummyDTO.getDummyServiceUrl(), callbackUrl);
     }
 
     @Override
     public void callback(String correlationId, Object object) {
-        // TODO: send result to Rex via the positive/negative callback
+        DummyServiceResponseDTO response = (DummyServiceResponseDTO) object;
+        log.info("DummyService replied with: {}", response.status);
+        try {
+            rexClient.invokeSuccessCallback(correlationId + getName(), response);
+        } catch (Exception e) {
+            log.error("Error happened in callback adapter", e);
+        }
     }
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        // do nothing
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -51,7 +75,7 @@ public class DummyAdapter implements Adapter<Object> {
                 object);
 
         return CreateTaskDTO.builder()
-                .name(getName())
+                .name(correlationId + getName())
                 .remoteStart(dummyRequest)
                 .configuration(new ConfigurationDTO())
                 .build();
