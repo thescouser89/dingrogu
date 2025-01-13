@@ -11,6 +11,7 @@ import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 
 /**
@@ -71,7 +72,7 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/dummy/start")
     @POST
-    public CorrelationId startDummyWorkflow(Object object);
+    public CorrelationId startDummyWorkflow(DummyWorkflowDTO dummyWorkflowDTO);
 
     /**
      * Cancel a particular workflow, given its correlationId

@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
@@ -10,9 +11,10 @@ import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 public class DummyClient {
 
     public void start(String dummyUrl, String callbackUrl) {
+        Log.info("Sending dummy request to server: " + dummyUrl);
 
         DummyServiceRequestDTO request = DummyServiceRequestDTO.builder().callbackUrl(callbackUrl).build();
-        HttpResponse<JsonNode> response = Unirest.post(dummyUrl + "/dummy-service")
+        HttpResponse<JsonNode> response = Unirest.post(dummyUrl)
                 .header("accept", "application/json")
                 .body(request)
                 .asJson();

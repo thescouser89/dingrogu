@@ -56,6 +56,7 @@ public class RexClient {
     }
 
     public void invokeSuccessCallback(String taskName, Object object) throws Exception {
+        Log.info("Callback to Rex being sent for: " + taskName);
         String url = rexClientUrl + "/rest/callback/" + taskName + "/succeed";
 
         MediaType json = MediaType.get("application/json; charset=utf-8");
