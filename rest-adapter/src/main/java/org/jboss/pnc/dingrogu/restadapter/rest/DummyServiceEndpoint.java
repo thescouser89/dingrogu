@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.MediaType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
-import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
 
@@ -42,10 +41,11 @@ public class DummyServiceEndpoint {
 
             DummyServiceResponseDTO reply = DummyServiceResponseDTO.builder().status("OK").build();
             Log.info("Sending callback to: " + dto.getCallbackUrl());
-            HttpResponse<JsonNode> response = Unirest.post(
-                    dto.getCallbackUrl())
-                    .header("Content-Type", "application/json").header("Accept", "application/json")
-                    .body(reply).asJson();
+            HttpResponse<JsonNode> response = Unirest.post(dto.getCallbackUrl())
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .body(reply)
+                    .asJson();
             Log.info("Dummy response sent");
 
             Log.info(response.getBody().toPrettyString());

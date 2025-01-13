@@ -1,10 +1,14 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
@@ -26,6 +30,12 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     @Inject
     DeliverablesAnalyzerClient deliverablesAnalyzerClient;
 
+    @Inject
+    ObjectMapper objectMapper;
+
+    @Inject
+    RexClient rexClient;
+
     @Override
     public String getName() {
         return "deliverables-analyzer";
@@ -33,7 +43,8 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
 
     @Override
     public void start(String correlationId, StartRequest startRequest) {
-        DeliverablesAnalyzerDTO deliverablesAnalyzerDTO = (DeliverablesAnalyzerDTO) startRequest.getPayload();
+        DeliverablesAnalyzerDTO deliverablesAnalyzerDTO = objectMapper
+                .convertValue(startRequest.getPayload(), DeliverablesAnalyzerDTO.class);
 
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
         Request callback = new Request(Request.Method.POST, URI.create(callbackUrl), null);
@@ -51,13 +62,16 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
 
     @Override
     public void callback(String correlationId, Object object) {
-        // TODO: send reply back to rex
-
+        AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
+        try {
+            rexClient.invokeSuccessCallback(correlationId + getName(), report);
+        } catch (Exception e) {
+            Log.error("Error happened in callback adapter", e);
+        }
     }
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        // TODO
         throw new UnsupportedOperationException();
     }
 

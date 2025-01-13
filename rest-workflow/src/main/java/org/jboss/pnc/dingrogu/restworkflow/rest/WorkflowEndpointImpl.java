@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
-import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
@@ -55,8 +55,9 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     }
 
     @Override
-    public CorrelationId startDeliverablesAnalysisWorkflow(DeliverablesAnalysisWorkDTO deliverablesAnalysisWorkDTO) {
-        return deliverablesAnalysisWorkflow.submitWorkflow(deliverablesAnalysisWorkDTO);
+    public CorrelationId startDeliverablesAnalysisWorkflow(
+            DeliverablesAnalysisWorkflowDTO deliverablesAnalysisWorkflowDTO) {
+        return deliverablesAnalysisWorkflow.submitWorkflow(deliverablesAnalysisWorkflowDTO);
     }
 
     @Override

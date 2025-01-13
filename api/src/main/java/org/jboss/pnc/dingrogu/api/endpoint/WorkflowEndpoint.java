@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
-import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
@@ -62,7 +62,7 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/deliverables-analysis/start")
     @POST
-    public CorrelationId startDeliverablesAnalysisWorkflow(DeliverablesAnalysisWorkDTO buildCreationDTO);
+    public CorrelationId startDeliverablesAnalysisWorkflow(DeliverablesAnalysisWorkflowDTO buildCreationDTO);
 
     /**
      * Start the dummy workflow
