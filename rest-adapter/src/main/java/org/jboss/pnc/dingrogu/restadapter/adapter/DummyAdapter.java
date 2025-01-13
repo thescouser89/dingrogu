@@ -73,9 +73,16 @@ public class DummyAdapter implements Adapter<DummyDTO> {
                 List.of(TaskHelper.getJsonHeader()),
                 dummyDTO);
 
+        Request cancelRequest = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
         return CreateTaskDTO.builder()
                 .name(correlationId + getName())
                 .remoteStart(dummyRequest)
+                .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())
                 .build();
     }

@@ -40,8 +40,9 @@ public class DummyWorkflow implements Workflow<DummyWorkflowDTO> {
 
             Map<String, CreateTaskDTO> vertices = Map.of(task.name, task);
 
-            EdgeDTO edgeDTO = EdgeDTO.builder().source(task.name).target(null).build();
-            Set<EdgeDTO> edges = Set.of(edgeDTO);
+            // EdgeDTO edgeDTO = EdgeDTO.builder().source(task.name).target(null).build();
+            // Set<EdgeDTO> edges = Set.of(edgeDTO);
+            Set<EdgeDTO> edges = Set.of();
 
             CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
             rexClient.submitWorkflow(graphRequest);
