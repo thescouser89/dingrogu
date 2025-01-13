@@ -1,6 +1,5 @@
 package org.jboss.pnc.dingrogu.restadapter.rest;
 
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -28,13 +27,13 @@ public class DummyServiceEndpoint {
 
         executorService.submit(() -> {
             // Sleep so that we run this code after we return success
-            try { Thread.sleep(5000L); } catch (InterruptedException e) {}
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException e) {
+            }
 
             DummyServiceResponseDTO reply = DummyServiceResponseDTO.builder().status("OK").build();
-            Unirest.post(dto.getCallbackUrl())
-                    .header("accept", "application/json")
-                    .body(reply)
-                    .asJson();
+            Unirest.post(dto.getCallbackUrl()).header("accept", "application/json").body(reply).asJson();
             log.info("Dummy response sent");
         });
     }

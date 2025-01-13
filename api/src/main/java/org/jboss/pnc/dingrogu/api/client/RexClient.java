@@ -2,6 +2,7 @@ package org.jboss.pnc.dingrogu.api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -9,7 +10,6 @@ import okhttp3.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
-import org.jboss.pnc.rex.dto.requests.FinishRequest;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 
 import java.net.URI;
@@ -28,8 +28,8 @@ public class RexClient {
     @Inject
     ObjectMapper objectMapper;
 
-    // @Inject
-    // Tokens token;
+    @Inject
+    Tokens token;
 
     @Produces
     public TaskEndpoint getRexTaskEndpoint() {
@@ -46,7 +46,7 @@ public class RexClient {
 
         Request request = new Request.Builder().url(url)
                 .post(requestBody)
-                // .addHeader("Authentication", "Bearer " + token.getAccessToken())
+                .addHeader("Authentication", "Bearer " + token.getAccessToken())
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -54,6 +54,7 @@ public class RexClient {
         }
 
     }
+
     public void invokeSuccessCallback(String taskName, Object object) throws Exception {
         String url = rexClientUrl + "/rest/callback/" + taskName + "/succeed";
 
@@ -62,7 +63,7 @@ public class RexClient {
         Log.info("About to submit callback: " + objectMapper.writeValueAsString(object));
         Request request = new Request.Builder().url(url)
                 .post(requestBody)
-                // .addHeader("Authentication", "Bearer " + token.getAccessToken())
+                .addHeader("Authentication", "Bearer " + token.getAccessToken())
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {

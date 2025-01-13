@@ -27,7 +27,6 @@ import java.util.List;
 @Slf4j
 public class DummyAdapter implements Adapter<Object> {
 
-
     @ConfigProperty(name = "dingrogu.url")
     String dingroguUrl;
 
