@@ -8,6 +8,8 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
@@ -19,7 +21,6 @@ import java.util.concurrent.Executors;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/dummy-service")
-@Slf4j
 public class DummyServiceEndpoint {
 
     ExecutorService executorService = Executors.newFixedThreadPool(5);
@@ -40,9 +41,15 @@ public class DummyServiceEndpoint {
             }
 
             DummyServiceResponseDTO reply = DummyServiceResponseDTO.builder().status("OK").build();
-            Unirest.post(dto.getCallbackUrl()).header("accept", "application/json").body(reply).asJson();
-            log.info("Dummy response sent");
+            Log.info("Sending callback to: " + dto.getCallbackUrl());
+            HttpResponse<JsonNode> response = Unirest.post(
+                    dto.getCallbackUrl())
+                    .header("Content-Type", "application/json").header("Accept", "application/json")
+                    .body(reply).asJson();
             Log.info("Dummy response sent");
+
+            Log.info(response.getBody().toPrettyString());
+            Log.info(response.getStatus());
         });
     }
 }
