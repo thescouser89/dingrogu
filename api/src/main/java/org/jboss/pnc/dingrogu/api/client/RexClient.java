@@ -9,10 +9,14 @@ import jakarta.inject.Inject;
 import okhttp3.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.jboss.pnc.rex.dto.ServerResponseDTO;
+import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 /**
  * I don't know if this RexClient will be replaced by something else in the future, but keeping it for now until
@@ -75,6 +79,28 @@ public class RexClient {
             Log.info("Is successful? " + response.isSuccessful());
             Log.info(response.toString());
             Log.info(response.body().string());
+        }
+    }
+
+    public Object getTaskResponse(String taskName) {
+        String url = rexClientUrl + "/rest/tasks/" + taskName;
+
+        MediaType json = MediaType.get("application/json; charset=utf-8");
+        Request request = new Request.Builder().url(url)
+                .get()
+                .addHeader("Authorization", "Bearer " + token.getAccessToken())
+                .build();
+        try (Response response = CLIENT.newCall(request).execute()) {
+            Log.info(response.message());
+            Log.info("Is successful? " + response.isSuccessful());
+            TaskDTO dto = objectMapper.convertValue(response.body().string(), TaskDTO.class);
+            List<ServerResponseDTO> responses = dto.getServerResponses();
+
+            // get last index
+            ServerResponseDTO serverResponseDTO = responses.get(responses.size() - 1);
+            return serverResponseDTO.getBody();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

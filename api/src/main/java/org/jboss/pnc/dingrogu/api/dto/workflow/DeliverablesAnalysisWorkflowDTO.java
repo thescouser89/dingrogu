@@ -3,11 +3,18 @@ package org.jboss.pnc.dingrogu.api.dto.workflow;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
+
+import java.util.List;
 
 @Jacksonized
 @Data
 @Builder
 public class DeliverablesAnalysisWorkflowDTO {
-    DeliverablesAnalyzerDTO deliverablesAnalyzer;
+    String deliverablesAnalyzerUrl;
+    String orchUrl;
+    String operationId;
+    boolean scratch;
+
+    List<String> urls;
+    String config;
 }
