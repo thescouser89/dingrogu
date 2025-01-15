@@ -25,6 +25,9 @@ public class RepositoryDriverClient {
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
                 .header("Accept", "application/json")
                 .header(MDCHeaderKeys.PROCESS_CONTEXT.getHeaderName(), request.getBuildContentId())
+                .header(MDCHeaderKeys.TMP.getHeaderName(), Boolean.toString(request.isTempBuild()))
+                .header(MDCHeaderKeys.EXP.getHeaderName(), "0")
+                .header(MDCHeaderKeys.USER_ID.getHeaderName(), "dcheung")
                 .body(request)
                 .asObject(RepositoryCreateResponse.class);
 
