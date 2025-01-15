@@ -1,5 +1,7 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -7,6 +9,7 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repour.dto.RepourAdjustCallback;
 import org.jboss.pnc.api.repour.dto.RepourAdjustInternalUrl;
 import org.jboss.pnc.api.repour.dto.RepourAdjustRequest;
+import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
@@ -28,6 +31,12 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
     String dingroguUrl;
 
     @Inject
+    ObjectMapper objectMapper;
+
+    @Inject
+    RexClient rexClient;
+
+    @Inject
     RepourClient repourClient;
 
     @Override
@@ -37,7 +46,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
 
     @Override
     public void start(String correlationId, StartRequest startRequest) {
-        RepourAdjustDTO repourAdjustDTO = (RepourAdjustDTO) startRequest.getPayload();
+        RepourAdjustDTO repourAdjustDTO = objectMapper.convertValue(startRequest.getPayload(), RepourAdjustDTO.class);
 
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
 
@@ -69,9 +78,14 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
 
     @Override
     public void callback(String correlationId, Object object) {
-        RepourAdjustResponse response = (RepourAdjustResponse) object;
 
-        // TODO: send result to Rex via the positive/negative callback
+        RepourAdjustResponse response = objectMapper.convertValue(object, RepourAdjustResponse.class);
+
+        try {
+            rexClient.invokeSuccessCallback(correlationId + getName(), response);
+        } catch (Exception e) {
+            Log.error("Error happened in callback adapter", e);
+        }
     }
 
     @Override
@@ -96,7 +110,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
                 repourAdjustDTO);
 
         return CreateTaskDTO.builder()
-                .name(getName())
+                .name(correlationId + getName())
                 .remoteStart(startAdjust)
                 .remoteCancel(cancelAdjust)
                 .configuration(new ConfigurationDTO())

@@ -1,6 +1,9 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
+import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
@@ -10,15 +13,23 @@ import org.jboss.pnc.api.repour.dto.RepourAdjustRequest;
 @ApplicationScoped
 public class RepourClient {
 
+    @Inject
+    Tokens tokens;
+
     @Retry
     public void adjust(String repourUrl, RepourAdjustRequest request) {
 
         HttpResponse<JsonNode> response = Unirest.post(repourUrl + "/adjust")
-                .header("accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + tokens.getAccessToken())
+                .header("Accept", "application/json")
                 .body(request)
                 .asJson();
 
         if (!response.isSuccess()) {
+            Log.info(response.getStatus());
+            Log.info(response.getStatusText());
+            Log.info(response.getBody().toPrettyString());
             throw new RuntimeException("Request didn't go through");
         }
     }
