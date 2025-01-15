@@ -16,6 +16,7 @@ import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
+import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -60,9 +61,10 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
         Log.info("----------");
         for (String taskName : pastResults.keySet()) {
             Log.info("Past result task: " + taskName);
-            Log.info("Result: " + pastResults.get(taskName).toString());
+            Log.info("Result: " + pastResults.get(taskName));
             try {
-                Log.info(objectMapper.convertValue(pastResults.get(taskName), RepourAdjustResponse.class));
+                ServerResponse serverResponse = objectMapper.convertValue(pastResults.get(taskName), ServerResponse.class);
+                Log.info(objectMapper.convertValue(serverResponse.getBody(), RepourAdjustResponse.class));
             } catch (Exception e) {
                 Log.error("Couldn't be cast to RepourAdjustResponse");
             }
