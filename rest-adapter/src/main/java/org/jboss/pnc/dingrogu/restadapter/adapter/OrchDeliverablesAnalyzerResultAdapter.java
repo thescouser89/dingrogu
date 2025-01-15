@@ -15,12 +15,14 @@ import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
+import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDeliverablesAnalyzerResultDTO> {
@@ -66,6 +68,18 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
         // get previous result from previous process and cast it to its DTO
         AnalysisReport report = rexClient
                 .getTaskResponse(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), AnalysisReport.class);
+
+        Map<String, Object> pastResults = startRequest.getTaskResults();
+        Object pastResult = pastResults.get(deliverablesAnalyzerAdapter.getRexTaskName(correlationId));
+        AnalysisReport analysisReport;
+        if (pastResult == null) {
+            analysisReport = rexClient
+                    .getTaskResponse(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), AnalysisReport.class);
+        } else {
+            Log.info("Obtained past response in request");
+            ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
+            analysisReport = objectMapper.convertValue(serverResponse.getBody(), AnalysisReport.class);
+        }
 
         // generate result for Orch
         AnalysisResult result = AnalysisResult.builder()

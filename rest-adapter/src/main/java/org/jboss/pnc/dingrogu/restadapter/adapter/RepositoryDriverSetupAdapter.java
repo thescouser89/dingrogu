@@ -58,24 +58,16 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     public void start(String correlationId, StartRequest startRequest) {
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
-        Log.info("----------");
-        for (String taskName : pastResults.keySet()) {
-            Log.info("Past result task: " + taskName);
-            Log.info("Result: " + pastResults.get(taskName));
-            try {
-                ServerResponse serverResponse = objectMapper
-                        .convertValue(pastResults.get(taskName), ServerResponse.class);
-                Log.info(objectMapper.convertValue(serverResponse.getBody(), RepourAdjustResponse.class));
-            } catch (Exception e) {
-                Log.error("Couldn't be cast to RepourAdjustResponse");
-            }
-            Log.info("~-~");
+        Object pastResult = pastResults.get(repour.getRexTaskName(correlationId));
+        RepourAdjustResponse repourResponse;
+        if (pastResult == null) {
+            repourResponse = rexClient
+                    .getTaskResponse(repour.getRexTaskName(correlationId), RepourAdjustResponse.class);
+        } else {
+            Log.info("Obtained past response in request");
+            ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
+            repourResponse = objectMapper.convertValue(serverResponse.getBody(), RepourAdjustResponse.class);
         }
-        Log.info("----------");
-
-        // get previous task result
-        RepourAdjustResponse repourResponse = rexClient
-                .getTaskResponse(repour.getRexTaskName(correlationId), RepourAdjustResponse.class);
 
         List<String> repositoriesToCreate = repourResponse.getRemoveRepositories();
 
