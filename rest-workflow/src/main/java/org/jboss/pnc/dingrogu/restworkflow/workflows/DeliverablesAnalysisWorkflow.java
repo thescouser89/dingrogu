@@ -61,7 +61,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
             Map<String, CreateTaskDTO> vertices = Map.of(taskAnalyze.name, taskAnalyze, taskResult.name, taskResult);
 
-            EdgeDTO edgeDTO = EdgeDTO.builder().source(taskAnalyze.name).target(taskResult.name).build();
+            EdgeDTO edgeDTO = EdgeDTO.builder().source(taskResult.name).target(taskAnalyze.name).build();
             Set<EdgeDTO> edges = Set.of(edgeDTO);
 
             CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);

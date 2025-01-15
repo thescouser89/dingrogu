@@ -93,7 +93,7 @@ public class RexClient {
         try (Response response = CLIENT.newCall(request).execute()) {
             Log.info(response.message());
             Log.info("Is successful? " + response.isSuccessful());
-            TaskDTO dto = objectMapper.convertValue(response.body().string(), TaskDTO.class);
+            TaskDTO dto = objectMapper.readValue(response.body().string(), TaskDTO.class);
             List<ServerResponseDTO> responses = dto.getServerResponses();
 
             // get last index
