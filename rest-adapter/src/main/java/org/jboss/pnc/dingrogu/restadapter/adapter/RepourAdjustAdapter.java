@@ -82,7 +82,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
         RepourAdjustResponse response = objectMapper.convertValue(object, RepourAdjustResponse.class);
 
         try {
-            rexClient.invokeSuccessCallback(correlationId + getAdapterName(), response);
+            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
