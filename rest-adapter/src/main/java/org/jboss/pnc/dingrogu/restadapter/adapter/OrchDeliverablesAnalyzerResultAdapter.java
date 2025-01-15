@@ -113,7 +113,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
                 .name(getRexTaskName(correlationId))
                 .remoteStart(request)
                 .remoteCancel(cancelRequest)
-                .configuration(new ConfigurationDTO())
+                .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
                 .build();
     }
 }

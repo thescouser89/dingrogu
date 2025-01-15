@@ -123,7 +123,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startSetup)
                 .remoteCancel(cancelSetup)
-                .configuration(new ConfigurationDTO())
+                .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
                 .build();
     }
 }
