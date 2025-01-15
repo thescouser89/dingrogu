@@ -113,7 +113,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startAdjust)
                 .remoteCancel(cancelAdjust)
-                .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
+                .configuration(new ConfigurationDTO())
                 .build();
     }
 }
