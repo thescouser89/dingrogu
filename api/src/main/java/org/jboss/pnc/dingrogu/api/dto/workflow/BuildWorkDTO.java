@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 
+import java.util.Map;
+
 @Jacksonized
 @Data
 @Builder
@@ -20,6 +22,7 @@ public class BuildWorkDTO {
     String buildType;
     String defaultAlignmentParams;
     boolean brewPullActive;
+    Map<String, String> genericParameters;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         return RepourAdjustDTO.builder()
@@ -32,6 +35,7 @@ public class BuildWorkDTO {
                 .id(id)
                 .buildType(buildType)
                 .defaultAlignmentParams(defaultAlignmentParams)
+                .genericParameters(genericParameters)
                 .build();
     }
 }
