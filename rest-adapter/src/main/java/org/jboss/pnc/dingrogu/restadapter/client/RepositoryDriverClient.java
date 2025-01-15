@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 
@@ -18,10 +19,12 @@ public class RepositoryDriverClient {
 
     @Retry
     public RepositoryCreateResponse setup(String repositoryDriverUrl, RepositoryCreateRequest request) {
+        // TODO: set all MDC values properly
         HttpResponse<RepositoryCreateResponse> response = Unirest.post(repositoryDriverUrl + "/create")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
                 .header("Accept", "application/json")
+                .header(MDCHeaderKeys.PROCESS_CONTEXT.getHeaderName(), request.getBuildContentId())
                 .body(request)
                 .asObject(RepositoryCreateResponse.class);
 

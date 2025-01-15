@@ -59,8 +59,8 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Log.info("----------");
         for (String taskName : pastResults.keySet()) {
-            Log.infov("Past result task: %s", taskName);
-            Log.infov("Result: %s", pastResults.get(taskName).toString());
+            Log.info("Past result task: " + taskName);
+            Log.info("Result: " + pastResults.get(taskName).toString());
             try {
                 Log.info(objectMapper.convertValue(pastResults.get(taskName), RepourAdjustResponse.class));
             } catch (Exception e) {
