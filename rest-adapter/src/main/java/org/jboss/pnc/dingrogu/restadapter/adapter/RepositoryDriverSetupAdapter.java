@@ -21,6 +21,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,6 +55,20 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
      */
     @Override
     public void start(String correlationId, StartRequest startRequest) {
+
+        Map<String, Object> pastResults = startRequest.getTaskResults();
+        Log.info("----------");
+        for (String taskName : pastResults.keySet()) {
+            Log.infov("Past result task: %s", taskName);
+            Log.infov("Result: %s", pastResults.get(taskName).toString());
+            try {
+                Log.info(objectMapper.convertValue(pastResults.get(taskName), RepourAdjustResponse.class));
+            } catch (Exception e) {
+                Log.error("Couldn't be cast to RepourAdjustResponse");
+            }
+            Log.info("~-~");
+        }
+        Log.info("----------");
 
         // get previous task result
         RepourAdjustResponse repourResponse = rexClient
