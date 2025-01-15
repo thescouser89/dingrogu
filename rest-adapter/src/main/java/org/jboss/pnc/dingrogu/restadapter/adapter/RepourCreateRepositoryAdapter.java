@@ -35,7 +35,7 @@ public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
     }
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "repour-create-repository";
     }
 
@@ -47,12 +47,12 @@ public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
 
         Request startInternalScm = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 repourCreateRepositoryDTO);
 
         return CreateTaskDTO.builder()
-                .name(getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(startInternalScm)
                 .configuration(new ConfigurationDTO())
                 .build();

@@ -40,7 +40,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "repository-driver-setup";
     }
 
@@ -55,7 +55,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         // get previous task result
         RepourAdjustResponse repourResponse = rexClient
-                .getTaskResponse(correlationId + repour.getName(), RepourAdjustResponse.class);
+                .getTaskResponse(repour.getRexTaskName(correlationId), RepourAdjustResponse.class);
 
         List<String> repositoriesToCreate = repourResponse.getRemoveRepositories();
 
@@ -78,7 +78,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 Log.error(e);
             }
             try {
-                rexClient.invokeSuccessCallback(correlationId + getName(), response);
+                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for repository driver create", e);
             }
@@ -109,18 +109,18 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         Request startSetup = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 repositorySetupDTO);
 
         Request cancelSetup = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 repositorySetupDTO);
 
         return CreateTaskDTO.builder()
-                .name(correlationId + getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(startSetup)
                 .remoteCancel(cancelSetup)
                 .configuration(new ConfigurationDTO())

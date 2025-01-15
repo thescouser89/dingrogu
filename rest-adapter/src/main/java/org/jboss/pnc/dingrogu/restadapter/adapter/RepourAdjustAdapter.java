@@ -40,7 +40,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
     RepourClient repourClient;
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "repour-adjust";
     }
 
@@ -48,7 +48,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
     public void start(String correlationId, StartRequest startRequest) {
         RepourAdjustDTO repourAdjustDTO = objectMapper.convertValue(startRequest.getPayload(), RepourAdjustDTO.class);
 
-        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
+        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
 
         // Generate DTO to submit to Repour
         RepourAdjustInternalUrl internalUrl = RepourAdjustInternalUrl.builder()
@@ -82,7 +82,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
         RepourAdjustResponse response = objectMapper.convertValue(object, RepourAdjustResponse.class);
 
         try {
-            rexClient.invokeSuccessCallback(correlationId + getName(), response);
+            rexClient.invokeSuccessCallback(correlationId + getAdapterName(), response);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
@@ -99,18 +99,18 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
             throws Exception {
         Request startAdjust = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 repourAdjustDTO);
 
         Request cancelAdjust = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 repourAdjustDTO);
 
         return CreateTaskDTO.builder()
-                .name(correlationId + getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(startAdjust)
                 .remoteCancel(cancelAdjust)
                 .configuration(new ConfigurationDTO())

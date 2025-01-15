@@ -33,7 +33,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
     }
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "repour-clone-repository";
     }
 
@@ -43,18 +43,22 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
 
         Request startCloneScm = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 repourDTO);
 
         // TODO: it's really /cancel/taskId
         Request cancelCloneScm = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()));
 
         // TODO: need to notify PNC-Orch
 
-        return CreateTaskDTO.builder().name(getName()).remoteStart(startCloneScm).remoteCancel(cancelCloneScm).build();
+        return CreateTaskDTO.builder()
+                .name(getRexTaskName(correlationId))
+                .remoteStart(startCloneScm)
+                .remoteCancel(cancelCloneScm)
+                .build();
     }
 }

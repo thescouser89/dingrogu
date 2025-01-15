@@ -17,7 +17,7 @@ import java.util.List;
 public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "causeway-brew-push";
     }
 
@@ -42,18 +42,18 @@ public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
 
         Request startRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 brewPushDTO);
 
         Request cancelRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 brewPushDTO);
 
         return CreateTaskDTO.builder()
-                .name(getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(startRequest)
                 .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())

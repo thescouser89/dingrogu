@@ -40,7 +40,18 @@ public interface Adapter<T> {
      *
      * @return name of the adapter and the name of the Rex task
      */
-    String getName();
+    String getAdapterName();
+
+    /**
+     * Get the rex task name that we'll submit to Rex. We prepend the correlation id to it to make the Rex task name
+     * unique
+     *
+     * @param correlationId correlation id
+     * @return Name of the Rex task
+     */
+    default String getRexTaskName(String correlationId) {
+        return correlationId + "-" + getAdapterName();
+    }
 
     /**
      * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint

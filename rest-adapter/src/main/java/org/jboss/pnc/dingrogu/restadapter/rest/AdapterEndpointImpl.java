@@ -43,7 +43,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
     public void setup() {
 
         for (Adapter<?> adapter : adapters) {
-            adapterNameMap.put(adapter.getName(), adapter);
+            adapterNameMap.put(adapter.getAdapterName(), adapter);
         }
     }
 

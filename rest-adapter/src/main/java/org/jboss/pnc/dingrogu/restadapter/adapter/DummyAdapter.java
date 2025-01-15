@@ -43,7 +43,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
 
     @Override
     public void start(String correlationId, StartRequest startRequest) {
-        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
+        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
         Log.info(startRequest.getPayload().toString());
         DummyDTO dummyDTO = objectMapper.convertValue(startRequest.getPayload(), DummyDTO.class);
         dummyClient.start(dummyDTO.getDummyServiceUrl(), callbackUrl);
@@ -54,7 +54,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
         DummyServiceResponseDTO response = objectMapper.convertValue(object, DummyServiceResponseDTO.class);
         log.info("DummyService replied with: {}", response.status);
         try {
-            rexClient.invokeSuccessCallback(correlationId + getName(), response);
+            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
         } catch (Exception e) {
             log.error("Error happened in callback adapter", e);
         }
@@ -66,7 +66,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     }
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "dummy-adapter";
     }
 
@@ -75,18 +75,18 @@ public class DummyAdapter implements Adapter<DummyDTO> {
 
         Request dummyRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 dummyDTO);
 
         Request cancelRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 null);
 
         return CreateTaskDTO.builder()
-                .name(correlationId + getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(dummyRequest)
                 .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())

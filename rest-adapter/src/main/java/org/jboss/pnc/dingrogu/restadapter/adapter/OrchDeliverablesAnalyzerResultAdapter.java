@@ -41,7 +41,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
     DeliverablesAnalyzerAdapter deliverablesAnalyzerAdapter;
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "orch-dela-result";
     }
 
@@ -51,7 +51,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
         try {
             callback = new Request(
                     Request.Method.POST,
-                    new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId)),
+                    new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId)),
                     List.of(TaskHelper.getJsonHeader()),
                     null);
         } catch (URISyntaxException e) {
@@ -65,7 +65,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
 
         // get previous result from previous process and cast it to its DTO
         AnalysisReport report = rexClient
-                .getTaskResponse(correlationId + deliverablesAnalyzerAdapter.getName(), AnalysisReport.class);
+                .getTaskResponse(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), AnalysisReport.class);
 
         // generate result for Orch
         AnalysisResult result = AnalysisResult.builder()
@@ -81,7 +81,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
     @Override
     public void callback(String correlationId, Object object) {
         try {
-            rexClient.invokeSuccessCallback(correlationId + getName(), null);
+            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
@@ -99,18 +99,18 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
             OrchDeliverablesAnalyzerResultDTO orchDeliverablesAnalyzerResultDTO) throws Exception {
         Request request = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 orchDeliverablesAnalyzerResultDTO);
 
         Request cancelRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 null);
 
         return CreateTaskDTO.builder()
-                .name(correlationId + getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(request)
                 .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())

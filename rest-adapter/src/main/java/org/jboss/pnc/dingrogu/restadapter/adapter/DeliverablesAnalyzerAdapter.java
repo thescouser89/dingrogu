@@ -37,7 +37,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     RexClient rexClient;
 
     @Override
-    public String getName() {
+    public String getAdapterName() {
         return "deliverables-analyzer";
     }
 
@@ -46,7 +46,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
         DeliverablesAnalyzerDTO deliverablesAnalyzerDTO = objectMapper
                 .convertValue(startRequest.getPayload(), DeliverablesAnalyzerDTO.class);
 
-        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
+        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
         Request callback = new Request(Request.Method.POST, URI.create(callbackUrl), List.of());
 
         // TODO: heartbeat
@@ -64,7 +64,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     public void callback(String correlationId, Object object) {
         AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
         try {
-            rexClient.invokeSuccessCallback(correlationId + getName(), report);
+            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), report);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
@@ -82,18 +82,18 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
             DeliverablesAnalyzerDTO deliverablesAnalyzerDTO) throws Exception {
         Request startRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 deliverablesAnalyzerDTO);
 
         Request cancelRequest = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getName(), correlationId)),
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
                 deliverablesAnalyzerDTO);
 
         return CreateTaskDTO.builder()
-                .name(correlationId + getName())
+                .name(getRexTaskName(correlationId))
                 .remoteStart(startRequest)
                 .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())
