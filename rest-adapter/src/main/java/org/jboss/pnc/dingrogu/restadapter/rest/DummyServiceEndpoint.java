@@ -11,18 +11,17 @@ import jakarta.ws.rs.core.MediaType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/dummy-service")
 public class DummyServiceEndpoint {
 
-    ExecutorService executorService = Executors.newFixedThreadPool(5);
+    @Inject
+    ManagedExecutor managedExecutor;
 
     @Inject
     ObjectMapper objectMapper;
@@ -31,7 +30,7 @@ public class DummyServiceEndpoint {
     public void startDummyService(DummyServiceRequestDTO dto) {
 
         Log.info("in dummy service");
-        executorService.submit(() -> {
+        managedExecutor.submit(() -> {
             Log.info("Start of executor service");
             // Sleep so that we run this code after we return success
             try {
