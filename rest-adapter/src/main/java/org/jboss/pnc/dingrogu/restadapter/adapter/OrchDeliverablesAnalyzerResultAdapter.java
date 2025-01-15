@@ -51,7 +51,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
         try {
             callback = new Request(
                     Request.Method.POST,
-                    new URI(AdapterEndpoint.getStartAdapterEndpoint(dingroguUrl, getName(), correlationId)),
+                    new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId)),
                     List.of(TaskHelper.getJsonHeader()),
                     null);
         } catch (URISyntaxException e) {
