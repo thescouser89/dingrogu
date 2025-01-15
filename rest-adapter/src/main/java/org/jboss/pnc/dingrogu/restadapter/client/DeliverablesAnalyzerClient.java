@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 
 @ApplicationScoped
@@ -15,6 +16,7 @@ public class DeliverablesAnalyzerClient {
     @Inject
     Tokens tokens;
 
+    @Retry
     public void analyze(String deliverablesAnalyzerUrl, AnalyzePayload request) {
 
         HttpResponse<JsonNode> response = Unirest.post(deliverablesAnalyzerUrl + "/api/analyze")

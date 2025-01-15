@@ -4,11 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 
 @ApplicationScoped
 public class RepositoryDriverClient {
 
+    @Retry
     public void setup(String repositoryDriverUrl, RepositoryCreateRequest request) {
         HttpResponse<JsonNode> response = Unirest.post(repositoryDriverUrl + "/create")
                 .header("accept", "application/json")

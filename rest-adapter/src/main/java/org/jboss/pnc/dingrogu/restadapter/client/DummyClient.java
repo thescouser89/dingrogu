@@ -5,11 +5,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 
 @ApplicationScoped
 public class DummyClient {
 
+    @Retry
     public void start(String dummyUrl, String callbackUrl) {
         Log.info("Sending dummy request to server: " + dummyUrl);
 

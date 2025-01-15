@@ -27,6 +27,10 @@
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jboss.pnc.rex</groupId>
             <artifactId>rex-api</artifactId>
         </dependency>

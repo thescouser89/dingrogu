@@ -20,7 +20,6 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzerDTO> {

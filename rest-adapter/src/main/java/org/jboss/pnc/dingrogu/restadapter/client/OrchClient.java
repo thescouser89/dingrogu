@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 
 @ApplicationScoped
@@ -15,7 +16,7 @@ public class OrchClient {
     @Inject
     Tokens tokens;
 
-    // TODO
+    @Retry
     public void submitDelAResult(String orchUrl, AnalysisResult result) {
 
         Log.info("Sending dela response to server: " + orchUrl);

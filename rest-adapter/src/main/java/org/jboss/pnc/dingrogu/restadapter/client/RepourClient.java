@@ -4,11 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.repour.dto.RepourAdjustRequest;
 
 @ApplicationScoped
 public class RepourClient {
 
+    @Retry
     public void adjust(String repourUrl, RepourAdjustRequest request) {
 
         HttpResponse<JsonNode> response = Unirest.post(repourUrl + "/adjust")
