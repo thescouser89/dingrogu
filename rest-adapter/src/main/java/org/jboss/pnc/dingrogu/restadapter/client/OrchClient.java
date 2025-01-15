@@ -20,7 +20,7 @@ public class OrchClient {
 
         Log.info("Sending dela response to server: " + orchUrl);
 
-        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/deliverable-analyses/complete")
+        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/rest/v2/deliverable-analyses/complete")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
                 .header("Accept", "application/json")
