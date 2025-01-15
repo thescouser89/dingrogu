@@ -10,6 +10,7 @@ import java.util.Map;
 @Jacksonized
 @Data
 @Builder
+// TODO: use Mapstruct in the future?
 public class BuildWorkDTO {
     String repourUrl;
     String scmRepoURL;
@@ -28,6 +29,7 @@ public class BuildWorkDTO {
         return RepourAdjustDTO.builder()
                 .repourUrl(repourUrl)
                 .scmRepoURL(scmRepoURL)
+                .scmRevision(scmRevision)
                 .preBuildSyncEnabled(preBuildSyncEnabled)
                 .originRepoURL(originRepoURL)
                 .tempBuild(tempBuild)
@@ -35,6 +37,7 @@ public class BuildWorkDTO {
                 .id(id)
                 .buildType(buildType)
                 .defaultAlignmentParams(defaultAlignmentParams)
+                .brewPullActive(brewPullActive)
                 .genericParameters(genericParameters)
                 .build();
     }
