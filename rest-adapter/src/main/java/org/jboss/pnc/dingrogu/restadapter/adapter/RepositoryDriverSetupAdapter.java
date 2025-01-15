@@ -2,6 +2,7 @@ package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildType;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@ApplicationScoped
 public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSetupDTO> {
 
     @Inject

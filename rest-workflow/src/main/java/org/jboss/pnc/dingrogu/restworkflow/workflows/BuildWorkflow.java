@@ -6,6 +6,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
+import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -26,6 +27,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     @Inject
     RepourAdjustAdapter repour;
 
+    @Inject
+    RepositoryDriverSetupAdapter repoSetup;
+
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
 
@@ -34,14 +38,15 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         CorrelationId correlationId = CorrelationId.generateUnique();
 
         try {
-            CreateTaskDTO task = repour
+            CreateTaskDTO taskAlign = repour
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepourAdjustDTO());
+            CreateTaskDTO taskRepoSetup = repoSetup
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverSetupDTO());
 
-            Map<String, CreateTaskDTO> vertices = Map.of(task.name, task);
+            Map<String, CreateTaskDTO> vertices = Map.of(taskAlign.name, taskAlign, taskRepoSetup.name, taskRepoSetup);
 
-            // EdgeDTO edgeDTO = EdgeDTO.builder().source(null).target(task.name).build();
-            // Set<EdgeDTO> edges = Set.of(edgeDTO);
-            Set<EdgeDTO> edges = Set.of();
+            EdgeDTO edgeDTO = EdgeDTO.builder().source(taskRepoSetup.name).target(taskAlign.name).build();
+            Set<EdgeDTO> edges = Set.of(edgeDTO);
 
             CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
             rexClient.submitWorkflow(graphRequest);

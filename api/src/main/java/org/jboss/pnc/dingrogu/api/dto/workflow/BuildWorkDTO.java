@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.api.dto.workflow;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 
 import java.util.Map;
@@ -12,7 +13,10 @@ import java.util.Map;
 @Builder
 // TODO: use Mapstruct in the future?
 public class BuildWorkDTO {
+
     String repourUrl;
+    String repositoryDriverUrl;
+
     String scmRepoURL;
     String scmRevision;
     boolean preBuildSyncEnabled;
@@ -39,6 +43,16 @@ public class BuildWorkDTO {
                 .defaultAlignmentParams(defaultAlignmentParams)
                 .brewPullActive(brewPullActive)
                 .genericParameters(genericParameters)
+                .build();
+    }
+
+    public RepositoryDriverSetupDTO toRepositoryDriverSetupDTO() {
+        return RepositoryDriverSetupDTO.builder()
+                .repositoryDriverUrl(repositoryDriverUrl)
+                .buildContentId(id)
+                .buildType(buildType)
+                .tempBuild(tempBuild)
+                .brewPullActive(brewPullActive)
                 .build();
     }
 }
