@@ -64,8 +64,8 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
                 .convertValue(startRequest.getPayload(), OrchDeliverablesAnalyzerResultDTO.class);
 
         // get previous result from previous process and cast it to its DTO
-        Object delAResult = rexClient.getTaskResponse(correlationId + deliverablesAnalyzerAdapter.getName());
-        AnalysisReport report = objectMapper.convertValue(delAResult, AnalysisReport.class);
+        AnalysisReport report = rexClient
+                .getTaskResponse(correlationId + deliverablesAnalyzerAdapter.getName(), AnalysisReport.class);
 
         // generate result for Orch
         AnalysisResult result = AnalysisResult.builder()

@@ -82,7 +82,14 @@ public class RexClient {
         }
     }
 
-    public Object getTaskResponse(String taskName) {
+    /**
+     * Get Rex task result
+     *
+     * @param taskName
+     * @param clazz DTO to cast the result to
+     * @return
+     */
+    public <T> T getTaskResponse(String taskName, Class<T> clazz) {
         String url = rexClientUrl + "/rest/tasks/" + taskName;
 
         MediaType json = MediaType.get("application/json; charset=utf-8");
@@ -98,7 +105,7 @@ public class RexClient {
 
             // get last index
             ServerResponseDTO serverResponseDTO = responses.get(responses.size() - 1);
-            return serverResponseDTO.getBody();
+            return objectMapper.convertValue(serverResponseDTO.getBody(), clazz);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
