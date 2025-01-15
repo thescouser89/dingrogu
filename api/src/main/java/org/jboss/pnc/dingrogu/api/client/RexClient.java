@@ -2,6 +2,7 @@ package org.jboss.pnc.dingrogu.api.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.OidcClient;
 import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -34,6 +35,9 @@ public class RexClient {
 
     @Inject
     Tokens token;
+
+    @Inject
+    OidcClient oidcClient;
 
     @Produces
     public TaskEndpoint getRexTaskEndpoint() {

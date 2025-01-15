@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
@@ -23,8 +24,6 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @ApplicationScoped
 public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSetupDTO> {
@@ -41,7 +40,8 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     @Inject
     RepourAdjustAdapter repour;
 
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
+    @Inject
+    ManagedExecutor managedExecutor;
 
     @Override
     public String getAdapterName() {
@@ -63,7 +63,8 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
             Log.info("Past result task: " + taskName);
             Log.info("Result: " + pastResults.get(taskName));
             try {
-                ServerResponse serverResponse = objectMapper.convertValue(pastResults.get(taskName), ServerResponse.class);
+                ServerResponse serverResponse = objectMapper
+                        .convertValue(pastResults.get(taskName), ServerResponse.class);
                 Log.info(objectMapper.convertValue(serverResponse.getBody(), RepourAdjustResponse.class));
             } catch (Exception e) {
                 Log.error("Couldn't be cast to RepourAdjustResponse");
@@ -89,7 +90,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         RepositoryCreateResponse response = repositoryDriverClient
                 .setup(repositorySetupDTO.getRepositoryDriverUrl(), createRequest);
-        executorService.submit(() -> {
+        managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start
                 Thread.sleep(2000L);
