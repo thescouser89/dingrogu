@@ -53,7 +53,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
         // Generate DTO to submit to Repour
         RepourAdjustInternalUrl internalUrl = RepourAdjustInternalUrl.builder()
                 .readonly(GitUrlParser.scmRepoURLReadOnly(repourAdjustDTO.getScmRepoURL()))
-                .readwrite(repourAdjustDTO.getRepourUrl())
+                .readwrite(repourAdjustDTO.getScmRepoURL())
                 .build();
 
         RepourAdjustRequest request = RepourAdjustRequest.builder()
