@@ -59,7 +59,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
             CreateTaskDTO taskResult = orchAdapter.generateRexTask(ownUrl, correlationId.getId(), orchResultDTO);
 
-            Map<String, CreateTaskDTO> vertices = Map.of(taskAnalyze.name, taskAnalyze);
+            Map<String, CreateTaskDTO> vertices = Map.of(taskAnalyze.name, taskAnalyze, taskResult.name, taskResult);
 
             EdgeDTO edgeDTO = EdgeDTO.builder().source(taskAnalyze.name).target(taskResult.name).build();
             Set<EdgeDTO> edges = Set.of(edgeDTO);
