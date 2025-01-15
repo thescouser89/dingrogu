@@ -20,6 +20,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzerDTO> {
@@ -47,7 +48,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
                 .convertValue(startRequest.getPayload(), DeliverablesAnalyzerDTO.class);
 
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getName(), correlationId);
-        Request callback = new Request(Request.Method.POST, URI.create(callbackUrl), null);
+        Request callback = new Request(Request.Method.POST, URI.create(callbackUrl), List.of());
 
         // TODO: heartbeat
         AnalyzePayload payload = new AnalyzePayload(
