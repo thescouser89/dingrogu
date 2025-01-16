@@ -5,15 +5,16 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.repour.dto.RepourCloneCallback;
-import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.OrchRepositoryCreationResultDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
-import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
+import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
+import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.ServerResponse;
@@ -25,86 +26,97 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneRepositoryDTO> {
+public class OrchRepositoryCreationResultAdapter implements Adapter<OrchRepositoryCreationResultDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     String dingroguUrl;
 
     @Inject
+    ObjectMapper objectMapper;
+
+    @Inject
+    ManagedExecutor managedExecutor;
+
+    @Inject
     RexClient rexClient;
 
     @Inject
-    ObjectMapper objectMapper;
+    OrchClient orchClient;
 
     @Inject
     RepourCreateRepositoryAdapter repourCreate;
 
-    @Inject
-    RepourClient repourClient;
+    @Override
+    public String getAdapterName() {
+        return "orch-repository-creation-result";
+    }
 
     @Override
     public void start(String correlationId, StartRequest startRequest) {
 
+        // grab payload DTO
+        OrchRepositoryCreationResultDTO dto = objectMapper
+                .convertValue(startRequest.getPayload(), OrchRepositoryCreationResultDTO.class);
+
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(repourCreate.getRexTaskName(correlationId));
         ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
-        RepourCreateRepoResponse repourResponse = objectMapper
+        RepourCreateRepoResponse repourCreateResponse = objectMapper
                 .convertValue(serverResponse.getBody(), RepourCreateRepoResponse.class);
 
-        RepourCloneRepositoryDTO dto = objectMapper
-                .convertValue(startRequest.getPayload(), RepourCloneRepositoryDTO.class);
-
-        RepourCloneCallback callback = RepourCloneCallback.builder()
-                .url(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId))
-                .method("POST")
+        // generate result for Orch
+        // TODO: adjust the status
+        RepositoryCreationResult result = RepositoryCreationResult.builder()
+                .status(ResultStatus.SUCCESS)
+                .repoCreatedSuccessfully(true)
+                .internalScmUrl(repourCreateResponse.getReadwriteUrl())
+                .externalUrl(dto.getExternalUrl())
+                .preBuildSyncEnabled(dto.isPreBuildSyncEnabled())
+                .taskId(dto.getTaskId())
+                .jobType(dto.getJobType())
+                .buildConfiguration(dto.getBuildConfiguration())
                 .build();
+        orchClient.submitRepourRepositoryCreationResult(dto.getOrchUrl(), result);
 
-        RepourCloneRepositoryRequest request = RepourCloneRepositoryRequest.builder()
-                .type("git")
-                .originRepoUrl(dto.getExternalUrl())
-                .targetRepoUrl(repourResponse.getReadwriteUrl())
-                .ref(dto.getRef())
-                .callback(callback)
-                .build();
-
-        repourClient.cloneRequest(dto.getRepourUrl(), request);
+        managedExecutor.submit(() -> {
+            try {
+                // sleep for 5 seconds to make sure that Rex has processed the successful start
+                Thread.sleep(2000L);
+            } catch (InterruptedException e) {
+                Log.error(e);
+            }
+            try {
+                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), null);
+            } catch (Exception e) {
+                Log.error("Error happened in rex client callback to Rex server for orch repository create", e);
+            }
+        });
     }
 
     @Override
     public void callback(String correlationId, Object object) {
-
-        try {
-            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), object);
-        } catch (Exception e) {
-            Log.error("Error happened in callback adapter", e);
-        }
-    }
-
-    @Override
-    public void cancel(String correlationId, StopRequest stopRequest) {
-        // TODO
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getAdapterName() {
-        return "repour-clone-repository";
+    public void cancel(String correlationId, StopRequest stopRequest) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, RepourCloneRepositoryDTO repourDTO)
+    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, OrchRepositoryCreationResultDTO dto)
             throws Exception {
-
-        Request startCloneScm = new Request(
+        Request request = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 List.of(TaskHelper.getJsonHeader()),
-                repourDTO);
+                dto);
 
-        Request cancelCloneScm = new Request(
+        Request cancelRequest = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()));
+                List.of(TaskHelper.getJsonHeader()),
+                null);
 
         Request callerNotification = new Request(
                 Request.Method.POST,
@@ -114,8 +126,8 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
 
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
-                .remoteStart(startCloneScm)
-                .remoteCancel(cancelCloneScm)
+                .remoteStart(request)
+                .remoteCancel(cancelRequest)
                 .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
                 .callerNotifications(callerNotification)
                 .build();

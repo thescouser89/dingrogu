@@ -86,7 +86,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private static Map<String, CreateTaskDTO> getVertices(List<CreateTaskDTO> tasks) {
         Map<String, CreateTaskDTO> vertices = new HashMap<>();
-        for (CreateTaskDTO task: tasks) {
+        for (CreateTaskDTO task : tasks) {
             vertices.put(task.name, task);
         }
         return vertices;

@@ -50,5 +50,13 @@
             <groupId>com.konghq</groupId>
             <artifactId>unirest-modules-jackson</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>dto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>constants</artifactId>
+        </dependency>
     </dependencies>
 </project>

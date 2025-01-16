@@ -9,6 +9,7 @@ import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 
 @ApplicationScoped
 public class OrchClient {
@@ -34,5 +35,27 @@ public class OrchClient {
             Log.info(response.getBody().toPrettyString());
             throw new RuntimeException("Request didn't go through");
         }
+    }
+
+    @Retry
+    public void submitRepourRepositoryCreationResult(String orchUrl, RepositoryCreationResult result) {
+
+        Log.info("Sending Repour repository to server: " + orchUrl);
+
+        // TODO: figure out endpoint
+        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/???")
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + tokens.getAccessToken())
+                .header("Accept", "application/json")
+                .body(result)
+                .asJson();
+
+        if (!response.isSuccess()) {
+            Log.info(response.getStatus());
+            Log.info(response.getStatusText());
+            Log.info(response.getBody().toPrettyString());
+            throw new RuntimeException("Request didn't go through");
+        }
+
     }
 }
