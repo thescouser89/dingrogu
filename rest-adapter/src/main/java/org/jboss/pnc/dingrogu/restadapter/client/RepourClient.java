@@ -32,6 +32,9 @@ public class RepourClient {
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
                 .header("Accept", "application/json")
                 .header(MDCHeaderKeys.PROCESS_CONTEXT.getHeaderName(), request.getTaskId())
+                .header(MDCHeaderKeys.TMP.getHeaderName(), Boolean.valueOf(request.isTempBuild()).toString())
+                .header(MDCHeaderKeys.EXP.getHeaderName(), "0")
+                .header(MDCHeaderKeys.USER_ID.getHeaderName(), "dcheung")
                 .body(request)
                 .asJson();
 
