@@ -25,7 +25,7 @@ public interface AdapterEndpoint {
     String START = "/adapter/{name}/{correlationId}/start";
     String CANCEL = "/adapter/{name}/{correlationId}/cancel";
     String CALLBACK = "/adapter/{name}/{correlationId}/callback";
-    String REX_NOTIFICATION = "/adapter/notify/{correlationId}";
+    String REX_NOTIFICATION = "/adapter/rex-notify";
 
     static String getStartAdapterEndpoint(String dingroguUrl, String name, String correlationId) {
         String start = dingroguUrl + AdapterEndpoint.START;
