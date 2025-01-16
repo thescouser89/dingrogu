@@ -1,6 +1,7 @@
 package org.jboss.pnc.dingrogu.restadapter.rest;
 
 import io.quarkus.arc.All;
+import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -8,6 +9,9 @@ import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
+import org.jboss.pnc.rex.common.enums.State;
+import org.jboss.pnc.rex.model.requests.MinimizedTask;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -86,6 +90,22 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
         }
 
         adapter.callback(correlationId, object);
+        return Response.ok().build();
+    }
+
+    // TODO: MDC
+    @Override
+    public Response rexNotification(NotificationRequest notificationRequest) {
+
+        MinimizedTask task = notificationRequest.getTask();
+        Object attachment = notificationRequest.getAttachment();
+        State state = notificationRequest.getAfter();
+        Log.info("Received notificaton for correlationId: " + task.getCorrelationID());
+        Log.info("State after: " + state + " :: Task: " + task.getName());
+
+        if (state.isFinal() && state.toString().toLowerCase().contains("fail")) {
+            Log.info("State failed!");
+        }
         return Response.ok().build();
     }
 }

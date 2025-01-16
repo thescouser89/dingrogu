@@ -59,9 +59,7 @@ public interface Adapter<T> {
      * @param adapterUrl
      * @param correlationId
      * @param t data needed to generate the rex task
-     *
      * @return Rex task
-     *
      * @throws Exception if something went wrong
      */
     CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, T t) throws Exception;

@@ -109,10 +109,17 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
                 List.of(TaskHelper.getJsonHeader()),
                 repourAdjustDTO);
 
+        Request callerNotification = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startAdjust)
                 .remoteCancel(cancelAdjust)
+                .callerNotifications(callerNotification)
                 .configuration(new ConfigurationDTO())
                 .build();
     }
