@@ -88,6 +88,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     @Override
     public void callback(String correlationId, Object object) {
         try {
+            // RepositoryPromoteResult
             rexClient.invokeSuccessCallback(getRexTaskName(correlationId), object);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
