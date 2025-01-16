@@ -6,6 +6,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
+import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter;
+import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -30,6 +32,12 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     @Inject
     RepositoryDriverSetupAdapter repoSetup;
 
+    @Inject
+    RepositoryDriverSealAdapter repoSeal;
+
+    @Inject
+    RepositoryDriverPromoteAdapter repoPromote;
+
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
 
@@ -42,11 +50,34 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repoSetup
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverSetupDTO());
+            CreateTaskDTO taskRepoSeal = repoSeal
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverSealDTO());
+            CreateTaskDTO taskRepoPromote = repoPromote
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverPromoteDTO());
 
-            Map<String, CreateTaskDTO> vertices = Map.of(taskAlign.name, taskAlign, taskRepoSetup.name, taskRepoSetup);
+            Map<String, CreateTaskDTO> vertices = Map.of(
+                    taskAlign.name,
+                    taskAlign,
+                    taskRepoSetup.name,
+                    taskRepoSetup,
+                    taskRepoSeal.name,
+                    taskRepoSeal,
+                    taskRepoPromote.name,
+                    taskRepoPromote);
 
-            EdgeDTO edgeDTO = EdgeDTO.builder().source(taskRepoSetup.name).target(taskAlign.name).build();
-            Set<EdgeDTO> edges = Set.of(edgeDTO);
+            EdgeDTO alignToRepoSetup = EdgeDTO.builder().source(taskRepoSetup.name).target(taskAlign.name).build();
+
+            // Temporary: testing
+            EdgeDTO repoSetupToRepoSeal = EdgeDTO.builder()
+                    .source(taskRepoSeal.name)
+                    .target(taskRepoSetup.name)
+                    .build();
+            EdgeDTO repoSealToRepoPromote = EdgeDTO.builder()
+                    .source(taskRepoPromote.name)
+                    .target(taskRepoSeal.name)
+                    .build();
+
+            Set<EdgeDTO> edges = Set.of(alignToRepoSetup, repoSetupToRepoSeal, repoSealToRepoPromote);
 
             CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
             rexClient.submitWorkflow(graphRequest);

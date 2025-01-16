@@ -3,6 +3,10 @@ package org.jboss.pnc.dingrogu.api.dto.workflow;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.api.enums.BuildCategory;
+import org.jboss.pnc.api.enums.BuildType;
+import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 
@@ -23,11 +27,13 @@ public class BuildWorkDTO {
     String originRepoURL;
     boolean tempBuild;
     String alignmentPreference;
-    String id;
-    String buildType;
+    String buildContentId;
+    BuildType buildType;
+    BuildCategory buildCategory;
     String defaultAlignmentParams;
     boolean brewPullActive;
     Map<String, String> genericParameters;
+    String buildConfigurationId;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         return RepourAdjustDTO.builder()
@@ -38,8 +44,8 @@ public class BuildWorkDTO {
                 .originRepoURL(originRepoURL)
                 .tempBuild(tempBuild)
                 .alignmentPreference(alignmentPreference)
-                .id(id)
-                .buildType(buildType)
+                .id(buildContentId)
+                .buildType(buildType.toString())
                 .defaultAlignmentParams(defaultAlignmentParams)
                 .brewPullActive(brewPullActive)
                 .genericParameters(genericParameters)
@@ -49,10 +55,30 @@ public class BuildWorkDTO {
     public RepositoryDriverSetupDTO toRepositoryDriverSetupDTO() {
         return RepositoryDriverSetupDTO.builder()
                 .repositoryDriverUrl(repositoryDriverUrl)
-                .buildContentId(id)
-                .buildType(buildType)
+                .buildContentId(buildContentId)
+                .buildType(buildType.toString())
                 .tempBuild(tempBuild)
                 .brewPullActive(brewPullActive)
                 .build();
+    }
+
+    public RepositoryDriverSealDTO toRepositoryDriverSealDTO() {
+        return RepositoryDriverSealDTO.builder()
+                .repositoryDriverUrl(repositoryDriverUrl)
+                .buildContentId(buildContentId)
+                .build();
+
+    }
+
+    public RepositoryDriverPromoteDTO toRepositoryDriverPromoteDTO() {
+        return RepositoryDriverPromoteDTO.builder()
+                .repositoryDriverUrl(repositoryDriverUrl)
+                .buildContentId(buildContentId)
+                .buildType(buildType)
+                .buildCategory(buildCategory)
+                .tempBuild(tempBuild)
+                .buildConfigurationId(buildConfigurationId)
+                .build();
+
     }
 }
