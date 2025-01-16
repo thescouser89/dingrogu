@@ -46,7 +46,7 @@ public class RepositoryDriverClient {
     @Retry
     public void seal(String repositoryDriverUrl, String buildContentId) {
         // TODO: set all MDC values properly
-        HttpResponse<JsonNode> response = Unirest.post(repositoryDriverUrl + "/seal")
+        HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/seal")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
                 .header("Accept", "application/json")
@@ -68,7 +68,7 @@ public class RepositoryDriverClient {
     @Retry
     public void promote(String repositoryDriverUrl, RepositoryPromoteRequest request) {
         // TODO: set all MDC values properly
-        HttpResponse<JsonNode> response = Unirest.post(repositoryDriverUrl + "/promote")
+        HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/promote")
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
                 .header("Accept", "application/json")

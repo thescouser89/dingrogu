@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.api.dto.workflow;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -27,7 +28,7 @@ public class BuildWorkDTO {
     String originRepoURL;
     boolean tempBuild;
     String alignmentPreference;
-    String buildContentId;
+    @NotNull String buildContentId;
     BuildType buildType;
     BuildCategory buildCategory;
     String defaultAlignmentParams;
