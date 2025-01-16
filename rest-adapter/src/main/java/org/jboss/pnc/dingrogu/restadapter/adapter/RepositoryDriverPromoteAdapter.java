@@ -38,7 +38,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
 
     @Override
     public String getAdapterName() {
-        return "repository-driver-seal";
+        return "repository-driver-promote";
     }
 
     /**
