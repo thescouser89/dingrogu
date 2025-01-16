@@ -5,6 +5,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.OidcClient;
 import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import okhttp3.*;
@@ -66,6 +67,15 @@ public class RexClient {
 
     }
 
+    /**
+     * ActivateReqestContext annotation added since this method may be called inside an executorservice with no context
+     * propagated. This annotation helps with the tokens requestscoped.
+     * 
+     * @param taskName
+     * @param object
+     * @throws Exception
+     */
+    @ActivateRequestContext
     public void invokeSuccessCallback(String taskName, Object object) throws Exception {
         Log.info("Callback to Rex being sent for: " + taskName);
         String url = rexClientUrl + "/rest/callback/" + taskName + "/succeed";

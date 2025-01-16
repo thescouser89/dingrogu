@@ -28,7 +28,8 @@ public class BuildWorkDTO {
     String originRepoURL;
     boolean tempBuild;
     String alignmentPreference;
-    @NotNull String buildContentId;
+    @NotNull
+    String buildContentId;
     BuildType buildType;
     BuildCategory buildCategory;
     String defaultAlignmentParams;
