@@ -6,7 +6,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
 import org.jboss.pnc.rex.common.enums.State;
@@ -28,7 +27,6 @@ import java.util.Map;
  * auto-discovered automatically
  */
 @ApplicationScoped
-@Slf4j
 public class AdapterEndpointImpl implements AdapterEndpoint {
 
     /**
@@ -53,7 +51,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
 
     @Override
     public Response start(String name, String correlationId, StartRequest startRequest) {
-        log.info("Start adapter for: '{}' with correlation-id: '{}'", name, correlationId);
+        Log.infof("Start adapter for: '%s' with correlation-id: '%s'", name, correlationId);
 
         Adapter<?> adapter = adapterNameMap.get(name);
 
@@ -67,7 +65,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
 
     @Override
     public Response cancel(String name, String correlationId, StopRequest stopRequest) {
-        log.info("Cancel adapter for: '{}' with correlation-id: '{}'", name, correlationId);
+        Log.infof("Cancel adapter for: '%s' with correlation-id: '%s'", name, correlationId);
 
         Adapter<?> adapter = adapterNameMap.get(name);
 
@@ -81,7 +79,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
 
     @Override
     public Response callback(String name, String correlationId, Object object) {
-        log.info("Callback adapter for: '{}' with correlation-id: '{}'", name, correlationId);
+        Log.infof("Callback adapter for: '%s' with correlation-id: '%s'", name, correlationId);
 
         Adapter<?> adapter = adapterNameMap.get(name);
 
@@ -99,11 +97,16 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
 
         MinimizedTask task = notificationRequest.getTask();
         Object attachment = notificationRequest.getAttachment();
-        State state = notificationRequest.getAfter();
-        Log.info("Received notificaton for correlationId: " + task.getCorrelationID());
-        Log.info("State after: " + state + " :: Task: " + task.getName());
+        State stateBefore = notificationRequest.getBefore();
+        State stateAfter = notificationRequest.getAfter();
+        Log.infof(
+                "[%s -> %s] Correlation: %s, Task: %s",
+                stateBefore,
+                stateAfter,
+                task.getCorrelationID(),
+                task.getName());
 
-        if (state.isFinal() && state.toString().toLowerCase().contains("fail")) {
+        if (stateAfter.isFinal() && stateAfter.toString().toLowerCase().contains("fail")) {
             Log.info("State failed!");
         }
         return Response.ok().build();

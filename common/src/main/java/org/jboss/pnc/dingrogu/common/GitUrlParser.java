@@ -1,6 +1,6 @@
 package org.jboss.pnc.dingrogu.common;
 
-import lombok.extern.slf4j.Slf4j;
+import io.quarkus.logging.Log;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,7 +17,6 @@ import static java.util.regex.Pattern.compile;
  *
  * @author Jakub Senko
  */
-@Slf4j
 public class GitUrlParser {
     public static class GitUrlData {
         private String domain;
@@ -155,7 +154,7 @@ public class GitUrlParser {
                 return "https" + "://" + uri.getHost() + "/gerrit" + uri.getPath();
 
             } catch (URISyntaxException e) {
-                log.error("Cannot parse scm: {} to generate readonly repo", scmUrl, e);
+                Log.errorf("Cannot parse scm: '%s' to generate readonly repo", scmUrl, e);
                 return null;
             }
         }

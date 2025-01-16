@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
@@ -26,7 +25,6 @@ import java.util.List;
  * Dummy workflow
  */
 @ApplicationScoped
-@Slf4j
 public class DummyAdapter implements Adapter<DummyDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
@@ -52,11 +50,11 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     @Override
     public void callback(String correlationId, Object object) {
         DummyServiceResponseDTO response = objectMapper.convertValue(object, DummyServiceResponseDTO.class);
-        log.info("DummyService replied with: {}", response.status);
+        Log.infof("DummyService replied with: %s", response.status);
         try {
             rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
         } catch (Exception e) {
-            log.error("Error happened in callback adapter", e);
+            Log.error("Error happened in callback adapter", e);
         }
     }
 
