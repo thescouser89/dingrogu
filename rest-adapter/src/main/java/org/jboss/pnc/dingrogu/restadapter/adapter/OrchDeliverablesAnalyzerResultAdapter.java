@@ -123,11 +123,18 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
                 List.of(TaskHelper.getJsonHeader()),
                 null);
 
+        Request callerNotification = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(request)
                 .remoteCancel(cancelRequest)
                 .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
+                .callerNotifications(callerNotification)
                 .build();
     }
 }

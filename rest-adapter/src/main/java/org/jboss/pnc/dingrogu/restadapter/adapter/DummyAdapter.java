@@ -83,11 +83,18 @@ public class DummyAdapter implements Adapter<DummyDTO> {
                 List.of(TaskHelper.getJsonHeader()),
                 null);
 
+        Request callerNotification = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(dummyRequest)
                 .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())
+                .callerNotifications(callerNotification)
                 .build();
     }
 }

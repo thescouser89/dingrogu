@@ -52,11 +52,18 @@ public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
                 List.of(TaskHelper.getJsonHeader()),
                 brewPushDTO);
 
+        Request callerNotification = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startRequest)
                 .remoteCancel(cancelRequest)
                 .configuration(new ConfigurationDTO())
+                .callerNotifications(callerNotification)
                 .build();
     }
 }

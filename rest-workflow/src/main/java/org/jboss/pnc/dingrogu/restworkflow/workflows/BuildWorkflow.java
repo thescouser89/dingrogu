@@ -14,6 +14,8 @@ import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,15 +57,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             CreateTaskDTO taskRepoPromote = repoPromote
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverPromoteDTO());
 
-            Map<String, CreateTaskDTO> vertices = Map.of(
-                    taskAlign.name,
-                    taskAlign,
-                    taskRepoSetup.name,
-                    taskRepoSetup,
-                    taskRepoSeal.name,
-                    taskRepoSeal,
-                    taskRepoPromote.name,
-                    taskRepoPromote);
+            List<CreateTaskDTO> tasks = List.of(taskAlign, taskRepoSetup, taskRepoSeal, taskRepoPromote);
+            Map<String, CreateTaskDTO> vertices = getVertices(tasks);
 
             EdgeDTO alignToRepoSetup = EdgeDTO.builder().source(taskRepoSetup.name).target(taskAlign.name).build();
 
@@ -87,5 +82,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         } catch (Exception e) {
             throw new WorkflowSubmissionException(e);
         }
+    }
+
+    private static Map<String, CreateTaskDTO> getVertices(List<CreateTaskDTO> tasks) {
+        Map<String, CreateTaskDTO> vertices = new HashMap<>();
+        for (CreateTaskDTO task: tasks) {
+            vertices.put(task.name, task);
+        }
+        return vertices;
     }
 }

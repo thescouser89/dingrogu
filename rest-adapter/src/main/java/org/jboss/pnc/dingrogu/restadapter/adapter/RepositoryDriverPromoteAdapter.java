@@ -118,11 +118,18 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 List.of(TaskHelper.getJsonHeader()),
                 repositoryPromoteDTO);
 
+        Request callerNotification = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startSetup)
                 .remoteCancel(cancelSetup)
                 .configuration(new ConfigurationDTO())
+                .callerNotifications(callerNotification)
                 .build();
     }
 }
