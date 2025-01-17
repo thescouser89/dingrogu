@@ -7,6 +7,7 @@ import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -57,6 +58,16 @@ public interface Adapter<T> {
      */
     default boolean shouldGetResultsFromDependencies() {
         return false;
+    }
+
+    /**
+     * Override this method if we want to send a request to an endpoint for a failed task in the workflow By default
+     * nothing will be sent. See {@link AdapterEndpoint#rexNotification(NotificationRequest)}
+     * 
+     * @return Request
+     */
+    default Request failedTaskNotification() {
+        return null;
     }
 
     /**

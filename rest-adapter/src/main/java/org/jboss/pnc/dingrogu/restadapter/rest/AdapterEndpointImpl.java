@@ -1,11 +1,16 @@
 package org.jboss.pnc.dingrogu.restadapter.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.All;
 import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import kong.unirest.core.ContentType;
+import kong.unirest.core.Unirest;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
 import org.jboss.pnc.rex.common.enums.State;
@@ -28,6 +33,12 @@ import java.util.Map;
  */
 @ApplicationScoped
 public class AdapterEndpointImpl implements AdapterEndpoint {
+
+    @Inject
+    ObjectMapper objectMapper;
+
+    @Inject
+    Tokens tokens;
 
     /**
      * Get all the implementations of the Adapter interface
@@ -96,7 +107,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
     public Response rexNotification(NotificationRequest notificationRequest) {
 
         MinimizedTask task = notificationRequest.getTask();
-        Object attachment = notificationRequest.getAttachment();
+        Request attachment = objectMapper.convertValue(notificationRequest.getAttachment(), Request.class);
         State stateBefore = notificationRequest.getBefore();
         State stateAfter = notificationRequest.getAfter();
         Log.infof(
@@ -106,8 +117,27 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
                 task.getCorrelationID(),
                 task.getName());
 
-        if (stateAfter.isFinal() && stateAfter.toString().toLowerCase().contains("fail")) {
-            Log.info("State failed!");
+        if (stateAfter.isFinal() && stateAfter.toString().toLowerCase().contains("fail") && attachment != null) {
+            Log.info("State failed: sending notification request from attachment");
+
+            Map<String, String> headerMap = new HashMap<>();
+            List<Request.Header> headers = attachment.getHeaders();
+
+            headerMap.put("Authorization", "Bearer " + tokens.getAccessToken());
+
+            if (headers != null) {
+                for (Request.Header header : headers) {
+                    headerMap.put(header.getName(), header.getValue());
+                }
+            }
+
+            // Send request to notify that the process failed
+            Unirest.post(attachment.getUri().toString())
+                    .contentType(ContentType.APPLICATION_JSON)
+                    .accept(ContentType.APPLICATION_JSON)
+                    .headers(headerMap)
+                    .body(attachment.getAttachment())
+                    .asEmpty();
         }
         return Response.ok().build();
     }

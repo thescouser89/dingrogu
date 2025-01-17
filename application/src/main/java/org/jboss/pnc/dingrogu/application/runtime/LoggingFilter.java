@@ -85,8 +85,10 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
             Supplier<String> defaultValue) {
         String value = requestContext.getHeaderString(headerKeys.getHeaderName());
         if (value == null || value.trim().isEmpty()) {
+            log.info("Adding default {}: {} to mdc", headerKeys.getMdcKey(), defaultValue.get());
             map.put(headerKeys.getMdcKey(), defaultValue.get());
         } else {
+            log.info("Adding {}: {} to mdc", headerKeys.getMdcKey(), value);
             map.put(headerKeys.getMdcKey(), value);
         }
     }
