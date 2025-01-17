@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
@@ -23,9 +24,9 @@ public class OrchClient {
         Log.info("Sending dela response to server: " + orchUrl);
 
         HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/deliverable-analyses/complete")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + tokens.getAccessToken())
-                .header("Accept", "application/json")
+                .contentType(ContentType.APPLICATION_JSON)
+                .accept(ContentType.APPLICATION_JSON)
+                .headers(ClientHelper.getClientHeaders(tokens))
                 .body(result)
                 .asJson();
 
@@ -44,9 +45,9 @@ public class OrchClient {
 
         // TODO: figure out endpoint
         HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/???")
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + tokens.getAccessToken())
-                .header("Accept", "application/json")
+                .contentType(ContentType.APPLICATION_JSON)
+                .accept(ContentType.APPLICATION_JSON)
+                .headers(ClientHelper.getClientHeaders(tokens))
                 .body(result)
                 .asJson();
 

@@ -1,7 +1,10 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
 import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
@@ -11,14 +14,18 @@ import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 @ApplicationScoped
 public class DummyClient {
 
+    @Inject
+    Tokens tokens;
+
     @Retry
     public void start(String dummyUrl, String callbackUrl) {
         Log.info("Sending dummy request to server: " + dummyUrl);
 
         DummyServiceRequestDTO request = DummyServiceRequestDTO.builder().callbackUrl(callbackUrl).build();
         HttpResponse<JsonNode> response = Unirest.post(dummyUrl)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
+                .contentType(ContentType.APPLICATION_JSON)
+                .accept(ContentType.APPLICATION_JSON)
+                .headers(ClientHelper.getClientHeaders(tokens))
                 .body(request)
                 .asJson();
 

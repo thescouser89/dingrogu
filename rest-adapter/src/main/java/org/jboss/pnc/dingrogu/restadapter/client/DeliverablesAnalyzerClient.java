@@ -4,6 +4,7 @@ import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
@@ -20,9 +21,9 @@ public class DeliverablesAnalyzerClient {
     public void analyze(String deliverablesAnalyzerUrl, AnalyzePayload request) {
 
         HttpResponse<JsonNode> response = Unirest.post(deliverablesAnalyzerUrl + "/api/analyze")
-                .header("Authorization", "Bearer " + tokens.getAccessToken())
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
+                .contentType(ContentType.APPLICATION_JSON)
+                .accept(ContentType.APPLICATION_JSON)
+                .headers(ClientHelper.getClientHeaders(tokens))
                 .body(request)
                 .asJson();
 
