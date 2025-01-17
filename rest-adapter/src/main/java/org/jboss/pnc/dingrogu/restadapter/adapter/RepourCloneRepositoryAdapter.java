@@ -5,23 +5,17 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repour.dto.RepourCloneCallback;
 import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
-import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
-import org.jboss.pnc.rex.dto.ConfigurationDTO;
-import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
-import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -91,33 +85,13 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
         return "repour-clone-repository";
     }
 
+    /**
+     * We read past results to build final request
+     * 
+     * @return true
+     */
     @Override
-    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, RepourCloneRepositoryDTO repourDTO)
-            throws Exception {
-
-        Request startCloneScm = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                repourDTO);
-
-        Request cancelCloneScm = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()));
-
-        Request callerNotification = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        return CreateTaskDTO.builder()
-                .name(getRexTaskName(correlationId))
-                .remoteStart(startCloneScm)
-                .remoteCancel(cancelCloneScm)
-                .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
-                .callerNotifications(callerNotification)
-                .build();
+    public boolean shouldGetResultsFromDependencies() {
+        return true;
     }
 }

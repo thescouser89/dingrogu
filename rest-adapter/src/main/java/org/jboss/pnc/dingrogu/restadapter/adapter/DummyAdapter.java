@@ -5,20 +5,13 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
-import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.DummyClient;
-import org.jboss.pnc.rex.dto.ConfigurationDTO;
-import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
-
-import java.net.URI;
-import java.util.List;
 
 /**
  * Just a dummy adapter to test for Rex functionality. It does nothing and just calls the Rex callback. Supports the
@@ -66,35 +59,5 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     @Override
     public String getAdapterName() {
         return "dummy-adapter";
-    }
-
-    @Override
-    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, DummyDTO dummyDTO) throws Exception {
-
-        Request dummyRequest = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                dummyDTO);
-
-        Request cancelRequest = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        Request callerNotification = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        return CreateTaskDTO.builder()
-                .name(getRexTaskName(correlationId))
-                .remoteStart(dummyRequest)
-                .remoteCancel(cancelRequest)
-                .configuration(new ConfigurationDTO())
-                .callerNotifications(callerNotification)
-                .build();
     }
 }

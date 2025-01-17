@@ -5,19 +5,11 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.context.ManagedExecutor;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
-import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
-import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
-import org.jboss.pnc.rex.dto.ConfigurationDTO;
-import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
-
-import java.net.URI;
-import java.util.List;
 
 @ApplicationScoped
 public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSealDTO> {
@@ -82,38 +74,5 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public CreateTaskDTO generateRexTask(
-            String adapterUrl,
-            String correlationId,
-            RepositoryDriverSealDTO repositorySealDTO) throws Exception {
-
-        Request startSetup = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                repositorySealDTO);
-
-        Request cancelSetup = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                repositorySealDTO);
-
-        Request callerNotification = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        return CreateTaskDTO.builder()
-                .name(getRexTaskName(correlationId))
-                .remoteStart(startSetup)
-                .remoteCancel(cancelSetup)
-                .configuration(new ConfigurationDTO())
-                .callerNotifications(callerNotification)
-                .build();
     }
 }

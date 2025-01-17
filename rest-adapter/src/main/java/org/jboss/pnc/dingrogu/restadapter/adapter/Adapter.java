@@ -1,9 +1,17 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
+
+import java.net.URI;
+import java.util.List;
 
 /**
  * Interface for all the adapters
@@ -43,6 +51,15 @@ public interface Adapter<T> {
     String getAdapterName();
 
     /**
+     * Indicate whether we want to get results from dependencies. Override the default method if yes, you should
+     * 
+     * @return boolean
+     */
+    default boolean shouldGetResultsFromDependencies() {
+        return false;
+    }
+
+    /**
      * Get the rex task name that we'll submit to Rex. We prepend the correlation id to it to make the Rex task name
      * unique
      *
@@ -62,5 +79,36 @@ public interface Adapter<T> {
      * @return Rex task
      * @throws Exception if something went wrong
      */
-    CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, T t) throws Exception;
+    default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, T t) throws Exception {
+
+        Request startAdjust = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
+                List.of(TaskHelper.getJsonHeader()),
+                t);
+
+        Request cancelAdjust = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
+                List.of(TaskHelper.getJsonHeader()),
+                t);
+
+        Request callerNotification = new Request(
+                Request.Method.POST,
+                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                List.of(TaskHelper.getJsonHeader()),
+                null);
+
+        return CreateTaskDTO.builder()
+                .name(getRexTaskName(correlationId))
+                .remoteStart(startAdjust)
+                .remoteCancel(cancelAdjust)
+                .callerNotifications(callerNotification)
+                .configuration(
+                        ConfigurationDTO.builder()
+                                .mdcHeaderKeyMapping(MDCUtils.getHeadersFromMDC())
+                                .passResultsOfDependencies(shouldGetResultsFromDependencies())
+                                .build())
+                .build();
+    }
 }

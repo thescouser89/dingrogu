@@ -1,17 +1,9 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
-import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
-import org.jboss.pnc.dingrogu.common.TaskHelper;
-import org.jboss.pnc.rex.dto.ConfigurationDTO;
-import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
-
-import java.net.URI;
-import java.util.List;
 
 @ApplicationScoped
 public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
@@ -34,36 +26,5 @@ public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, BrewPushDTO brewPushDTO)
-            throws Exception {
-
-        Request startRequest = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                brewPushDTO);
-
-        Request cancelRequest = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                brewPushDTO);
-
-        Request callerNotification = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        return CreateTaskDTO.builder()
-                .name(getRexTaskName(correlationId))
-                .remoteStart(startRequest)
-                .remoteCancel(cancelRequest)
-                .configuration(new ConfigurationDTO())
-                .callerNotifications(callerNotification)
-                .build();
     }
 }

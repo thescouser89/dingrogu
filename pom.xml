@@ -24,6 +24,7 @@
         <quarkus.package.jar.type>uber-jar</quarkus.package.jar.type>
         <version.javadoc.plugin>3.11.2</version.javadoc.plugin>
         <version.source.plugin>3.3.1</version.source.plugin>
+        <version.pnc>3.0.4</version.pnc>
     </properties>
 
     <packaging>pom</packaging>
@@ -145,12 +146,31 @@
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
                 <artifactId>dto</artifactId>
-                <version>3.0.4</version>
+                <version>${version.pnc}</version>
+                <exclusions>
+                    <!-- it's bringing in the non-jakarta pnc-api. yuck! -->
+                    <exclusion>
+                        <groupId>org.jboss.pnc</groupId>
+                        <artifactId>pnc-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
                 <artifactId>constants</artifactId>
-                <version>3.0.4</version>
+                <version>${version.pnc}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.pnc</groupId>
+                <artifactId>common</artifactId>
+                <version>${version.pnc}</version>
+                <exclusions>
+                    <!-- it's bringing in the non-jakarta pnc-api. yuck! -->
+                    <exclusion>
+                        <groupId>org.jboss.pnc</groupId>
+                        <artifactId>pnc-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
 

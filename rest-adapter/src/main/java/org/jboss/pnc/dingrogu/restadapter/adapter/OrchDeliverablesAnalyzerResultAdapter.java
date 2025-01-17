@@ -13,8 +13,6 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.OrchDeliverablesAnalyzerResultDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
-import org.jboss.pnc.rex.dto.ConfigurationDTO;
-import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
@@ -106,35 +104,13 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * We read past results to build final request
+     * 
+     * @return true
+     */
     @Override
-    public CreateTaskDTO generateRexTask(
-            String adapterUrl,
-            String correlationId,
-            OrchDeliverablesAnalyzerResultDTO orchDeliverablesAnalyzerResultDTO) throws Exception {
-        Request request = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                orchDeliverablesAnalyzerResultDTO);
-
-        Request cancelRequest = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        Request callerNotification = new Request(
-                Request.Method.POST,
-                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
-                List.of(TaskHelper.getJsonHeader()),
-                null);
-
-        return CreateTaskDTO.builder()
-                .name(getRexTaskName(correlationId))
-                .remoteStart(request)
-                .remoteCancel(cancelRequest)
-                .configuration(ConfigurationDTO.builder().passResultsOfDependencies(true).build())
-                .callerNotifications(callerNotification)
-                .build();
+    public boolean shouldGetResultsFromDependencies() {
+        return true;
     }
 }
