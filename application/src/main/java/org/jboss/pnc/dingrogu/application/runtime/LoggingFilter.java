@@ -1,20 +1,18 @@
 package org.jboss.pnc.dingrogu.application.runtime;
 
-import io.quarkus.security.identity.SecurityIdentity;
-import jakarta.inject.Inject;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.UriInfo;
+import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.slf4j.MDC;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +28,6 @@ import java.util.function.Supplier;
 public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final String REQUEST_EXECUTION_START = "request-execution-start";
-
-    @Inject
-    SecurityIdentity identity;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
