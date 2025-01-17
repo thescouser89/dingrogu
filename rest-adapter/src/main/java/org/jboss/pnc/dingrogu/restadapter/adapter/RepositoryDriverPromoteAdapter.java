@@ -17,7 +17,6 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 @ApplicationScoped
 public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverPromoteDTO> {
@@ -53,7 +52,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
             callback = new Request(
                     Request.Method.POST,
                     new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId)),
-                    List.of(TaskHelper.getJsonHeader()),
+                    TaskHelper.getHTTPHeaders(),
                     null);
         } catch (URISyntaxException e) {
             Log.error(e);

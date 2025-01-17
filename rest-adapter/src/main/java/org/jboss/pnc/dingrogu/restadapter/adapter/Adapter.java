@@ -13,7 +13,6 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -102,21 +101,22 @@ public interface Adapter<T> {
         Request startAdjust = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
+                TaskHelper.getHTTPHeaders(),
                 t);
 
         Request cancelAdjust = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
-                List.of(TaskHelper.getJsonHeader()),
+                TaskHelper.getHTTPHeaders(),
                 t);
 
         Request callerNotification = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
-                List.of(TaskHelper.getJsonHeader()),
+                TaskHelper.getHTTPHeaders(),
                 null);
 
+        // TODO: I'm not really sure if the passMDCInRequestBody does anything here?
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startAdjust)

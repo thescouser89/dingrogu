@@ -19,7 +19,6 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -52,7 +51,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
             callback = new Request(
                     Request.Method.POST,
                     new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId)),
-                    List.of(TaskHelper.getJsonHeader()),
+                    TaskHelper.getHTTPHeaders(),
                     null);
         } catch (URISyntaxException e) {
             Log.error(e);

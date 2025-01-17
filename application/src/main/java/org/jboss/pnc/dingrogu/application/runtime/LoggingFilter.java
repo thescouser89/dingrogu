@@ -11,7 +11,6 @@ import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.common.concurrent.Sequence;
 import org.slf4j.MDC;
 
 import java.io.IOException;
@@ -37,8 +36,10 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         MultivaluedMap<String, String> headers = requestContext.getHeaders();
         headers.forEach((key, value) -> log.info("Current header -> {}::{}", key, value));
 
+        UriInfo uriInfo = requestContext.getUriInfo();
+        Request request = requestContext.getRequest();
+        log.info("== Request {} {}.", request.getMethod(), uriInfo.getRequestUri());
         Map<String, String> mdcContext = getContextMap();
-        headerToMap(mdcContext, MDCHeaderKeys.REQUEST_CONTEXT, requestContext, () -> Sequence.nextId().toString());
         headerToMap(mdcContext, MDCHeaderKeys.PROCESS_CONTEXT, requestContext);
         headerToMap(mdcContext, MDCHeaderKeys.TMP, requestContext);
         headerToMap(mdcContext, MDCHeaderKeys.EXP, requestContext);
@@ -50,8 +51,6 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
 
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
 
-        UriInfo uriInfo = requestContext.getUriInfo();
-        Request request = requestContext.getRequest();
         log.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());
     }
 
