@@ -66,6 +66,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         } else {
             took = Long.toString(System.currentTimeMillis() - startTime);
         }
+        log.info("Completed {} with status: {}", requestContext.getUriInfo().getPath(), responseContext.getStatus());
 
         try (MDC.MDCCloseable mdcTook = MDC.putCloseable(MDCKeys.REQUEST_TOOK, took);
                 MDC.MDCCloseable mdcStatus = MDC
@@ -79,6 +80,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
             MDCHeaderKeys headerKeys,
             ContainerRequestContext requestContext) {
         String value = requestContext.getHeaderString(headerKeys.getHeaderName());
+        log.info("Adding {}: {} to mdc", headerKeys.getHeaderName(), value);
         mdcContext.put(headerKeys.getMdcKey(), value);
     }
 
@@ -87,13 +89,14 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
             MDCHeaderKeys headerKeys,
             ContainerRequestContext requestContext,
             Supplier<String> defaultValue) {
+
         String value = requestContext.getHeaderString(headerKeys.getHeaderName());
 
         if (value == null || value.trim().isEmpty()) {
-            log.info("Adding default {}: {} to mdc", headerKeys.getMdcKey(), defaultValue.get());
+            log.info("Adding default {}: {} to mdc", headerKeys.getHeaderName(), defaultValue.get());
             map.put(headerKeys.getMdcKey(), defaultValue.get());
         } else {
-            log.info("Adding {}: {} to mdc", headerKeys.getMdcKey(), value);
+            log.info("Adding {}: {} to mdc", headerKeys.getHeaderName(), value);
             map.put(headerKeys.getMdcKey(), value);
         }
     }

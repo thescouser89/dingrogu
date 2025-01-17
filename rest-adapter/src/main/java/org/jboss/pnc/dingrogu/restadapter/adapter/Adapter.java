@@ -125,6 +125,8 @@ public interface Adapter<T> {
                 .configuration(
                         ConfigurationDTO.builder()
                                 .mdcHeaderKeyMapping(MDCUtils.getHeadersFromMDC())
+                                .passMDCInRequestBody(Boolean.TRUE)
+                                .passOTELInRequestBody(Boolean.TRUE)
                                 .passResultsOfDependencies(shouldGetResultsFromDependencies())
                                 .build())
                 .build();
