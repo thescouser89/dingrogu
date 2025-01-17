@@ -34,7 +34,11 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         MDC.clear();
 
         MultivaluedMap<String, String> headers = requestContext.getHeaders();
-        headers.forEach((key, value) -> log.info("Current header -> {}::{}", key, value));
+        headers.forEach((key, value) -> {
+            if (!key.toLowerCase().equals("authorization")) {
+                log.info("Current header -> {}::{}", key, value);
+            }
+        });
 
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
