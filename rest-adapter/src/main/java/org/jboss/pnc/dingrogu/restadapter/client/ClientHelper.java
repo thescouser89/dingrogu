@@ -21,8 +21,8 @@ public class ClientHelper {
         headers.put("Authorization", "Bearer " + tokens.getAccessToken());
 
         log.info("Getting client HTTP headers");
-        for (String key: headers.keySet()) {
-           log.info("    {}: {} from mdc to be added to client call", key, headers.get(key));
+        for (String key : headers.keySet()) {
+            log.info("    {}: {} from mdc to be added to client call", key, headers.get(key));
         }
 
         return headers;

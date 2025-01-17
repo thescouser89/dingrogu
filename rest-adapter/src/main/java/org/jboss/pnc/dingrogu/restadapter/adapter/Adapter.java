@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -13,6 +14,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for all the adapters
@@ -91,6 +93,11 @@ public interface Adapter<T> {
      * @throws Exception if something went wrong
      */
     default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, T t) throws Exception {
+
+        Map<String, String> mdcMap = MDCUtils.getHeadersFromMDC();
+        for (String key : mdcMap.keySet()) {
+            Log.infof("Inside generateRexTask -> %s::%s", key, mdcMap.get(key));
+        }
 
         Request startAdjust = new Request(
                 Request.Method.POST,

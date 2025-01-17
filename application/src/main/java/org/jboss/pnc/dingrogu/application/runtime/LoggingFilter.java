@@ -4,6 +4,7 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
@@ -32,6 +33,10 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
     @Override
     public void filter(ContainerRequestContext requestContext) {
         MDC.clear();
+
+        MultivaluedMap<String, String> headers = requestContext.getHeaders();
+        headers.forEach((key, value) -> log.info("Current header -> {}::{}", key, value));
+
         Map<String, String> mdcContext = getContextMap();
         headerToMap(mdcContext, MDCHeaderKeys.REQUEST_CONTEXT, requestContext, () -> Sequence.nextId().toString());
         headerToMap(mdcContext, MDCHeaderKeys.PROCESS_CONTEXT, requestContext);
@@ -41,7 +46,6 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         headerToMap(mdcContext, MDCHeaderKeys.TRACE_ID, requestContext);
         headerToMap(mdcContext, MDCHeaderKeys.SPAN_ID, requestContext);
         headerToMap(mdcContext, MDCHeaderKeys.PARENT_ID, requestContext);
-
         MDC.setContextMap(mdcContext);
 
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
@@ -84,6 +88,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
             ContainerRequestContext requestContext,
             Supplier<String> defaultValue) {
         String value = requestContext.getHeaderString(headerKeys.getHeaderName());
+
         if (value == null || value.trim().isEmpty()) {
             log.info("Adding default {}: {} to mdc", headerKeys.getMdcKey(), defaultValue.get());
             map.put(headerKeys.getMdcKey(), defaultValue.get());
