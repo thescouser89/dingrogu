@@ -124,9 +124,6 @@ public interface Adapter<T> {
                 .callerNotifications(callerNotification)
                 .configuration(
                         ConfigurationDTO.builder()
-                                .mdcHeaderKeyMapping(MDCUtils.getHeadersFromMDC())
-                                .passMDCInRequestBody(Boolean.TRUE)
-                                .passOTELInRequestBody(Boolean.TRUE)
                                 .passResultsOfDependencies(shouldGetResultsFromDependencies())
                                 .build())
                 .build();

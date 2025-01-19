@@ -22,7 +22,9 @@ public class ClientHelper {
 
         log.info("Getting client HTTP headers");
         for (String key : headers.keySet()) {
-            log.info("    {}: {} from mdc to be added to client call", key, headers.get(key));
+            if (!key.toLowerCase().equals("authorization")) {
+                log.info("    {}: {} from mdc to be added to client call", key, headers.get(key));
+            }
         }
 
         return headers;

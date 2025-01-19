@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
@@ -10,10 +11,12 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +77,16 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
             Set<EdgeDTO> edges = Set.of(alignToRepoSetup, repoSetupToRepoSeal, repoSealToRepoPromote);
 
-            CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
+            ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
+                    .mdcHeaderKeyMapping(MDCUtils.getHeadersFromMDC())
+                    .passMDCInRequestBody(true)
+                    .passOTELInRequestBody(true)
+                    .build();
+            CreateGraphRequest graphRequest = new CreateGraphRequest(
+                    correlationId.getId(),
+                    configurationDTO,
+                    edges,
+                    vertices);
             rexClient.submitWorkflow(graphRequest);
 
             return correlationId;
