@@ -78,9 +78,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Set<EdgeDTO> edges = Set.of(alignToRepoSetup, repoSetupToRepoSeal, repoSealToRepoPromote);
 
             ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
-                    .mdcHeaderKeyMapping(MDCUtils.getHeadersFromMDC())
-                    .passMDCInRequestBody(true)
-                    .passOTELInRequestBody(true)
+                    .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),

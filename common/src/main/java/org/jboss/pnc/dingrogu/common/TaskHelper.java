@@ -2,9 +2,11 @@ package org.jboss.pnc.dingrogu.common;
 
 import jakarta.ws.rs.core.MediaType;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.common.log.MDCUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TaskHelper {
 
@@ -17,10 +19,10 @@ public class TaskHelper {
         headers.add(JSON_HEADER);
         headers.add(ACCEPT_JSON_HEADER);
 
-        // Map<String, String> mdcMap = MDCUtils.getHeadersFromMDC();
-        // if (mdcMap != null) {
-        // mdcMap.forEach((key, value) -> headers.add(new Request.Header(key, value)));
-        // }
+        Map<String, String> mdcMap = MDCUtils.getHeadersFromMDC();
+        if (mdcMap != null) {
+            mdcMap.forEach((key, value) -> headers.add(new Request.Header(key, value)));
+        }
 
         return headers;
     }

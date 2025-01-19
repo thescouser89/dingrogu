@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
@@ -10,6 +11,7 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.OrchDeliverablesAnalyzerResultDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.DeliverablesAnalyzerAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.OrchDeliverablesAnalyzerResultAdapter;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -64,7 +66,14 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
             EdgeDTO edgeDTO = EdgeDTO.builder().source(taskResult.name).target(taskAnalyze.name).build();
             Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-            CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
+            ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
+                    .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
+                    .build();
+            CreateGraphRequest graphRequest = new CreateGraphRequest(
+                    correlationId.getId(),
+                    configurationDTO,
+                    edges,
+                    vertices);
             rexClient.submitWorkflow(graphRequest);
 
             return correlationId;

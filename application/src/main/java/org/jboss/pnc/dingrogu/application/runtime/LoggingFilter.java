@@ -44,6 +44,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         Request request = requestContext.getRequest();
         log.info("== Request {} {}.", request.getMethod(), uriInfo.getRequestUri());
         Map<String, String> mdcContext = getContextMap();
+        // TODO: can we just create a for loop with a ll the values?
         headerToMap(mdcContext, MDCHeaderKeys.PROCESS_CONTEXT, requestContext);
         headerToMap(mdcContext, MDCHeaderKeys.TMP, requestContext);
         headerToMap(mdcContext, MDCHeaderKeys.EXP, requestContext);

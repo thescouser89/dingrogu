@@ -9,6 +9,7 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCloneRepositoryAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCreateRepositoryAdapter;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -88,6 +89,9 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
         EdgeDTO edgeDTO = EdgeDTO.builder().source(taskCloneScm.name).target(taskInternalScm.name).build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-        return new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
+        ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
+                .mdcHeaderKeyMapping(org.jboss.pnc.common.log.MDCUtils.HEADER_KEY_MAPPING)
+                .build();
+        return new CreateGraphRequest(correlationId.getId(), configurationDTO, edges, vertices);
     }
 }

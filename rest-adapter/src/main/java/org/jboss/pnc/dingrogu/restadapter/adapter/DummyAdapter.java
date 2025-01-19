@@ -38,7 +38,6 @@ public class DummyAdapter implements Adapter<DummyDTO> {
 
     @Override
     public void start(String correlationId, StartRequest startRequest) {
-
         Map<String, String> mdcMap = startRequest.getMdc();
         for (String key : mdcMap.keySet()) {
             log.info("Adapter start mdc: {}::{}", key, mdcMap.get(key));

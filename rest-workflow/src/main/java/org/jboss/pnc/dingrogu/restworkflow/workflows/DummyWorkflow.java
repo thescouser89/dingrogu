@@ -10,6 +10,7 @@ import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.DummyAdapter;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -51,7 +52,14 @@ public class DummyWorkflow implements Workflow<DummyWorkflowDTO> {
             // Set<EdgeDTO> edges = Set.of(edgeDTO);
             Set<EdgeDTO> edges = Set.of();
 
-            CreateGraphRequest graphRequest = new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
+            ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
+                    .mdcHeaderKeyMapping(org.jboss.pnc.common.log.MDCUtils.HEADER_KEY_MAPPING)
+                    .build();
+            CreateGraphRequest graphRequest = new CreateGraphRequest(
+                    correlationId.getId(),
+                    configurationDTO,
+                    edges,
+                    vertices);
             rexClient.submitWorkflow(graphRequest);
 
             return correlationId;
