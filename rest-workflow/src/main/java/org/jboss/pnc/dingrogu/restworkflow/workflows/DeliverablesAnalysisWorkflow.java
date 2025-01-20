@@ -57,9 +57,9 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
         try {
             CreateTaskDTO taskAnalyze = deliverablesAnalyzerAdapter
-                    .generateRexTask(ownUrl, correlationId.getId(), delaDTO);
+                    .generateRexTask(ownUrl, correlationId.getId(), null, delaDTO);
 
-            CreateTaskDTO taskResult = orchAdapter.generateRexTask(ownUrl, correlationId.getId(), orchResultDTO);
+            CreateTaskDTO taskResult = orchAdapter.generateRexTask(ownUrl, correlationId.getId(), null, orchResultDTO);
 
             Map<String, CreateTaskDTO> vertices = Map.of(taskAnalyze.name, taskAnalyze, taskResult.name, taskResult);
 

@@ -87,11 +87,14 @@ public interface Adapter<T> {
      *
      * @param adapterUrl
      * @param correlationId
+     * @param failedRequest Request to send to an endpoint in case a task fails. Leave null if you don't want a
+     *        notification
      * @param t data needed to generate the rex task
      * @return Rex task
      * @throws Exception if something went wrong
      */
-    default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, T t) throws Exception {
+    default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, Request failedRequest, T t)
+            throws Exception {
 
         Map<String, String> mdcMap = MDCUtils.getHeadersFromMDC();
         for (String key : mdcMap.keySet()) {
@@ -114,7 +117,7 @@ public interface Adapter<T> {
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
                 TaskHelper.getHTTPHeaders(),
-                null);
+                failedRequest);
 
         // TODO: I'm not really sure if the passMDCInRequestBody does anything here?
         return CreateTaskDTO.builder()

@@ -89,7 +89,9 @@ public interface AdapterEndpoint {
     Response callback(@PathParam("name") String name, @PathParam("correlationId") String correlationId, Object object);
 
     /**
-     * At each Rex task transition, we should be getting a notification of it happening at this endpoint
+     * At each Rex task transition, we should be getting a notification of it happening at this endpoint. We want to
+     * notify the caller via a Request object in notificationRequest.getAttachment of a failed task so that it can
+     * perform an action.
      *
      * @param notificationRequest
      * @return

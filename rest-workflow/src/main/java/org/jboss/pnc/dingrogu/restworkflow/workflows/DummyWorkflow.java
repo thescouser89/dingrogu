@@ -44,7 +44,7 @@ public class DummyWorkflow implements Workflow<DummyWorkflowDTO> {
         }
         DummyDTO dummyDTO = DummyDTO.builder().dummyServiceUrl(ownUrl + "/dummy-service").build();
         try {
-            CreateTaskDTO task = dummyAdapter.generateRexTask(ownUrl, correlationId.getId(), dummyDTO);
+            CreateTaskDTO task = dummyAdapter.generateRexTask(ownUrl, correlationId.getId(), null, dummyDTO);
 
             Map<String, CreateTaskDTO> vertices = Map.of(task.name, task);
 

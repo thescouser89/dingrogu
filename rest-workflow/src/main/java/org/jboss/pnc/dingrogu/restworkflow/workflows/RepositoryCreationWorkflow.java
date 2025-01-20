@@ -78,9 +78,9 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
                 .build();
 
         CreateTaskDTO taskInternalScm = repourCreateRepositoryAdapter
-                .generateRexTask(ownUrl, correlationId.getId(), repourCreateRepositoryDTO);
+                .generateRexTask(ownUrl, correlationId.getId(), null, repourCreateRepositoryDTO);
         CreateTaskDTO taskCloneScm = repourCloneRepositoryAdapter
-                .generateRexTask(ownUrl, correlationId.getId(), repourCloneRepositoryDTO);
+                .generateRexTask(ownUrl, correlationId.getId(), null, repourCloneRepositoryDTO);
 
         // setting up the graph
         Map<String, CreateTaskDTO> vertices = Map

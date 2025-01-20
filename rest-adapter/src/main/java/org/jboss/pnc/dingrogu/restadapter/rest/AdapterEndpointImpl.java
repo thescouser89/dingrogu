@@ -14,6 +14,7 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
 import org.jboss.pnc.rex.common.enums.State;
+import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.MinimizedTask;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -107,6 +108,11 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
     public Response rexNotification(NotificationRequest notificationRequest) {
 
         MinimizedTask task = notificationRequest.getTask();
+
+        /**
+         * from {@link Adapter#generateRexTask(String, String, Request, Object)}, we want the attachment part to be a
+         * Request object, so that we can forward the failed notification to Request
+         */
         Request attachment = objectMapper.convertValue(notificationRequest.getAttachment(), Request.class);
         State stateBefore = notificationRequest.getBefore();
         State stateAfter = notificationRequest.getAfter();
@@ -117,6 +123,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
                 task.getCorrelationID(),
                 task.getName());
 
+        // only send the request in the attachment for a failure notification
         if (stateAfter.isFinal() && stateAfter.toString().toLowerCase().contains("fail") && attachment != null) {
             Log.info("State failed: sending notification request from attachment");
 
@@ -131,12 +138,15 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
                 }
             }
 
+            List<ServerResponse> serverResponses = task.getServerResponses();
+            ServerResponse lastResponse = serverResponses.get(serverResponses.size() - 1);
+
             // Send request to notify that the process failed
             Unirest.post(attachment.getUri().toString())
                     .contentType(ContentType.APPLICATION_JSON)
                     .accept(ContentType.APPLICATION_JSON)
                     .headers(headerMap)
-                    .body(attachment.getAttachment())
+                    .body(lastResponse)
                     .asEmpty();
         }
         return Response.ok().build();

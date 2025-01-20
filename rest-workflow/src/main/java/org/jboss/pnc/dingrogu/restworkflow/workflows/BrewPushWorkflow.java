@@ -44,7 +44,7 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
     CreateGraphRequest generateWorkflow(CorrelationId correlationId, BrewPushDTO brewPushDTO) throws Exception {
 
         CreateTaskDTO causewayBrewPush = causewayBrewPushAdapter
-                .generateRexTask(ownUrl, correlationId.getId(), brewPushDTO);
+                .generateRexTask(ownUrl, correlationId.getId(), null, brewPushDTO);
 
         Map<String, CreateTaskDTO> vertices = Map.of(causewayBrewPush.name, causewayBrewPush);
 

@@ -52,13 +52,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         try {
             CreateTaskDTO taskAlign = repour
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepourAdjustDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repoSetup
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverSetupDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverSetupDTO());
             CreateTaskDTO taskRepoSeal = repoSeal
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverSealDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverSealDTO());
             CreateTaskDTO taskRepoPromote = repoPromote
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO.toRepositoryDriverPromoteDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverPromoteDTO());
 
             List<CreateTaskDTO> tasks = List.of(taskAlign, taskRepoSetup, taskRepoSeal, taskRepoPromote);
             Map<String, CreateTaskDTO> vertices = getVertices(tasks);
