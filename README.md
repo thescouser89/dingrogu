@@ -88,23 +88,18 @@ the requester. The requester can then use that id to cancel the workflow, or to 
 Dingrogu uses the same correlation id for the graph request it submits to Rex. This allows Dingrogu to forward any
 future request from the requester for that workflow to Rex (like cancelling a workflow run).
 
-This is also useful for the adapter endpoints: they will be provided with the correlation id for both the request and
-the callback, which they can potentially use to query Rex on the status of the different tasks for that correlation id.
-
 Sending a request from a Rex task to the PNC service via the adapter
 ```mermaid
 graph TD
     RexTask(Rex Task A) -->|correlation id + DTO| Adapter(Adapter Endpoint A)
-    Adapter --> |1 Optional: Queries Rex for task results for that correlation id| Rex
-    Adapter --> |2 Use previous result to generate DTO for PNC service| PNCService(PNC Service A)
+    Adapter --> |Generate DTO for PNC service| PNCService(PNC Service A)
 ```
 
 Receiving a callback result from PNC service to the Rex task via the adapter
 ```mermaid
 graph TD
     PNCService(PNC Service A) -->|Sends callback to adapter with correlation id when done| AdapterCallback(Callback Adapter Endpoint A)
-    AdapterCallback --> |1 Optional: Queries Rex for task results for that correlation id| Rex
-    AdapterCallback --> |2 Use previous result to generate DTO for Rex callback| RexTask(Rex task A Callback)
+    AdapterCallback --> |Generate DTO for Rex callback| RexTask(Rex task A Callback)
 ```
 
 ## Endpoint Design
@@ -153,6 +148,12 @@ The `Adapter` implementations are also used to handle the translation of Rex's `
 specific PNC service.
 
 Each Rex task has a corresponding `Adapter` implementation.
+
+## Developing
+1. Look into the `rest-workflow` module to start planning your tasks and how they connect to each other
+2. Start working on your adapters in the `rest-adapter` module, figuring out what data you need for each request, and what clients you need
+3. Wire the adapters together in the `rest-workflow` module
+4. Profit!
 
 ## Future Rex features to explore
 - Unique queue per workflow to have QoS and its own queue size
