@@ -41,7 +41,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
 
     @Override
     public String getAdapterName() {
-        return "repour-adjust";
+        return "reqour-adjust";
     }
 
     @Override
