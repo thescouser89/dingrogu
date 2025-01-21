@@ -70,18 +70,50 @@ public class RexClient {
     /**
      * ActivateReqestContext annotation added since this method may be called inside an executorservice with no context
      * propagated. This annotation helps with the tokens requestscoped.
-     * 
+     *
      * @param taskName
      * @param object
      * @throws Exception
      */
     @ActivateRequestContext
     public void invokeSuccessCallback(String taskName, Object object) throws Exception {
+        invokeCallback(taskName, object, true);
+    }
+
+    /**
+     * ActivateReqestContext annotation added since this method may be called inside an executorservice with no context
+     * propagated. This annotation helps with the tokens requestscoped.
+     *
+     * @param taskName
+     * @param object
+     * @throws Exception
+     */
+    @ActivateRequestContext
+    public void invokeFailCallback(String taskName, Object object) throws Exception {
+        invokeCallback(taskName, object, false);
+    }
+
+    /**
+     * ActivateReqestContext annotation added since this method may be called inside an executorservice with no context
+     * propagated. This annotation helps with the tokens requestscoped.
+     * 
+     * @param taskName
+     * @param object
+     * @throws Exception
+     */
+    private void invokeCallback(String taskName, Object object, boolean success) throws Exception {
+
+        String endpoint = "/fail";
+        if (success) {
+            endpoint = "/succeed";
+        }
+
         Log.info("Callback to Rex being sent for: " + taskName);
-        String url = rexClientUrl + "/rest/callback/" + taskName + "/succeed";
+        String url = rexClientUrl + "/rest/callback/" + taskName + endpoint;
 
         MediaType json = MediaType.get("application/json; charset=utf-8");
         RequestBody requestBody = RequestBody.create(json, objectMapper.writeValueAsString(object));
+        Log.info("URL: " + url);
         Log.info("About to submit callback: " + objectMapper.writeValueAsString(object));
         Request request = new Request.Builder().url(url)
                 .post(requestBody)

@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
 
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 public class BuildWorkDTO {
 
     String repourUrl;
+    String reqourUrl;
     String repositoryDriverUrl;
 
     String scmRepoURL;
@@ -27,7 +30,7 @@ public class BuildWorkDTO {
     boolean preBuildSyncEnabled;
     String originRepoURL;
     boolean tempBuild;
-    String alignmentPreference;
+    AlignmentPreference alignmentPreference;
     @NotNull
     String buildContentId;
     BuildType buildType;
@@ -45,9 +48,26 @@ public class BuildWorkDTO {
                 .preBuildSyncEnabled(preBuildSyncEnabled)
                 .originRepoURL(originRepoURL)
                 .tempBuild(tempBuild)
-                .alignmentPreference(alignmentPreference)
+                .alignmentPreference(alignmentPreference.name())
                 .id(buildContentId)
                 .buildType(buildType.toString())
+                .defaultAlignmentParams(defaultAlignmentParams)
+                .brewPullActive(brewPullActive)
+                .genericParameters(genericParameters)
+                .build();
+    }
+
+    public ReqourAdjustDTO toReqourAdjustDTO() {
+        return ReqourAdjustDTO.builder()
+                .reqourUrl(reqourUrl)
+                .scmRepoURL(scmRepoURL)
+                .scmRevision(scmRevision)
+                .preBuildSyncEnabled(preBuildSyncEnabled)
+                .originRepoURL(originRepoURL)
+                .tempBuild(tempBuild)
+                .alignmentPreference(alignmentPreference)
+                .id(buildContentId)
+                .buildType(buildType)
                 .defaultAlignmentParams(defaultAlignmentParams)
                 .brewPullActive(brewPullActive)
                 .genericParameters(genericParameters)

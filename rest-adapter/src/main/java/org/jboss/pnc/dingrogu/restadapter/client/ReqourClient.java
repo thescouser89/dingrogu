@@ -9,13 +9,13 @@ import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
 import org.eclipse.microprofile.faulttolerance.Retry;
-import org.jboss.pnc.api.repour.dto.RepourAdjustRequest;
-import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
-import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
+import org.jboss.pnc.api.reqour.dto.AdjustRequest;
+import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
+import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 
 @ApplicationScoped
-public class RepourClient {
+public class ReqourClient {
 
     @Inject
     Tokens tokens;
@@ -23,14 +23,14 @@ public class RepourClient {
     /**
      * TODO: processContext is part of the MDC values. We're just hardcoding it to the header for now until we work on
      * the MDC values
-     * 
-     * @param repourUrl
+     *
+     * @param reqourUrl
      * @param request
      */
     @Retry
-    public void adjust(String repourUrl, RepourAdjustRequest request) {
+    public void adjust(String reqourUrl, AdjustRequest request) {
 
-        HttpResponse<JsonNode> response = Unirest.post(repourUrl + "/adjust")
+        HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/adjust")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
@@ -46,9 +46,9 @@ public class RepourClient {
     }
 
     @Retry
-    public void cloneRequest(String repourUrl, RepourCloneRepositoryRequest request) {
+    public void cloneRequest(String reqourUrl, RepositoryCloneRequest request) {
 
-        HttpResponse<JsonNode> response = Unirest.post(repourUrl + "/clone")
+        HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/clone")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
@@ -64,9 +64,9 @@ public class RepourClient {
     }
 
     @Retry
-    public RepourCreateRepoResponse createRepository(String repourUrl, RepourCreateRepositoryRequest request) {
+    public RepourCreateRepoResponse createRepository(String reqourUrl, InternalSCMCreationRequest request) {
 
-        HttpResponse<RepourCreateRepoResponse> response = Unirest.post(repourUrl + "/internal-scm")
+        HttpResponse<RepourCreateRepoResponse> response = Unirest.post(reqourUrl + "/internal-scm")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))

@@ -11,6 +11,7 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
+import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -35,6 +36,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     RepourAdjustAdapter repour;
 
     @Inject
+    ReqourAdjustAdapter reqour;
+
+    @Inject
     RepositoryDriverSetupAdapter repoSetup;
 
     @Inject
@@ -53,6 +57,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         try {
             CreateTaskDTO taskAlign = repour
                     .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepourAdjustDTO());
+            CreateTaskDTO taskAlignReqour = reqour
+                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toReqourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repoSetup
                     .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverSetupDTO());
             CreateTaskDTO taskRepoSeal = repoSeal
@@ -60,10 +66,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             CreateTaskDTO taskRepoPromote = repoPromote
                     .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverPromoteDTO());
 
-            List<CreateTaskDTO> tasks = List.of(taskAlign, taskRepoSetup, taskRepoSeal, taskRepoPromote);
+            List<CreateTaskDTO> tasks = List.of(taskAlignReqour, taskRepoSetup, taskRepoSeal, taskRepoPromote);
             Map<String, CreateTaskDTO> vertices = getVertices(tasks);
 
-            EdgeDTO alignToRepoSetup = EdgeDTO.builder().source(taskRepoSetup.name).target(taskAlign.name).build();
+            EdgeDTO alignToRepoSetup = EdgeDTO.builder()
+                    .source(taskRepoSetup.name)
+                    .target(taskAlignReqour.name)
+                    .build();
 
             // Temporary: testing
             EdgeDTO repoSetupToRepoSeal = EdgeDTO.builder()

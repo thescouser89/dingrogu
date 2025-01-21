@@ -72,12 +72,19 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
     @Override
     public void callback(String correlationId, Object object) {
 
-        RepourAdjustResponse response = objectMapper.convertValue(object, RepourAdjustResponse.class);
-
         try {
-            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
-        } catch (Exception e) {
-            Log.error("Error happened in callback adapter", e);
+            RepourAdjustResponse response = objectMapper.convertValue(object, RepourAdjustResponse.class);
+            try {
+                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
+            } catch (Exception e) {
+                Log.error("Error happened in callback adapter", e);
+            }
+        } catch (IllegalArgumentException e) {
+            try {
+                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), object);
+            } catch (Exception ex) {
+                Log.error("Error happened in callback adapter", ex);
+            }
         }
     }
 
