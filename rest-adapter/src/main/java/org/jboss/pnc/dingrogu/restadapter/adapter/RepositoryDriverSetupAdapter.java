@@ -8,9 +8,9 @@ import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
+import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustResponse;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -53,17 +53,20 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(repour.getRexTaskName(correlationId));
-        RepourAdjustResponse repourResponse;
+        AdjustResponse reqourResponse;
         if (pastResult == null) {
-            repourResponse = rexClient
-                    .getTaskResponse(repour.getRexTaskName(correlationId), RepourAdjustResponse.class);
+            reqourResponse = rexClient.getTaskResponse(repour.getRexTaskName(correlationId), AdjustResponse.class);
         } else {
             Log.info("Obtained past response in request");
             ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
-            repourResponse = objectMapper.convertValue(serverResponse.getBody(), RepourAdjustResponse.class);
+            reqourResponse = objectMapper.convertValue(serverResponse.getBody(), AdjustResponse.class);
         }
 
-        List<String> repositoriesToCreate = repourResponse.getRemoveRepositories();
+        List<String> repositoriesToCreate = reqourResponse.getManipulatorResult()
+                .getRemovedRepositories()
+                .stream()
+                .map(repo -> repo.getUrl().toString())
+                .toList();
 
         RepositoryDriverSetupDTO repositorySetupDTO = objectMapper
                 .convertValue(startRequest.getPayload(), RepositoryDriverSetupDTO.class);

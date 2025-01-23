@@ -105,6 +105,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
                 if (response == null || !response.getCallback().getStatus().isSuccess()) {
                     rexClient.invokeFailCallback(getRexTaskName(correlationId), response);
                 } else {
+                    Log.infof("Adjust response: %s", response.toString());
                     rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
                 }
             } catch (Exception e) {

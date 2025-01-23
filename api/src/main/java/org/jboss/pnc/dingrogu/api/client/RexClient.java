@@ -77,6 +77,7 @@ public class RexClient {
      */
     @ActivateRequestContext
     public void invokeSuccessCallback(String taskName, Object object) throws Exception {
+        Log.info("Invoking successful callback for " + taskName);
         invokeCallback(taskName, object, true);
     }
 
@@ -90,6 +91,7 @@ public class RexClient {
      */
     @ActivateRequestContext
     public void invokeFailCallback(String taskName, Object object) throws Exception {
+        Log.info("Invoking fail callback for " + taskName);
         invokeCallback(taskName, object, false);
     }
 
@@ -150,8 +152,12 @@ public class RexClient {
             List<ServerResponseDTO> responses = dto.getServerResponses();
 
             // get last index
-            ServerResponseDTO serverResponseDTO = responses.get(responses.size() - 1);
-            return objectMapper.convertValue(serverResponseDTO.getBody(), clazz);
+            if (responses.size() == 0) {
+                return null;
+            } else {
+                ServerResponseDTO serverResponseDTO = responses.get(responses.size() - 1);
+                return objectMapper.convertValue(serverResponseDTO.getBody(), clazz);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
