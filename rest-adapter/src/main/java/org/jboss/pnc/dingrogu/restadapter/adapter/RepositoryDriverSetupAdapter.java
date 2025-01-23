@@ -32,7 +32,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     RexClient rexClient;
 
     @Inject
-    RepourAdjustAdapter repour;
+    ReqourAdjustAdapter reqour;
 
     @Inject
     ManagedExecutor managedExecutor;
@@ -52,10 +52,10 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     public void start(String correlationId, StartRequest startRequest) {
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
-        Object pastResult = pastResults.get(repour.getRexTaskName(correlationId));
+        Object pastResult = pastResults.get(reqour.getRexTaskName(correlationId));
         AdjustResponse reqourResponse;
         if (pastResult == null) {
-            reqourResponse = rexClient.getTaskResponse(repour.getRexTaskName(correlationId), AdjustResponse.class);
+            reqourResponse = rexClient.getTaskResponse(reqour.getRexTaskName(correlationId), AdjustResponse.class);
         } else {
             Log.info("Obtained past response in request");
             ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
