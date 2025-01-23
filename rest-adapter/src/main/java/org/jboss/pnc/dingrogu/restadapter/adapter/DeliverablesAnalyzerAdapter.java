@@ -8,10 +8,10 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.DeliverablesAnalyzerClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -31,7 +31,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     ObjectMapper objectMapper;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Override
     public String getAdapterName() {
@@ -61,7 +61,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     public void callback(String correlationId, Object object) {
         AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
         try {
-            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), report);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), report, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

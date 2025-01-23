@@ -6,11 +6,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.DummyClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -31,7 +31,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     DummyClient dummyClient;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     ObjectMapper objectMapper;
@@ -54,7 +54,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
         DummyServiceResponseDTO response = objectMapper.convertValue(object, DummyServiceResponseDTO.class);
         Log.infof("DummyService replied with: %s", response.status);
         try {
-            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

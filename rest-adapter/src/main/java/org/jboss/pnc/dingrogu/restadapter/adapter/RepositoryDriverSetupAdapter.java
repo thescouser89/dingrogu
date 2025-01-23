@@ -9,9 +9,9 @@ import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
@@ -29,7 +29,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     ObjectMapper objectMapper;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     ReqourAdjustAdapter reqour;
@@ -53,14 +53,8 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(reqour.getRexTaskName(correlationId));
-        AdjustResponse reqourResponse;
-        if (pastResult == null) {
-            reqourResponse = rexClient.getTaskResponse(reqour.getRexTaskName(correlationId), AdjustResponse.class);
-        } else {
-            Log.info("Obtained past response in request");
-            ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
-            reqourResponse = objectMapper.convertValue(serverResponse.getBody(), AdjustResponse.class);
-        }
+        ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
+        AdjustResponse reqourResponse = objectMapper.convertValue(serverResponse.getBody(), AdjustResponse.class);
 
         List<String> repositoriesToCreate = reqourResponse.getManipulatorResult()
                 .getRemovedRepositories()
@@ -87,7 +81,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 Log.error(e);
             }
             try {
-                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for repository driver create", e);
             }

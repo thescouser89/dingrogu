@@ -8,12 +8,12 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.repour.dto.RepourAdjustCallback;
 import org.jboss.pnc.api.repour.dto.RepourAdjustInternalUrl;
 import org.jboss.pnc.api.repour.dto.RepourAdjustRequest;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -27,7 +27,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
     ObjectMapper objectMapper;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     RepourClient repourClient;
@@ -75,13 +75,13 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
         try {
             RepourAdjustResponse response = objectMapper.convertValue(object, RepourAdjustResponse.class);
             try {
-                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
             }
         } catch (IllegalArgumentException e) {
             try {
-                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), object);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
             } catch (Exception ex) {
                 Log.error("Error happened in callback adapter", ex);
             }

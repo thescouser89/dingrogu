@@ -6,11 +6,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -23,7 +23,7 @@ public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
     ObjectMapper objectMapper;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     ManagedExecutor managedExecutor;
@@ -52,7 +52,7 @@ public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
                 Log.error(e);
             }
             try {
-                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for repository driver seal", e);
             }

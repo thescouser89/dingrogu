@@ -7,11 +7,11 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.repour.dto.RepourCloneCallback;
 import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
@@ -25,7 +25,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
     String dingroguUrl;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     ObjectMapper objectMapper;
@@ -68,7 +68,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
     public void callback(String correlationId, Object object) {
 
         try {
-            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), object);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

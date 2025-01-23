@@ -6,18 +6,14 @@ import io.quarkus.oidc.client.OidcClient;
 import io.quarkus.oidc.client.Tokens;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
-import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import okhttp3.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
-import org.jboss.pnc.rex.api.TaskEndpoint;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -25,6 +21,7 @@ import java.util.List;
  * something better comes along
  */
 @ApplicationScoped
+@Deprecated
 public class RexClient {
     public static final OkHttpClient CLIENT = new OkHttpClient();
 
@@ -39,11 +36,6 @@ public class RexClient {
 
     @Inject
     OidcClient oidcClient;
-
-    @Produces
-    public TaskEndpoint getRexTaskEndpoint() {
-        return RestClientBuilder.newBuilder().baseUri(URI.create(rexClientUrl)).build(TaskEndpoint.class);
-    }
 
     public void submitWorkflow(CreateGraphRequest createGraphRequest) throws Exception {
 

@@ -25,6 +25,7 @@
         <version.javadoc.plugin>3.11.2</version.javadoc.plugin>
         <version.source.plugin>3.3.1</version.source.plugin>
         <version.pnc>3.0.4</version.pnc>
+        <version.rex>1.0.2-SNAPSHOT</version.rex>
     </properties>
 
     <packaging>pom</packaging>
@@ -104,17 +105,17 @@
             <dependency>
                 <groupId>org.jboss.pnc.rex</groupId>
                 <artifactId>rex-api</artifactId>
-                <version>1.0.1</version>
+                <version>${version.rex}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc.rex</groupId>
                 <artifactId>rex-model</artifactId>
-                <version>1.0.1</version>
+                <version>${version.rex}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc.rex</groupId>
                 <artifactId>rex-common</artifactId>
-                <version>1.0.1</version>
+                <version>${version.rex}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc</groupId>

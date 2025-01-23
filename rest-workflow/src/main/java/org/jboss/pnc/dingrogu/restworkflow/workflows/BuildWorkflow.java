@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter;
@@ -12,12 +11,12 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +27,6 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class BuildWorkflow implements Workflow<BuildWorkDTO> {
-
-    @Inject
-    RexClient rexClient;
 
     @Inject
     RepourAdjustAdapter repour;
@@ -46,6 +42,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @Inject
     RepositoryDriverPromoteAdapter repoPromote;
+
+    @Inject
+    TaskEndpoint taskEndpoint;
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
@@ -94,7 +93,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     configurationDTO,
                     edges,
                     vertices);
-            rexClient.submitWorkflow(graphRequest);
+            taskEndpoint.start(graphRequest);
 
             return correlationId;
 

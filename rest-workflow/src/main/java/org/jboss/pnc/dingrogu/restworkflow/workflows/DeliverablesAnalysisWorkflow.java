@@ -4,13 +4,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.common.log.MDCUtils;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchDeliverablesAnalyzerResultDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.DeliverablesAnalyzerAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.OrchDeliverablesAnalyzerResultAdapter;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -26,7 +26,7 @@ import java.util.Set;
 public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalysisWorkflowDTO> {
 
     @Inject
-    RexClient rexClient;
+    TaskEndpoint taskEndpoint;
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
@@ -74,7 +74,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                     configurationDTO,
                     edges,
                     vertices);
-            rexClient.submitWorkflow(graphRequest);
+            taskEndpoint.start(graphRequest);
 
             return correlationId;
 

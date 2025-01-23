@@ -6,12 +6,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchRepositoryCreationResultDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
@@ -31,7 +31,7 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
     ManagedExecutor managedExecutor;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     OrchClient orchClient;
@@ -79,7 +79,7 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
                 Log.error(e);
             }
             try {
-                rexClient.invokeSuccessCallback(getRexTaskName(correlationId), null);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), null, null);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for orch repository create", e);
             }

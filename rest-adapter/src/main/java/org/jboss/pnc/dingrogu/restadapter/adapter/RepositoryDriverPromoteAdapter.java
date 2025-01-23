@@ -7,11 +7,11 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -31,7 +31,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     ObjectMapper objectMapper;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Override
     public String getAdapterName() {
@@ -86,7 +86,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     public void callback(String correlationId, Object object) {
         try {
             // RepositoryPromoteResult
-            rexClient.invokeSuccessCallback(getRexTaskName(correlationId), object);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

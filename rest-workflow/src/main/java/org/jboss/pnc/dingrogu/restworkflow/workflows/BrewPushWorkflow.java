@@ -6,6 +6,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.CausewayBrewPushAdapter;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -25,6 +26,9 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
 
+    @Inject
+    TaskEndpoint taskEndpoint;
+
     @Override
     public CorrelationId submitWorkflow(BrewPushDTO brewPushDTO) throws WorkflowSubmissionException {
 
@@ -32,8 +36,7 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
 
         try {
             CreateGraphRequest graph = generateWorkflow(uniqueCorrelationId, brewPushDTO);
-
-            // TODO: send request to Rex!
+            taskEndpoint.start(graph);
 
             return uniqueCorrelationId;
         } catch (Exception e) {

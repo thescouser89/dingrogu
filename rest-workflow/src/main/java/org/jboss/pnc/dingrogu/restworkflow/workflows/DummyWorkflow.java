@@ -5,11 +5,11 @@ import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.DummyAdapter;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -29,7 +29,7 @@ public class DummyWorkflow implements Workflow<DummyWorkflowDTO> {
     DummyAdapter dummyAdapter;
 
     @Inject
-    RexClient rexClient;
+    TaskEndpoint taskEndpoint;
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
@@ -60,7 +60,7 @@ public class DummyWorkflow implements Workflow<DummyWorkflowDTO> {
                     configurationDTO,
                     edges,
                     vertices);
-            rexClient.submitWorkflow(graphRequest);
+            taskEndpoint.start(graphRequest);
 
             return correlationId;
 

@@ -10,12 +10,12 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.reqour.dto.AdjustRequest;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.api.reqour.dto.InternalGitRepositoryUrl;
-import org.jboss.pnc.dingrogu.api.client.RexClient;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.ReqourClient;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -34,7 +34,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
     ObjectMapper objectMapper;
 
     @Inject
-    RexClient rexClient;
+    CallbackEndpoint callbackEndpoint;
 
     @Inject
     ReqourClient reqourClient;
@@ -103,10 +103,10 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
             AdjustResponse response = objectMapper.convertValue(object, AdjustResponse.class);
             try {
                 if (response == null || !response.getCallback().getStatus().isSuccess()) {
-                    rexClient.invokeFailCallback(getRexTaskName(correlationId), response);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null);
                 } else {
                     Log.infof("Adjust response: %s", response.toString());
-                    rexClient.invokeSuccessCallback(getRexTaskName(correlationId), response);
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
@@ -114,7 +114,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
         } catch (IllegalArgumentException e) {
             // if we cannot cast object to AdjustResponse, it's probably a failure
             try {
-                rexClient.invokeFailCallback(getRexTaskName(correlationId), object);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
             } catch (Exception ex) {
                 Log.error("Error happened in callback adapter", ex);
             }
