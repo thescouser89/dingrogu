@@ -64,7 +64,6 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(deliverablesAnalyzerAdapter.getRexTaskName(correlationId));
-        Log.info("Obtained past response in request");
         ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
         AnalysisReport analysisReport = objectMapper.convertValue(serverResponse.getBody(), AnalysisReport.class);
 

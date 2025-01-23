@@ -28,9 +28,7 @@ public class DeliverablesAnalyzerClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.info(response.getStatus());
-            Log.info(response.getStatusText());
-            Log.info(response.getBody().toPrettyString());
+            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }

@@ -84,7 +84,6 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
             MDCHeaderKeys headerKeys,
             ContainerRequestContext requestContext) {
         String value = requestContext.getHeaderString(headerKeys.getHeaderName());
-        log.info("Adding {}: {} to mdc", headerKeys.getHeaderName(), value);
         mdcContext.put(headerKeys.getMdcKey(), value);
     }
 
@@ -97,10 +96,8 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         String value = requestContext.getHeaderString(headerKeys.getHeaderName());
 
         if (value == null || value.trim().isEmpty()) {
-            log.info("Adding default {}: {} to mdc", headerKeys.getHeaderName(), defaultValue.get());
             map.put(headerKeys.getMdcKey(), defaultValue.get());
         } else {
-            log.info("Adding {}: {} to mdc", headerKeys.getHeaderName(), value);
             map.put(headerKeys.getMdcKey(), value);
         }
     }
