@@ -182,15 +182,22 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     public Response rexNotification(NotificationRequest notificationRequest) {
         State stateBefore = notificationRequest.getBefore();
         State stateAfter = notificationRequest.getAfter();
-        String correlationId = notificationRequest.getTask().getCorrelationID();
 
-        if (stateBefore != State.UP && !stateAfter.isFinal()) {
-            // if the before state is not UP and the final state is not final, just ignore it
+        if (stateBefore != State.UP && stateBefore != State.STARTING) {
+            // we only care about UP -> something and STARTING -> something transition
+            return Response.ok().build();
+        }
+
+        if (!stateAfter.isFinal()) {
+            // we don't care about that statue
             return Response.ok().build();
         }
 
         Log.infof("[%s] -> [%s] :: %s", stateBefore, stateAfter, notificationRequest.getTask().getName());
+
+        String correlationId = notificationRequest.getTask().getCorrelationID();
         Set<TaskDTO> tasks = taskEndpoint.byCorrelation(correlationId);
+
         if (areAllRexTasksInFinalState(tasks)) {
             // TODO
             // assemble the final buildresult object from task results
