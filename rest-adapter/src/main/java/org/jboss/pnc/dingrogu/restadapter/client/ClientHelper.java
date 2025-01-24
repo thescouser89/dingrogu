@@ -6,6 +6,8 @@ import org.jboss.pnc.common.log.MDCUtils;
 
 import java.util.Map;
 
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+
 @Slf4j
 public class ClientHelper {
     /**
@@ -17,16 +19,7 @@ public class ClientHelper {
     public static Map<String, String> getClientHeaders(Tokens tokens) {
 
         Map<String, String> headers = MDCUtils.getHeadersFromMDC();
-
-        headers.put("Authorization", "Bearer " + tokens.getAccessToken());
-
-        log.info("Getting client HTTP headers");
-        for (String key : headers.keySet()) {
-            if (!key.toLowerCase().equals("authorization")) {
-                log.info("    {}: {} from mdc to be added to client call", key, headers.get(key));
-            }
-        }
-
+        headers.put(AUTHORIZATION, "Bearer " + tokens.getAccessToken());
         return headers;
     }
 }
