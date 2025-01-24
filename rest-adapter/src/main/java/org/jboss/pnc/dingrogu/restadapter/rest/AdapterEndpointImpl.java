@@ -13,7 +13,9 @@ import kong.unirest.core.Unirest;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.common.enums.State;
+import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.MinimizedTask;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
@@ -23,6 +25,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Adapter endpoint: Each Rex task will call the Adapter endpoint for that task. The endpoint will translate the Rex DTO
@@ -40,6 +43,9 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
 
     @Inject
     Tokens tokens;
+
+    @Inject
+    TaskEndpoint taskEndpoint;
 
     /**
      * Get all the implementations of the Adapter interface
@@ -122,6 +128,11 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
                 stateAfter,
                 task.getCorrelationID(),
                 task.getName());
+
+        if (stateAfter.isFinal()) {
+            Set<TaskDTO> tasks = taskEndpoint.byCorrelation(notificationRequest.getTask().getCorrelationID());
+            tasks.forEach(taskDTO -> Log.infof("Task present in notification: %s", taskDTO.getName()));
+        }
 
         // only send the request in the attachment for a failure notification
         if (stateAfter.isFinal() && stateAfter.toString().toLowerCase().contains("fail") && attachment != null) {
