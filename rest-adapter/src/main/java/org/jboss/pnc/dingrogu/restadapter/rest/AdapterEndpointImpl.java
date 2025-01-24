@@ -110,6 +110,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
     }
 
     // TODO: MDC
+    // TODO: remove it now that Workflow handles the rexNotification?
     @Override
     public Response rexNotification(NotificationRequest notificationRequest) {
 

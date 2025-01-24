@@ -82,6 +82,13 @@ public interface Adapter<T> {
         return correlationId + "-" + getAdapterName();
     }
 
+    /**
+     * Get the notification endpoint after a Rex task transitions to another state. Override this method to set a
+     * different notification endpoint from the default one.
+     * 
+     * @param adapterUrl
+     * @return
+     */
     default String getNotificationEndpoint(String adapterUrl) {
         return AdapterEndpoint.getNotificationEndpoint(adapterUrl);
     }
@@ -91,13 +98,12 @@ public interface Adapter<T> {
      *
      * @param adapterUrl
      * @param correlationId
-     * @param failedRequest Request to send to an endpoint in case a task fails. Leave null if you don't want a
-     *        notification
+     * @param notificationAttachment
      * @param t data needed to generate the rex task
      * @return Rex task
      * @throws Exception if something went wrong
      */
-    default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, Request failedRequest, T t)
+    default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, Object notificationAttachment, T t)
             throws Exception {
 
         Map<String, String> mdcMap = MDCUtils.getHeadersFromMDC();
@@ -121,7 +127,7 @@ public interface Adapter<T> {
                 Request.Method.POST,
                 new URI(getNotificationEndpoint(adapterUrl)),
                 TaskHelper.getHTTPHeaders(),
-                failedRequest);
+                notificationAttachment);
 
         // TODO: I'm not really sure if the passMDCInRequestBody does anything here?
         return CreateTaskDTO.builder()
