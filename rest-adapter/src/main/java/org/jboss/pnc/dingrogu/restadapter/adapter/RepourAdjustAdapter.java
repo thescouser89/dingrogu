@@ -11,6 +11,7 @@ import org.jboss.pnc.api.repour.dto.RepourAdjustRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
@@ -86,6 +87,11 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
                 Log.error("Error happened in callback adapter", ex);
             }
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
     }
 
     @Override

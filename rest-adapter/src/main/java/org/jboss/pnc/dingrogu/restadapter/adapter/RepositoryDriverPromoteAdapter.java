@@ -9,6 +9,7 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
@@ -90,6 +91,11 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
     }
 
     @Override

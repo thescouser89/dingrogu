@@ -10,6 +10,7 @@ import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.ServerResponse;
@@ -102,6 +103,11 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
     }
 
     /**

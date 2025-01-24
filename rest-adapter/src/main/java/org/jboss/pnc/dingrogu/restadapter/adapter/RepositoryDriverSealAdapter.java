@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -58,6 +59,11 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
                 Log.error("Error happened in rex client callback to Rex server for repository driver seal", e);
             }
         });
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
     }
 
     /**

@@ -12,6 +12,7 @@ import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.api.reqour.dto.InternalGitRepositoryUrl;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.ReqourClient;
@@ -119,6 +120,11 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
                 Log.error("Error happened in callback adapter", ex);
             }
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
     }
 
     @Override

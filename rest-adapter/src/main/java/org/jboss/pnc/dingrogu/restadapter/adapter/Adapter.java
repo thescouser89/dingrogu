@@ -82,6 +82,10 @@ public interface Adapter<T> {
         return correlationId + "-" + getAdapterName();
     }
 
+    default String getNotificationEndpoint(String adapterUrl) {
+        return AdapterEndpoint.getNotificationEndpoint(adapterUrl);
+    }
+
     /**
      * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint
      *
@@ -115,7 +119,7 @@ public interface Adapter<T> {
 
         Request callerNotification = new Request(
                 Request.Method.POST,
-                new URI(AdapterEndpoint.getNotificationEndpoint(adapterUrl)),
+                new URI(getNotificationEndpoint(adapterUrl)),
                 TaskHelper.getHTTPHeaders(),
                 failedRequest);
 

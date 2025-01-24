@@ -13,6 +13,8 @@ import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
+import org.jboss.pnc.rex.model.requests.StartRequest;
 
 /**
  * WorkflowEndpoint interface. Separating the interface and implementation so that you can potentially create a REST
@@ -23,6 +25,8 @@ import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 @Path("/")
 @Tag(name = "Workflow", description = "Workflow manipulation through that endpoint")
 public interface WorkflowEndpoint {
+
+    String BUILD_REX_NOTIFY = "/workflow/build/rex-notify";
 
     /**
      * Start the brew push workflow
@@ -45,14 +49,29 @@ public interface WorkflowEndpoint {
     public CorrelationId startRepositoryCreationWorkflow(RepositoryCreationDTO repositoryCreationDTO);
 
     /**
-     * Start the build workflow
+     * Start the build workflow. The build workflow will be driven from Rex itself, but we leave it here for debug
+     * purposes
      *
      * @param buildWorkDTO
      * @return DTO of the correlationId
      */
     @Path("/workflow/build/start")
     @POST
-    public CorrelationId startBuildWorkflow(BuildWorkDTO buildCreationDTO);
+    public CorrelationId startBuildWorkflow(BuildWorkDTO buildWorkDTO);
+
+    /**
+     * Start the build workflow, accepting the Rex's StartRequest DTO
+     *
+     * @param startRequest Rex startRequest start
+     * @return DTO of the correlationId
+     */
+    @Path("/workflow/build/rex-start")
+    @POST
+    public CorrelationId startBuildWorkflowFromRex(StartRequest startRequest);
+
+    @Path("/workflow/build/rex-notify")
+    @POST
+    public Response buildWorkflowNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
      * Start the deliverables-analysis workflow

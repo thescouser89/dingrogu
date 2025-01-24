@@ -15,6 +15,8 @@ import org.jboss.pnc.dingrogu.restworkflow.workflows.DeliverablesAnalysisWorkflo
 import org.jboss.pnc.dingrogu.restworkflow.workflows.BrewPushWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.DummyWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.RepositoryCreationWorkflow;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
+import org.jboss.pnc.rex.model.requests.StartRequest;
 
 /**
  * Implementation of the workflow endpoint
@@ -55,6 +57,16 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     }
 
     @Override
+    public CorrelationId startBuildWorkflowFromRex(StartRequest startRequest) {
+        return buildWorkflow.submitWorkflow(startRequest);
+    }
+
+    @Override
+    public Response buildWorkflowNotificationFromRex(NotificationRequest notificationRequest) {
+        return buildWorkflow.rexNotification(notificationRequest);
+    }
+
+    @Override
     public CorrelationId startDeliverablesAnalysisWorkflow(
             DeliverablesAnalysisWorkflowDTO deliverablesAnalysisWorkflowDTO) {
         return deliverablesAnalysisWorkflow.submitWorkflow(deliverablesAnalysisWorkflowDTO);
@@ -65,6 +77,7 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
         return dummyWorkflow.submitWorkflow(dummyWorkflowDTO);
     }
 
+    @Override
     public Response cancelWorkflow(String correlationId) {
         // TODO: interact with Rex to submit cancel of the graph, and return an error for not found or rex not
         // responding
