@@ -10,6 +10,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.DeliverablesAnalyzerClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -65,6 +66,11 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.DELIVERABLES_ANALYSIS_REX_NOTIFY;
     }
 
     @Override

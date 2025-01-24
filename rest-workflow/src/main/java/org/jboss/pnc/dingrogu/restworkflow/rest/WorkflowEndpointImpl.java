@@ -47,6 +47,16 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     }
 
     @Override
+    public Response brewPushNotificationFromRex(NotificationRequest notificationRequest) {
+        return brewPushWorkflow.rexNotification(notificationRequest);
+    }
+
+    @Override
+    public Response repositoryCreationNotificationFromRex(NotificationRequest notificationRequest) {
+        return brewPushWorkflow.rexNotification(notificationRequest);
+    }
+
+    @Override
     public CorrelationId startRepositoryCreationWorkflow(RepositoryCreationDTO repositoryCreationDTO) {
         return repositoryCreationWorkflow.submitWorkflow(repositoryCreationDTO);
     }
@@ -73,8 +83,18 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     }
 
     @Override
+    public Response deliverablesAnalysisNotificationFromRex(NotificationRequest notificationRequest) {
+        return deliverablesAnalysisWorkflow.rexNotification(notificationRequest);
+    }
+
+    @Override
     public CorrelationId startDummyWorkflow(DummyWorkflowDTO dummyWorkflowDTO) {
         return dummyWorkflow.submitWorkflow(dummyWorkflowDTO);
+    }
+
+    @Override
+    public Response dummyNotificationFromRex(NotificationRequest notificationRequest) {
+        return dummyWorkflow.rexNotification(notificationRequest);
     }
 
     @Override

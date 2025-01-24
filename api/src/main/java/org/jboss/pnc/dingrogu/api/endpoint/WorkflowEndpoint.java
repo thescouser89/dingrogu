@@ -26,38 +26,50 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 @Tag(name = "Workflow", description = "Workflow manipulation through that endpoint")
 public interface WorkflowEndpoint {
 
+    String BREW_PUSH_REX_NOTIFY = "/workflow/brew-push/rex-notify";
+    String REPOSITORY_CREATION_REX_NOTIFY = "/workflow/repository-creation/rex-notify";
     String BUILD_REX_NOTIFY = "/workflow/build/rex-notify";
+    String DELIVERABLES_ANALYSIS_REX_NOTIFY = "/workflow/deliverables-analysis/rex-notify";
+    String DUMMY_REX_NOTIFY = "/workflow/dummy/rex-notify";
 
     /**
      * Start the brew push workflow
      *
-     * @param brewPushDTO
+     * @param brewPushDTO dto
      * @return DTO of the correlationId
      */
     @Path("/workflow/brew-push/start")
     @POST
-    public CorrelationId startBrewPushWorkflow(BrewPushDTO brewPushDTO);
+    CorrelationId startBrewPushWorkflow(BrewPushDTO brewPushDTO);
+
+    @Path(BREW_PUSH_REX_NOTIFY)
+    @POST
+    Response brewPushNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
      * Start the repository creation workflow
      *
-     * @param repositoryCreationDTO
+     * @param repositoryCreationDTO dto
      * @return DTO of the correlationId
      */
     @Path("/workflow/repository-creation/start")
     @POST
-    public CorrelationId startRepositoryCreationWorkflow(RepositoryCreationDTO repositoryCreationDTO);
+    CorrelationId startRepositoryCreationWorkflow(RepositoryCreationDTO repositoryCreationDTO);
+
+    @Path(REPOSITORY_CREATION_REX_NOTIFY)
+    @POST
+    Response repositoryCreationNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
      * Start the build workflow. The build workflow will be driven from Rex itself, but we leave it here for debug
      * purposes
      *
-     * @param buildWorkDTO
+     * @param buildWorkDTO dto
      * @return DTO of the correlationId
      */
     @Path("/workflow/build/start")
     @POST
-    public CorrelationId startBuildWorkflow(BuildWorkDTO buildWorkDTO);
+    CorrelationId startBuildWorkflow(BuildWorkDTO buildWorkDTO);
 
     /**
      * Start the build workflow, accepting the Rex's StartRequest DTO
@@ -67,31 +79,39 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/build/rex-start")
     @POST
-    public CorrelationId startBuildWorkflowFromRex(StartRequest startRequest);
+    CorrelationId startBuildWorkflowFromRex(StartRequest startRequest);
 
-    @Path("/workflow/build/rex-notify")
+    @Path(BUILD_REX_NOTIFY)
     @POST
-    public Response buildWorkflowNotificationFromRex(NotificationRequest notificationRequest);
+    Response buildWorkflowNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
      * Start the deliverables-analysis workflow
      *
-     * @param deliverablesAnalysisWorkDTO
+     * @param deliverablesAnalysisWorkDTO dto
      * @return DTO of the correlationId
      */
     @Path("/workflow/deliverables-analysis/start")
     @POST
-    public CorrelationId startDeliverablesAnalysisWorkflow(DeliverablesAnalysisWorkflowDTO buildCreationDTO);
+    CorrelationId startDeliverablesAnalysisWorkflow(DeliverablesAnalysisWorkflowDTO deliverablesAnalysisWorkDTO);
+
+    @Path(DELIVERABLES_ANALYSIS_REX_NOTIFY)
+    @POST
+    Response deliverablesAnalysisNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
      * Start the dummy workflow
      *
-     * @param object of whatever you have
+     * @param dummyWorkflowDTO dto
      * @return DTO of the correlationId
      */
     @Path("/workflow/dummy/start")
     @POST
-    public CorrelationId startDummyWorkflow(DummyWorkflowDTO dummyWorkflowDTO);
+    CorrelationId startDummyWorkflow(DummyWorkflowDTO dummyWorkflowDTO);
+
+    @Path(DUMMY_REX_NOTIFY)
+    @POST
+    Response dummyNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
      * Cancel a particular workflow, given its correlationId
@@ -100,5 +120,5 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/id/{correlationId}/cancel")
     @POST
-    public Response cancelWorkflow(String correlationId);
+    Response cancelWorkflow(String correlationId);
 }

@@ -6,7 +6,6 @@ import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
-import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -59,16 +58,6 @@ public interface Adapter<T> {
     }
 
     /**
-     * Override this method if we want to send a request to an endpoint for a failed task in the workflow By default
-     * nothing will be sent. See {@link AdapterEndpoint#rexNotification(NotificationRequest)}
-     * 
-     * @return Request
-     */
-    default Request failedTaskNotification() {
-        return null;
-    }
-
-    /**
      * Get the rex task name that we'll submit to Rex. We prepend the correlation id to it to make the Rex task name
      * unique
      *
@@ -80,15 +69,12 @@ public interface Adapter<T> {
     }
 
     /**
-     * Get the notification endpoint after a Rex task transitions to another state. Override this method to set a
-     * different notification endpoint from the default one.
+     * Get the notification endpoint after a Rex task transitions to another state.
      * 
      * @param adapterUrl
      * @return
      */
-    default String getNotificationEndpoint(String adapterUrl) {
-        return AdapterEndpoint.getNotificationEndpoint(adapterUrl);
-    }
+    String getNotificationEndpoint(String adapterUrl);
 
     /**
      * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint

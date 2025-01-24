@@ -8,7 +8,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -25,7 +24,6 @@ public interface AdapterEndpoint {
     String START = "/adapter/{name}/{correlationId}/start";
     String CANCEL = "/adapter/{name}/{correlationId}/cancel";
     String CALLBACK = "/adapter/{name}/{correlationId}/callback";
-    String REX_NOTIFICATION = "/adapter/rex-notify";
 
     static String getStartAdapterEndpoint(String dingroguUrl, String name, String correlationId) {
         String start = dingroguUrl + AdapterEndpoint.START;
@@ -40,10 +38,6 @@ public interface AdapterEndpoint {
     static String getCallbackAdapterEndpoint(String dingroguUrl, String name, String correlationId) {
         String start = dingroguUrl + AdapterEndpoint.CALLBACK;
         return start.replace("{name}", name).replace("{correlationId}", correlationId);
-    }
-
-    static String getNotificationEndpoint(String dingroguUrl) {
-        return dingroguUrl + AdapterEndpoint.REX_NOTIFICATION;
     }
 
     /**
@@ -87,16 +81,4 @@ public interface AdapterEndpoint {
     @Path(CALLBACK)
     @POST
     Response callback(@PathParam("name") String name, @PathParam("correlationId") String correlationId, Object object);
-
-    /**
-     * At each Rex task transition, we should be getting a notification of it happening at this endpoint. We want to
-     * notify the caller via a Request object in notificationRequest.getAttachment of a failed task so that it can
-     * perform an action.
-     *
-     * @param notificationRequest
-     * @return
-     */
-    @Path(REX_NOTIFICATION)
-    @POST
-    Response rexNotification(NotificationRequest notificationRequest);
 }

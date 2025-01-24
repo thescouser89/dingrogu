@@ -10,6 +10,7 @@ import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.ServerResponse;
@@ -72,6 +73,11 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.REPOSITORY_CREATION_REX_NOTIFY;
     }
 
     @Override

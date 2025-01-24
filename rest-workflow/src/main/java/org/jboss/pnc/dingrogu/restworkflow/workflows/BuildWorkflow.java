@@ -179,6 +179,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         }
     }
 
+    @Override
     public Response rexNotification(NotificationRequest notificationRequest) {
         State stateBefore = notificationRequest.getBefore();
         State stateAfter = notificationRequest.getAfter();

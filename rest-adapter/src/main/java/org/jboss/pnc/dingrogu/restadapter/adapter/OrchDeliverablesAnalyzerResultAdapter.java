@@ -10,6 +10,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchDeliverablesAnalyzerResultDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
@@ -85,6 +86,11 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.DELIVERABLES_ANALYSIS_REX_NOTIFY;
     }
 
     @Override

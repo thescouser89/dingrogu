@@ -8,6 +8,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchRepositoryCreationResultDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.ResultStatus;
@@ -94,6 +95,11 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.REPOSITORY_CREATION_REX_NOTIFY;
     }
 
     /**

@@ -8,6 +8,7 @@ import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.repour.dto.RepourCreateRepositoryRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
@@ -67,6 +68,11 @@ public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.REPOSITORY_CREATION_REX_NOTIFY;
     }
 
     @Override

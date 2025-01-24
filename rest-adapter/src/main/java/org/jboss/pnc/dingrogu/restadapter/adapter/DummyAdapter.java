@@ -9,6 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.DummyClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -58,6 +59,11 @@ public class DummyAdapter implements Adapter<DummyDTO> {
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.DUMMY_REX_NOTIFY;
     }
 
     @Override
