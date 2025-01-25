@@ -65,15 +65,15 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         try {
             CreateTaskDTO taskAlign = repour
-                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepourAdjustDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepourAdjustDTO());
             CreateTaskDTO taskAlignReqour = reqour
-                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toReqourAdjustDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toReqourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repoSetup
-                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverSetupDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepositoryDriverSetupDTO());
             CreateTaskDTO taskRepoSeal = repoSeal
-                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverSealDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepositoryDriverSealDTO());
             CreateTaskDTO taskRepoPromote = repoPromote
-                    .generateRexTask(ownUrl, correlationId.getId(), null, buildWorkDTO.toRepositoryDriverPromoteDTO());
+                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepositoryDriverPromoteDTO());
 
             List<CreateTaskDTO> tasks = List.of(taskAlignReqour, taskRepoSetup, taskRepoSeal, taskRepoPromote);
             Map<String, CreateTaskDTO> vertices = getVertices(tasks);

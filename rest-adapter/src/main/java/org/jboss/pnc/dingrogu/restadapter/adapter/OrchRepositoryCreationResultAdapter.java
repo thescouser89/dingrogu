@@ -19,6 +19,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.util.Map;
 
+// TODO: replace this with rex notification
 @ApplicationScoped
 public class OrchRepositoryCreationResultAdapter implements Adapter<OrchRepositoryCreationResultDTO> {
 

@@ -49,6 +49,14 @@ public interface Adapter<T> {
     String getAdapterName();
 
     /**
+     * Get the notification endpoint after a Rex task transitions to another state.
+     *
+     * @param adapterUrl
+     * @return
+     */
+    String getNotificationEndpoint(String adapterUrl);
+
+    /**
      * Indicate whether we want to get results from dependencies. Override the default method if yes, you should
      * 
      * @return boolean
@@ -67,14 +75,6 @@ public interface Adapter<T> {
     default String getRexTaskName(String correlationId) {
         return correlationId + "-" + getAdapterName();
     }
-
-    /**
-     * Get the notification endpoint after a Rex task transitions to another state.
-     * 
-     * @param adapterUrl
-     * @return
-     */
-    String getNotificationEndpoint(String adapterUrl);
 
     /**
      * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint
