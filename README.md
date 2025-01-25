@@ -66,7 +66,7 @@ graph TD
     DinGroguAdapterService2 -->|Service 2 Body| ActualService2(Actual Service 2 API)
 ```
 
-## Adapter Endpoint purpose
+## Adapter Endpoint Purpose
 Since Rex sends the `StartRequest` DTO to the targeted service, and none of the PNC services understands that DTO,
 we need an adapter endpoint to translate the `StartRequest` DTO to the service's DTO.
 
@@ -109,6 +109,9 @@ Workflow:
 # Dingrogu returns the correlation id to the requestor
 POST /workflow/<name>/start
 
+# Get notification of state changes of tasks from Rex
+POST /workflow/<name>/rex-notification
+
 # Cancelling a workflow
 POST /workflow/id/<correlation id>/cancel
 ```
@@ -125,7 +128,7 @@ POST /adapter/<name of adapter task>/<correlation id>/callback
 POST /adapter/<name of adapter task>/<correlation id>/cancel
 ```
 
-For now, a specific adapter endpoint is implemented to only satisfy a specific Rex task. We may change this in the future.
+A specific adapter endpoint is implemented to only satisfy a specific Rex task.
 
 # Architecture
 This application consists of 2 parts:
@@ -143,6 +146,13 @@ Rex, the adapter part, and how everything is interlinked together is explained i
 The WorkflowEndpoint uses the implementations of the `Workflow` interface to generate the full graph request for Rex.
 The `Workflow` implementations use the `Adapter` implementations to generate the specific Rex task DTO, then links the
 Rex tasks together.
+
+The WorkflowEndpoint is also designed to receive notifications of state changes of tasks from Rex. This can be used to:
+
+1. Catch a task failure for a workflow (by reading the notification 'after' state) and report it back to the requester
+   that the workflow has failed and a response object containing data on the failure
+2. If a task notification reports a successful final state, check if all the other tasks are done. If so, report to the
+   requester that the workflow has succeeded and send back the relevant data
 
 The `Adapter` implementations are also used to handle the translation of Rex's `StartRequest` and `StopRequest` to the
 specific PNC service.

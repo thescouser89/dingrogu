@@ -9,13 +9,13 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
+import org.jboss.pnc.dingrogu.common.NotificationHelper;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
 import org.jboss.pnc.rex.api.TaskEndpoint;
-import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -68,12 +68,21 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepourAdjustDTO());
             CreateTaskDTO taskAlignReqour = reqour
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toReqourAdjustDTO());
-            CreateTaskDTO taskRepoSetup = repoSetup
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepositoryDriverSetupDTO());
-            CreateTaskDTO taskRepoSeal = repoSeal
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepositoryDriverSealDTO());
-            CreateTaskDTO taskRepoPromote = repoPromote
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepositoryDriverPromoteDTO());
+            CreateTaskDTO taskRepoSetup = repoSetup.generateRexTask(
+                    ownUrl,
+                    correlationId.getId(),
+                    buildWorkDTO,
+                    buildWorkDTO.toRepositoryDriverSetupDTO());
+            CreateTaskDTO taskRepoSeal = repoSeal.generateRexTask(
+                    ownUrl,
+                    correlationId.getId(),
+                    buildWorkDTO,
+                    buildWorkDTO.toRepositoryDriverSealDTO());
+            CreateTaskDTO taskRepoPromote = repoPromote.generateRexTask(
+                    ownUrl,
+                    correlationId.getId(),
+                    buildWorkDTO,
+                    buildWorkDTO.toRepositoryDriverPromoteDTO());
 
             List<CreateTaskDTO> tasks = List.of(taskAlignReqour, taskRepoSetup, taskRepoSeal, taskRepoPromote);
             Map<String, CreateTaskDTO> vertices = getVertices(tasks);
@@ -181,25 +190,22 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @Override
     public Response rexNotification(NotificationRequest notificationRequest) {
-        State stateBefore = notificationRequest.getBefore();
-        State stateAfter = notificationRequest.getAfter();
 
-        if (stateBefore != State.UP && stateBefore != State.STARTING) {
-            // we only care about UP -> something and STARTING -> something transition
+        if (!NotificationHelper.isFromRunningToFinal(notificationRequest)) {
+            // we only care about states from running to final
             return Response.ok().build();
         }
 
-        if (!stateAfter.isFinal()) {
-            // we don't care about that statue
-            return Response.ok().build();
-        }
-
-        Log.infof("[%s] -> [%s] :: %s", stateBefore, stateAfter, notificationRequest.getTask().getName());
+        Log.infof(
+                "[%s] -> [%s] :: %s",
+                notificationRequest.getBefore(),
+                notificationRequest.getAfter(),
+                notificationRequest.getTask().getName());
 
         String correlationId = notificationRequest.getTask().getCorrelationID();
         Set<TaskDTO> tasks = taskEndpoint.byCorrelation(correlationId);
 
-        if (areAllRexTasksInFinalState(tasks)) {
+        if (NotificationHelper.areAllRexTasksInFinalState(tasks)) {
             // TODO
             // assemble the final buildresult object from task results
             // send that buildresult object to sender
@@ -213,11 +219,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             // workflow
         }
         return Response.ok().build();
-    }
-
-    private boolean areAllRexTasksInFinalState(Set<TaskDTO> tasks) {
-        boolean anyNonFinalState = tasks.stream().anyMatch(task -> !task.getState().isFinal());
-        return !anyNonFinalState;
     }
 
     private static Map<String, CreateTaskDTO> getVertices(List<CreateTaskDTO> tasks) {
