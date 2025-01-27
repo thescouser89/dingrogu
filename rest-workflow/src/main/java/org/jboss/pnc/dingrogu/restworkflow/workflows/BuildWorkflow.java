@@ -61,7 +61,12 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @Override
     public CorrelationId submitWorkflow(BuildWorkDTO buildWorkDTO) throws WorkflowSubmissionException {
-        CorrelationId correlationId = CorrelationId.generateUnique();
+        CorrelationId correlationId;
+        if (buildWorkDTO.getCorrelationId() == null) {
+            correlationId = CorrelationId.generateUnique();
+        } else {
+            correlationId = new CorrelationId(buildWorkDTO.getCorrelationId());
+        }
 
         try {
             CreateTaskDTO taskAlign = repour

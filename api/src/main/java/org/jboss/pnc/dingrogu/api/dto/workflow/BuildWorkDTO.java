@@ -39,6 +39,7 @@ public class BuildWorkDTO {
     boolean brewPullActive;
     Map<String, String> genericParameters;
     String buildConfigurationId;
+    String correlationId;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         return RepourAdjustDTO.builder()

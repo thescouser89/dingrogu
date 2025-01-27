@@ -25,7 +25,7 @@ public class CorrelationId {
      */
     private final String id;
 
-    private CorrelationId(String id) {
+    public CorrelationId(String id) {
         this.id = id;
     }
 
