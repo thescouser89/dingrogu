@@ -12,6 +12,7 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @Data
 @Builder
 // TODO: use Mapstruct in the future?
+// TODO: cleanup buildExecutionConfiguration and the current DTOs
 public class BuildWorkDTO {
 
     String repourUrl;
@@ -40,6 +42,7 @@ public class BuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
+    BuildExecutionConfiguration buildExecutionConfiguration;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         return RepourAdjustDTO.builder()

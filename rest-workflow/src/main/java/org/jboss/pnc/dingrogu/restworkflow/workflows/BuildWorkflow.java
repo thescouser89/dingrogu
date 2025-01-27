@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
@@ -15,6 +16,7 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
+import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -23,10 +25,13 @@ import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,6 +60,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @Inject
     ObjectMapper objectMapper;
+
+    @Inject
+    GenericClient genericClient;
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
@@ -211,17 +219,21 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Set<TaskDTO> tasks = taskEndpoint.byCorrelation(correlationId);
 
         if (NotificationHelper.areAllRexTasksInFinalState(tasks)) {
-            // TODO
-            // assemble the final buildresult object from task results
-            // send that buildresult object to sender
+
             Log.infof("Right now I should be sending a notification to the caller");
             tasks.forEach(taskDTO -> Log.infof("Task: %s, state: %s", taskDTO.getName(), taskDTO.getState()));
 
             // we set the notification attachment to be the StartRequest in submitWorkflow method
             StartRequest request = objectMapper.convertValue(notificationRequest.getAttachment(), StartRequest.class);
-            Log.infof("request is: %s", request);
-            // from start request I get the positive callback and negative callback + initial request for the build
-            // workflow
+            if (request == null) {
+                Log.info("No start request in the notification message");
+            } else {
+                Log.info("Sending request to rex callback");
+                BuildResult buildResult = generateBuildResult(
+                        tasks,
+                        objectMapper.convertValue(request.getPayload(), BuildWorkDTO.class));
+                sendRexCallback(request, buildResult);
+            }
         }
         return Response.ok().build();
     }
@@ -232,5 +244,36 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             vertices.put(task.name, task);
         }
         return vertices;
+    }
+
+    private static BuildResult generateBuildResult(Set<TaskDTO> tasks, BuildWorkDTO buildWorkDTO) {
+        // TODO: make it more realistic in the future haa
+        BuildResult buildResult = new BuildResult(
+                CompletionStatus.SUCCESS,
+                java.util.Optional.empty(),
+                Optional.of(buildWorkDTO.getBuildExecutionConfiguration()),
+                java.util.Optional.empty(),
+                java.util.Optional.empty(),
+                java.util.Optional.empty(),
+                java.util.Optional.empty());
+
+        return buildResult;
+    }
+
+    private void sendRexCallback(StartRequest startRequest, BuildResult buildResult) {
+        Request callback;
+        if (buildResult.getCompletionStatus().isFailed()) {
+            callback = startRequest.getNegativeCallback();
+        } else {
+            callback = startRequest.getPositiveCallback();
+        }
+
+        Request toSend = Request.builder()
+                .method(callback.getMethod())
+                .uri(callback.getUri())
+                .headers(callback.getHeaders())
+                .attachment(buildResult)
+                .build();
+        genericClient.send(toSend);
     }
 }
