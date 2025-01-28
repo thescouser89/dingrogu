@@ -48,7 +48,10 @@ public class BuildWorkDTO {
         String alignmentPreferenceName = null;
         if (alignmentPreference != null) {
             alignmentPreferenceName = alignmentPreference.name();
-
+        }
+        String buildTypeName = null;
+        if (buildType != null) {
+            buildTypeName = buildType.name();
         }
         return RepourAdjustDTO.builder()
                 .repourUrl(repourUrl)
@@ -59,7 +62,7 @@ public class BuildWorkDTO {
                 .tempBuild(tempBuild)
                 .alignmentPreference(alignmentPreferenceName)
                 .id(buildContentId)
-                .buildType(buildType.toString())
+                .buildType(buildTypeName)
                 .defaultAlignmentParams(defaultAlignmentParams)
                 .brewPullActive(brewPullActive)
                 .genericParameters(genericParameters)
