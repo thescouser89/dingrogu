@@ -84,10 +84,14 @@ public class BuildWorkDTO {
     }
 
     public RepositoryDriverSetupDTO toRepositoryDriverSetupDTO() {
+        String buildTypeName = null;
+        if (buildType != null) {
+            buildTypeName = buildType.name();
+        }
         return RepositoryDriverSetupDTO.builder()
                 .repositoryDriverUrl(repositoryDriverUrl)
                 .buildContentId(buildContentId)
-                .buildType(buildType.toString())
+                .buildType(buildTypeName)
                 .tempBuild(tempBuild)
                 .brewPullActive(brewPullActive)
                 .build();
