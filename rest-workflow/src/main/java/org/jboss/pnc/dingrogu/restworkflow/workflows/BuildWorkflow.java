@@ -302,6 +302,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         } else {
             callback = startRequest.getPositiveCallback();
         }
+        Log.infof("Final build callback sent to: %s", callback.getUri().toString());
 
         Request toSend = Request.builder()
                 .method(callback.getMethod())
