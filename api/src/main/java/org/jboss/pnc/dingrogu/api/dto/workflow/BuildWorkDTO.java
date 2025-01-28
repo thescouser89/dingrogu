@@ -12,7 +12,6 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import java.util.Map;
 
@@ -42,7 +41,6 @@ public class BuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
-    BuildExecutionConfiguration buildExecutionConfiguration;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         String alignmentPreferenceName = null;

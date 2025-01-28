@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
+import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
@@ -78,7 +79,6 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     }
 
     /**
-     * We're not supposed to use this since the start adapter endpoint will send the callback directly to Rex
      *
      * @param correlationId
      * @param object callback object
@@ -86,7 +86,29 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     @Override
     public void callback(String correlationId, Object object) {
         try {
+            RepositoryPromoteResult response = objectMapper.convertValue(object, RepositoryPromoteResult.class);
+
+            try {
+                if (response == null || !response.getStatus().isSuccess()) {
+                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null);
+                } else {
+                    Log.infof("Repository promote response: %s", response.toString());
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+                }
+            } catch (Exception e) {
+                Log.error("Error happened in callback adapter", e);
+            }
+        } catch (IllegalArgumentException e) {
+            // if we cannot cast object to AdjustResponse, it's probably a failure
+            try {
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+            } catch (Exception ex) {
+                Log.error("Error happened in callback adapter", ex);
+            }
+        }
+        try {
             // RepositoryPromoteResult
+
             callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);

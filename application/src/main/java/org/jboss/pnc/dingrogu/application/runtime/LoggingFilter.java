@@ -37,7 +37,6 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
 
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
-        log.info("== Request {} {}.", request.getMethod(), uriInfo.getRequestUri());
         Map<String, String> mdcContext = getContextMap();
         // TODO: can we just create a for loop with a ll the values?
         headerToMap(mdcContext, MDCHeaderKeys.PROCESS_CONTEXT, requestContext);
@@ -65,7 +64,11 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         } else {
             took = Long.toString(System.currentTimeMillis() - startTime);
         }
-        log.info("Completed {} with status: {}", requestContext.getUriInfo().getPath(), responseContext.getStatus());
+        log.info(
+                "Completed {} with status: {}, took:{}ms",
+                requestContext.getUriInfo().getPath(),
+                responseContext.getStatus(),
+                took);
 
         try (MDC.MDCCloseable mdcTook = MDC.putCloseable(MDCKeys.REQUEST_TOOK, took);
                 MDC.MDCCloseable mdcStatus = MDC

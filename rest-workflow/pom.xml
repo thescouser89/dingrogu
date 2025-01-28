@@ -45,5 +45,9 @@
       <groupId>org.jboss.pnc.rex</groupId>
       <artifactId>rex-model</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
   </dependencies>
 </project>

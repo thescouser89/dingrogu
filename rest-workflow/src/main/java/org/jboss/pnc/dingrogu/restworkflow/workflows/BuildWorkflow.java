@@ -7,6 +7,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.ArtifactQuality;
+import org.jboss.pnc.api.enums.BuildCategory;
+import org.jboss.pnc.api.repositorydriver.dto.RepositoryArtifact;
+import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
+import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
@@ -17,22 +22,31 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
+import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.spi.repour.RepourResult;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Build process workflow implementation
@@ -246,18 +260,39 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         return vertices;
     }
 
-    private static BuildResult generateBuildResult(Set<TaskDTO> tasks, BuildWorkDTO buildWorkDTO) {
-        // TODO: make it more realistic in the future haa
+    private BuildResult generateBuildResult(Set<TaskDTO> tasks, BuildWorkDTO buildWorkDTO) {
+        Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(
+                tasks,
+                buildWorkDTO.getCorrelationId());
+        Optional<RepourResult> repourResult = getReqourResult(tasks, buildWorkDTO.getCorrelationId());
+        CompletionStatus completionStatus = determineCompletionStatus(repoResult, repourResult);
         BuildResult buildResult = new BuildResult(
-                CompletionStatus.SUCCESS,
-                java.util.Optional.empty(),
-                Optional.ofNullable(buildWorkDTO.getBuildExecutionConfiguration()),
-                java.util.Optional.empty(),
-                java.util.Optional.empty(),
-                java.util.Optional.empty(),
-                java.util.Optional.empty());
+                completionStatus,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                repoResult,
+                Optional.empty(),
+                repourResult);
 
         return buildResult;
+    }
+
+    private CompletionStatus determineCompletionStatus(
+            Optional<RepositoryManagerResult> repoResult,
+            Optional<RepourResult> repourResult) {
+        if (repoResult.isEmpty() || repourResult.isEmpty()) {
+            return CompletionStatus.FAILED;
+        }
+        if (repourResult.get().getCompletionStatus().isFailed()) {
+            return repourResult.get().getCompletionStatus();
+        }
+        if (repoResult.get().getCompletionStatus().isFailed()) {
+            return repoResult.get().getCompletionStatus();
+        }
+
+        // if we are here, everything succeeded!
+        return CompletionStatus.SUCCESS;
     }
 
     private void sendRexCallback(StartRequest startRequest, BuildResult buildResult) {
@@ -275,5 +310,150 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 .attachment(buildResult)
                 .build();
         genericClient.send(toSend);
+    }
+
+    private Optional<RepourResult> getReqourResult(Set<TaskDTO> tasks, String correlationId) {
+        Optional<TaskDTO> task = findTask(tasks, reqour.getRexTaskName(correlationId));
+
+        if (task.isEmpty()) {
+            return Optional.empty();
+        }
+
+        TaskDTO reqourTask = task.get();
+        List<ServerResponseDTO> responses = reqourTask.getServerResponses();
+
+        if (responses.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
+        AdjustResponse response = objectMapper.convertValue(finalResponse.getBody(), AdjustResponse.class);
+
+        if (response == null) {
+            return Optional.empty();
+        }
+
+        RepourResult repourResult;
+        if (response.getCallback().getStatus().isSuccess()) {
+            repourResult = RepourResult.builder()
+                    .completionStatus(CompletionStatus.valueOf(response.getCallback().getStatus().name()))
+                    .executionRootName(response.getManipulatorResult().getVersioningState().getExecutionRootName())
+                    .executionRootVersion(
+                            response.getManipulatorResult().getVersioningState().getExecutionRootVersion())
+                    .build();
+        } else {
+            repourResult = RepourResult.builder()
+                    .completionStatus(CompletionStatus.valueOf(response.getCallback().getStatus().name()))
+                    .build();
+        }
+
+        return Optional.of(repourResult);
+    }
+
+    private Optional<RepositoryManagerResult> getRepositoryManagerResult(Set<TaskDTO> tasks, String correlationId) {
+
+        Optional<TaskDTO> task = findTask(tasks, repoPromote.getRexTaskName(correlationId));
+
+        if (task.isEmpty()) {
+            return Optional.empty();
+        }
+
+        TaskDTO repoTask = task.get();
+        List<ServerResponseDTO> responses = repoTask.getServerResponses();
+
+        if (responses.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
+        RepositoryPromoteResult response = objectMapper
+                .convertValue(finalResponse.getBody(), RepositoryPromoteResult.class);
+
+        if (response == null) {
+            return Optional.empty();
+        }
+        RepositoryManagerResult result = new RepositoryManagerResult() {
+            @Override
+            public List<Artifact> getBuiltArtifacts() {
+                return convertFromRepositoryArtifacts(response.getBuiltArtifacts());
+            }
+
+            @Override
+            public List<Artifact> getDependencies() {
+                return convertFromRepositoryArtifacts(response.getDependencies());
+            }
+
+            @Override
+            public String getBuildContentId() {
+                return response.getBuildContentId();
+            }
+
+            @Override
+            public CompletionStatus getCompletionStatus() {
+                return CompletionStatus.valueOf(response.getStatus().name());
+            }
+        };
+
+        return Optional.of(result);
+
+    }
+
+    private Optional<TaskDTO> findTask(Set<TaskDTO> tasks, String name) {
+        return tasks.stream().filter(task -> task.getName().equals(name)).findFirst();
+    }
+
+    private List<Artifact> convertFromRepositoryArtifacts(List<RepositoryArtifact> builtArtifacts) {
+        if (builtArtifacts == null) {
+            return Collections.emptyList();
+        }
+        return builtArtifacts.stream()
+                .map(
+                        ra -> Artifact.builder()
+                                .identifier(ra.getIdentifier())
+                                .purl(ra.getPurl())
+                                .artifactQuality(convertArtifactQuality(ra.getArtifactQuality()))
+                                .buildCategory(convertBuildCategory(ra.getBuildCategory()))
+                                .md5(ra.getMd5())
+                                .sha1(ra.getSha1())
+                                .sha256(ra.getSha256())
+                                .filename(ra.getFilename())
+                                .deployPath(ra.getDeployPath())
+                                .importDate(Date.from(ra.getImportDate()))
+                                .originUrl(ra.getOriginUrl())
+                                .size(ra.getSize())
+                                .targetRepository(convertTargetRepository(ra.getTargetRepository()))
+                                .build())
+                .collect(Collectors.toList());
+    }
+
+    private org.jboss.pnc.enums.ArtifactQuality convertArtifactQuality(ArtifactQuality quality) {
+        return quality == null ? null : org.jboss.pnc.enums.ArtifactQuality.valueOf(quality.name());
+    }
+
+    private TargetRepository convertTargetRepository(
+            org.jboss.pnc.api.repositorydriver.dto.TargetRepository targetRepository) {
+        if (targetRepository == null) {
+            return null;
+        }
+        return TargetRepository.newBuilder()
+                .temporaryRepo(targetRepository.getTemporaryRepo())
+                .identifier(targetRepository.getIdentifier())
+                .repositoryType(convertRepositoryType(targetRepository.getRepositoryType()))
+                .repositoryPath(targetRepository.getRepositoryPath())
+                .build();
+    }
+
+    private RepositoryType convertRepositoryType(org.jboss.pnc.api.enums.RepositoryType repositoryType) {
+        if (repositoryType == null) {
+            return null;
+        }
+        return RepositoryType.valueOf(repositoryType.name());
+    }
+
+    private org.jboss.pnc.enums.BuildCategory convertBuildCategory(BuildCategory buildCategory) {
+        if (buildCategory == null) {
+            return null;
+        }
+        return org.jboss.pnc.enums.BuildCategory.valueOf(buildCategory.name());
     }
 }
