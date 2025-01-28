@@ -251,7 +251,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         BuildResult buildResult = new BuildResult(
                 CompletionStatus.SUCCESS,
                 java.util.Optional.empty(),
-                Optional.of(buildWorkDTO.getBuildExecutionConfiguration()),
+                Optional.ofNullable(buildWorkDTO.getBuildExecutionConfiguration()),
                 java.util.Optional.empty(),
                 java.util.Optional.empty(),
                 java.util.Optional.empty(),
