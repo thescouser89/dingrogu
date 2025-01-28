@@ -243,9 +243,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 Log.info("No start request in the notification message");
             } else {
                 Log.info("Sending request to rex callback");
-                BuildResult buildResult = generateBuildResult(
-                        tasks,
-                        correlationId);
+                BuildResult buildResult = generateBuildResult(tasks, correlationId);
                 sendRexCallback(request, buildResult);
             }
         }
@@ -261,10 +259,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     }
 
     private BuildResult generateBuildResult(Set<TaskDTO> tasks, String correlationId) {
-        Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(
-                tasks,
-                buildWorkDTO.getCorrelationId());
-        Optional<RepourResult> repourResult = getReqourResult(tasks, buildWorkDTO.getCorrelationId());
+        Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
+        Optional<RepourResult> repourResult = getReqourResult(tasks, correlationId);
         CompletionStatus completionStatus = determineCompletionStatus(repoResult, repourResult);
         BuildResult buildResult = new BuildResult(
                 completionStatus,
@@ -367,8 +363,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         if (task.isEmpty()) {
             Log.infof("Repo promote task is supposed to be: %s", repoPromote.getRexTaskName(correlationId));
-            for (TaskDTO task : tasks) {
-                Log.infof("Present: task: %s", task.getName());
+            for (TaskDTO taskTemp : tasks) {
+                Log.infof("Present: task: %s", taskTemp.getName());
             }
             Log.info("repository manager task is empty");
             return Optional.empty();
