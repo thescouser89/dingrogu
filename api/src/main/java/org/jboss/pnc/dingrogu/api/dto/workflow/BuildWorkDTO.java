@@ -45,6 +45,11 @@ public class BuildWorkDTO {
     BuildExecutionConfiguration buildExecutionConfiguration;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
+        String alignmentPreferenceName = null;
+        if (alignmentPreference != null) {
+            alignmentPreferenceName = alignmentPreference.name();
+
+        }
         return RepourAdjustDTO.builder()
                 .repourUrl(repourUrl)
                 .scmRepoURL(scmRepoURL)
@@ -52,7 +57,7 @@ public class BuildWorkDTO {
                 .preBuildSyncEnabled(preBuildSyncEnabled)
                 .originRepoURL(originRepoURL)
                 .tempBuild(tempBuild)
-                .alignmentPreference(alignmentPreference.name())
+                .alignmentPreference(alignmentPreferenceName)
                 .id(buildContentId)
                 .buildType(buildType.toString())
                 .defaultAlignmentParams(defaultAlignmentParams)
