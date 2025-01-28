@@ -281,6 +281,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     private CompletionStatus determineCompletionStatus(
             Optional<RepositoryManagerResult> repoResult,
             Optional<RepourResult> repourResult) {
+        // debug
+        if (repoResult.isEmpty()) {
+            Log.warn("repository result is empty");
+        }
+        if (repourResult.isEmpty()) {
+            Log.warn("repour result is empty");
+        }
         if (repoResult.isEmpty() || repourResult.isEmpty()) {
             return CompletionStatus.FAILED;
         }
@@ -317,6 +324,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<TaskDTO> task = findTask(tasks, reqour.getRexTaskName(correlationId));
 
         if (task.isEmpty()) {
+            Log.info("repour task is empty");
             return Optional.empty();
         }
 
@@ -324,6 +332,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         List<ServerResponseDTO> responses = reqourTask.getServerResponses();
 
         if (responses.isEmpty()) {
+            Log.info("repour response task is empty");
             return Optional.empty();
         }
 
@@ -331,6 +340,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         AdjustResponse response = objectMapper.convertValue(finalResponse.getBody(), AdjustResponse.class);
 
         if (response == null) {
+            Log.info("adjustresponse response task is empty");
             return Optional.empty();
         }
 
@@ -356,6 +366,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<TaskDTO> task = findTask(tasks, repoPromote.getRexTaskName(correlationId));
 
         if (task.isEmpty()) {
+            Log.info("repository manager task is empty");
             return Optional.empty();
         }
 
@@ -363,6 +374,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         List<ServerResponseDTO> responses = repoTask.getServerResponses();
 
         if (responses.isEmpty()) {
+            Log.info("repository manager response task is empty");
             return Optional.empty();
         }
 
@@ -371,6 +383,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 .convertValue(finalResponse.getBody(), RepositoryPromoteResult.class);
 
         if (response == null) {
+            Log.info("repository manager server response task is empty");
             return Optional.empty();
         }
         RepositoryManagerResult result = new RepositoryManagerResult() {
