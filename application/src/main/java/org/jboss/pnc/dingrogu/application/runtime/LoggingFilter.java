@@ -63,7 +63,8 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
             took = Long.toString(System.currentTimeMillis() - startTime);
         }
         log.info(
-                "Completed {} with status: {}, took:{}ms",
+                "Completed {} {} with status: {}, took: {}ms",
+                requestContext.getMethod(),
                 requestContext.getUriInfo().getPath(),
                 responseContext.getStatus(),
                 took);

@@ -245,7 +245,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 Log.info("Sending request to rex callback");
                 BuildResult buildResult = generateBuildResult(
                         tasks,
-                        objectMapper.convertValue(request.getPayload(), BuildWorkDTO.class));
+                        correlationId);
                 sendRexCallback(request, buildResult);
             }
         }
@@ -260,7 +260,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         return vertices;
     }
 
-    private BuildResult generateBuildResult(Set<TaskDTO> tasks, BuildWorkDTO buildWorkDTO) {
+    private BuildResult generateBuildResult(Set<TaskDTO> tasks, String correlationId) {
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(
                 tasks,
                 buildWorkDTO.getCorrelationId());
@@ -366,6 +366,10 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<TaskDTO> task = findTask(tasks, repoPromote.getRexTaskName(correlationId));
 
         if (task.isEmpty()) {
+            Log.infof("Repo promote task is supposed to be: %s", repoPromote.getRexTaskName(correlationId));
+            for (TaskDTO task : tasks) {
+                Log.infof("Present: task: %s", task.getName());
+            }
             Log.info("repository manager task is empty");
             return Optional.empty();
         }
