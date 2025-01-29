@@ -96,13 +96,6 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        // TODO: sleep because Rex isn't fast enough to change state
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            Log.error(e);
-        }
-
         adapter.callback(correlationId, object);
         return Response.ok().build();
     }
