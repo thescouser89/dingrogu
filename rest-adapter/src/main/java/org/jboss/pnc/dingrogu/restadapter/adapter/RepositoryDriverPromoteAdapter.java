@@ -106,13 +106,6 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 Log.error("Error happened in callback adapter", ex);
             }
         }
-        try {
-            // RepositoryPromoteResult
-
-            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
-        } catch (Exception e) {
-            Log.error("Error happened in callback adapter", e);
-        }
     }
 
     @Override
