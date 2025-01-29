@@ -21,7 +21,6 @@ public class RepositoryDriverClient {
 
     @Retry
     public RepositoryCreateResponse setup(String repositoryDriverUrl, RepositoryCreateRequest request) {
-        // TODO: set all MDC values properly
         HttpResponse<RepositoryCreateResponse> response = Unirest.post(repositoryDriverUrl + "/create")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
@@ -39,7 +38,6 @@ public class RepositoryDriverClient {
 
     @Retry
     public void seal(String repositoryDriverUrl, String buildContentId) {
-        // TODO: set all MDC values properly
         HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/seal")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
@@ -55,7 +53,6 @@ public class RepositoryDriverClient {
 
     @Retry
     public void promote(String repositoryDriverUrl, RepositoryPromoteRequest request) {
-        // TODO: set all MDC values properly
         HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/promote")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)

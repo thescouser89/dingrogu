@@ -107,7 +107,6 @@ public interface Adapter<T> {
                 TaskHelper.getHTTPHeaders(),
                 notificationAttachment);
 
-        // TODO: I'm not really sure if the passMDCInRequestBody does anything here?
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
                 .remoteStart(startAdjust)

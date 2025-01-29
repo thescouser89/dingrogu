@@ -20,13 +20,6 @@ public class ReqourClient {
     @Inject
     Tokens tokens;
 
-    /**
-     * TODO: processContext is part of the MDC values. We're just hardcoding it to the header for now until we work on
-     * the MDC values
-     *
-     * @param reqourUrl
-     * @param request
-     */
     @Retry
     public void adjust(String reqourUrl, AdjustRequest request) {
 
