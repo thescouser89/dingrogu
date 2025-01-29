@@ -119,7 +119,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .target(taskAlignReqour.name)
                     .build();
 
-            // Temporary: testing
             EdgeDTO repoSetupToRepoSeal = EdgeDTO.builder()
                     .source(taskRepoSeal.name)
                     .target(taskRepoSetup.name)

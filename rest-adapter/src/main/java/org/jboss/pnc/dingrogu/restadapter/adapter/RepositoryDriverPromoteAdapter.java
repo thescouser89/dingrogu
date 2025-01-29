@@ -90,10 +90,10 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
 
             try {
                 if (response == null || !response.getStatus().isSuccess()) {
-                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
                 } else {
                     Log.infof("Repository promote response: %s", response.toString());
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
