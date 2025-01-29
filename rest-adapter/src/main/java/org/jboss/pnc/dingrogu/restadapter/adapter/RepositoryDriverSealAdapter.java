@@ -49,7 +49,7 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
         managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start
-                Thread.sleep(2000L);
+                Thread.sleep(5000L);
             } catch (InterruptedException e) {
                 Log.error(e);
             }

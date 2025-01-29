@@ -98,7 +98,7 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
 
         // TODO: sleep because Rex isn't fast enough to change state
         try {
-            Thread.sleep(1000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             Log.error(e);
         }
