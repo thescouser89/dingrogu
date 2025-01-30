@@ -22,7 +22,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-// TODO: replace this with rex notification
 @ApplicationScoped
 public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDeliverablesAnalyzerResultDTO> {
 
@@ -83,7 +82,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
     @Override
     public void callback(String correlationId, Object object) {
         try {
-            callbackEndpoint.succeed(getRexTaskName(correlationId), null, null);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

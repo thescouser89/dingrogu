@@ -73,7 +73,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 repositoriesToCreate);
 
         RepositoryCreateResponse response = repositoryDriverClient
-                    .setup(repositorySetupDTO.getRepositoryDriverUrl(), createRequest);
+                .setup(repositorySetupDTO.getRepositoryDriverUrl(), createRequest);
         managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start
