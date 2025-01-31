@@ -17,14 +17,14 @@ public class RexProducer {
     String rexClientUrl;
 
     @Inject
-    RexClientHttpFactory rexClientHttpFactory;
+    AuthorizationClientHttpFactory authorizationClientHttpFactory;
 
     @Produces
     @ApplicationScoped
     public TaskEndpoint createTaskEndpoint() {
         return QuarkusRestClientBuilder.newBuilder()
                 .baseUri(URI.create(rexClientUrl))
-                .clientHeadersFactory(rexClientHttpFactory)
+                .clientHeadersFactory(authorizationClientHttpFactory)
                 .build(TaskEndpoint.class);
     }
 
@@ -33,7 +33,7 @@ public class RexProducer {
     public CallbackEndpoint createCallbackEndpoint() {
         return QuarkusRestClientBuilder.newBuilder()
                 .baseUri(URI.create(rexClientUrl))
-                .clientHeadersFactory(rexClientHttpFactory)
+                .clientHeadersFactory(authorizationClientHttpFactory)
                 .build(CallbackEndpoint.class);
     }
 }

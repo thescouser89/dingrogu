@@ -13,7 +13,7 @@ import java.util.Map;
 import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
 @ApplicationScoped
-public class RexClientHttpFactory implements ClientHeadersFactory {
+public class AuthorizationClientHttpFactory implements ClientHeadersFactory {
 
     @Inject
     OidcClient oidcClient;
