@@ -18,16 +18,24 @@ class NotificationHelperTest {
         TaskDTO taskDTOStopped = TaskDTO.builder().state(State.STOPPED).build();
         TaskDTO taskDTOStopping = TaskDTO.builder().state(State.STOPPING).build();
         assertThat(NotificationHelper.areAllRexTasksInFinalState(List.of(taskDTONotFinished))).isFalse();
-        assertThat(NotificationHelper.areAllRexTasksInFinalState(List.of(taskDTONotFinished, taskDTOStopped))).isFalse();
-        assertThat(NotificationHelper.areAllRexTasksInFinalState(List.of(taskDTONotFinished, taskDTOStopping))).isFalse();
+        assertThat(NotificationHelper.areAllRexTasksInFinalState(List.of(taskDTONotFinished, taskDTOStopped)))
+                .isFalse();
+        assertThat(NotificationHelper.areAllRexTasksInFinalState(List.of(taskDTONotFinished, taskDTOStopping)))
+                .isFalse();
 
         assertThat(NotificationHelper.areAllRexTasksInFinalState(List.of(taskDTOFailed, taskDTOStopped))).isTrue();
     }
 
     @Test
     void isFromRunningToFinal() {
-        NotificationRequest upToSuccessful = NotificationRequest.builder().before(State.UP).after(State.SUCCESSFUL).build();
-        NotificationRequest startingToSuccessful = NotificationRequest.builder().before(State.STARTING).after(State.SUCCESSFUL).build();
+        NotificationRequest upToSuccessful = NotificationRequest.builder()
+                .before(State.UP)
+                .after(State.SUCCESSFUL)
+                .build();
+        NotificationRequest startingToSuccessful = NotificationRequest.builder()
+                .before(State.STARTING)
+                .after(State.SUCCESSFUL)
+                .build();
         NotificationRequest startingToUp = NotificationRequest.builder().before(State.STARTING).after(State.UP).build();
 
         assertThat(NotificationHelper.isFromRunningToFinal(upToSuccessful)).isTrue();

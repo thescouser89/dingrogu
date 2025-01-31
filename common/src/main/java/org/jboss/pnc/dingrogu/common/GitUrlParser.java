@@ -135,8 +135,8 @@ public class GitUrlParser {
     }
 
     /**
-     * Transforms the readwrite SCM url to the readonly one. It assumes we are using Gerrit with git+ssh protocol in
-     * url or GitLab with SCP-like git url format.
+     * Transforms the readwrite SCM url to the readonly one. It assumes we are using Gerrit with git+ssh protocol in url
+     * or GitLab with SCP-like git url format.
      *
      * For Gerrit it replaces the protocol for "https" and adds "/gerrit" as the first path element.
      *

@@ -29,6 +29,7 @@ public class NotificationHelper {
 
     /**
      * Figure out if all rex tasks are now in a final state
+     * 
      * @param tasks collection of Rex tasks
      *
      * @return boolean
