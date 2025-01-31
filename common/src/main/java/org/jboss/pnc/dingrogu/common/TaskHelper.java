@@ -13,6 +13,11 @@ public class TaskHelper {
     private static final Request.Header JSON_HEADER = new Request.Header("Content-Type", MediaType.APPLICATION_JSON);
     private static final Request.Header ACCEPT_JSON_HEADER = new Request.Header("Accept", MediaType.APPLICATION_JSON);
 
+    /**
+     * Get a list of HTTP headers to add to a request based on the MDC values for that task
+     *
+     * @return list of headers
+     */
     public static List<Request.Header> getHTTPHeaders() {
 
         List<Request.Header> headers = new ArrayList<>();

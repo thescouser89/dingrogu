@@ -61,8 +61,6 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
 
         ReqourAdjustDTO reqourAdjustDTO = objectMapper.convertValue(startRequest.getPayload(), ReqourAdjustDTO.class);
 
-        String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
-
         // Generate DTO to submit to Reqour
         InternalGitRepositoryUrl internalUrl = InternalGitRepositoryUrl.builder()
                 .readonlyUrl(GitUrlParser.scmRepoURLReadOnly(reqourAdjustDTO.getScmRepoURL()))

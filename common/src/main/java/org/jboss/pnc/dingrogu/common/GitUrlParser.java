@@ -122,19 +122,21 @@ public class GitUrlParser {
             } else {
                 return repository;
             }
-        } else {
+        } else if (externalUrl.contains("/")) {
             String[] a = externalUrl.split("/");
             if (a.length != 0) {
                 return a[a.length - 1];
             } else {
                 return null;
             }
+        } else {
+            return null;
         }
     }
 
     /**
-     * Transforms the readwrite SCM url to the readoonly one. It assumes we are using Gerrit with git+ssh protocol in
-     * url or GitLab with SCP-like git url format.
+     * Transforms the readwrite SCM url to the readonly one. It assumes we are using Gerrit with git+ssh protocol in url
+     * or GitLab with SCP-like git url format.
      *
      * For Gerrit it replaces the protocol for "https" and adds "/gerrit" as the first path element.
      *
@@ -151,6 +153,9 @@ public class GitUrlParser {
             // Gerrit
             try {
                 URI uri = new URI(scmUrl);
+                if (uri.getHost() == null || uri.getPath() == null) {
+                    return null;
+                }
                 return "https" + "://" + uri.getHost() + "/gerrit" + uri.getPath();
 
             } catch (URISyntaxException e) {

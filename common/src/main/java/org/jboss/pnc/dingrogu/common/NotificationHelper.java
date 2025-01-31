@@ -13,7 +13,7 @@ public class NotificationHelper {
      * "Not really running" (like WAITING) to a final state since that task didn't do anything
      *
      * @param notificationRequest notificationRequest
-     * @return
+     * @return boolean
      */
     public static boolean isFromRunningToFinal(NotificationRequest notificationRequest) {
         State stateBefore = notificationRequest.getBefore();
@@ -27,6 +27,13 @@ public class NotificationHelper {
         return stateAfter.isFinal();
     }
 
+    /**
+     * Figure out if all rex tasks are now in a final state
+     * 
+     * @param tasks collection of Rex tasks
+     *
+     * @return boolean
+     */
     public static boolean areAllRexTasksInFinalState(Collection<TaskDTO> tasks) {
         return tasks.stream().allMatch(task -> task.getState().isFinal());
     }
