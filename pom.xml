@@ -186,6 +186,12 @@
                 <artifactId>unirest-modules-jackson</artifactId>
                 <version>4.4.5</version>
             </dependency>
+            <dependency>
+              <groupId>org.assertj</groupId>
+              <artifactId>assertj-core</artifactId>
+              <version>3.27.3</version>
+              <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <repositories>
@@ -272,6 +278,16 @@
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                   <systemPropertyVariables>
+                      <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                      <maven.home>${maven.home}</maven.home>
+                   </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
