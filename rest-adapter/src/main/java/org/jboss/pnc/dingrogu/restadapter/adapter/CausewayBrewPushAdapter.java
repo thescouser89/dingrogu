@@ -6,6 +6,8 @@ import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
+import java.util.Optional;
+
 @ApplicationScoped
 public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
 
@@ -15,7 +17,7 @@ public class CausewayBrewPushAdapter implements Adapter<BrewPushDTO> {
     }
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
         throw new UnsupportedOperationException();
     }
 

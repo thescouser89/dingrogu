@@ -17,6 +17,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Adapter endpoint: Each Rex task will call the Adapter endpoint for that task. The endpoint will translate the Rex DTO
@@ -68,8 +69,13 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        adapter.start(correlationId, startRequest);
-        return Response.accepted().build();
+        Optional<Object> response = adapter.start(correlationId, startRequest);
+
+        if (response.isEmpty()) {
+            return Response.accepted().build();
+        } else {
+            return Response.accepted(response.get()).build();
+        }
     }
 
     @Override

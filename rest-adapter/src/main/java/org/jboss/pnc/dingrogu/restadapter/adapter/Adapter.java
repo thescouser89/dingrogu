@@ -10,6 +10,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
+import java.util.Optional;
 
 /**
  * Interface for all the adapters
@@ -22,9 +23,12 @@ public interface Adapter<T> {
     /**
      * Translates the Rex StartRequest DTO to the application's DTO and send the request to the application
      *
+     * You can optionally return an object that will be sent to the sender (Rex). This is useful if you want to return a
+     * unique id that the start method has obtained from the application
+     * 
      * @param startRequest
      */
-    void start(String correlationId, StartRequest startRequest);
+    Optional<Object> start(String correlationId, StartRequest startRequest);
 
     /**
      * Translates the callback from the application's DTO and send it back to Rex

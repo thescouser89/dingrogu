@@ -19,6 +19,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
 public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSetupDTO> {
@@ -50,7 +51,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
      * @param startRequest
      */
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(reqour.getRexTaskName(correlationId));
@@ -87,6 +88,8 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 Log.error("Error happened in rex client callback to Rex server for repository driver create", e);
             }
         });
+
+        return Optional.empty();
     }
 
     /**

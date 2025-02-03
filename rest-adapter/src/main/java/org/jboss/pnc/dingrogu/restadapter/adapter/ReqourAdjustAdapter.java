@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
@@ -46,7 +47,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
     }
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
         Request callback;
         try {
             callback = new Request(
@@ -93,6 +94,8 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
 
         // Send to Reqour
         reqourClient.adjust(reqourAdjustDTO.getReqourUrl(), request);
+
+        return Optional.empty();
     }
 
     @Override

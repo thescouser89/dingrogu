@@ -16,6 +16,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Just a dummy adapter to test for Rex functionality. It does nothing and just calls the Rex callback. Supports the
@@ -38,7 +39,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     ObjectMapper objectMapper;
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
         Map<String, String> mdcMap = startRequest.getMdc();
         for (String key : mdcMap.keySet()) {
             log.info("Adapter start mdc: {}::{}", key, mdcMap.get(key));
@@ -48,6 +49,8 @@ public class DummyAdapter implements Adapter<DummyDTO> {
         Log.info(startRequest.getPayload().toString());
         DummyDTO dummyDTO = objectMapper.convertValue(startRequest.getPayload(), DummyDTO.class);
         dummyClient.start(dummyDTO.getDummyServiceUrl(), callbackUrl);
+
+        return Optional.empty();
     }
 
     @Override

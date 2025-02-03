@@ -12,6 +12,8 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
+import java.util.Optional;
+
 @ApplicationScoped
 public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSealDTO> {
 
@@ -39,7 +41,7 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
      * @param startRequest
      */
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         RepositoryDriverSealDTO repositorySealDTO = objectMapper
                 .convertValue(startRequest.getPayload(), RepositoryDriverSealDTO.class);
@@ -59,6 +61,8 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
                 Log.error("Error happened in rex client callback to Rex server for repository driver seal", e);
             }
         });
+
+        return Optional.empty();
     }
 
     @Override

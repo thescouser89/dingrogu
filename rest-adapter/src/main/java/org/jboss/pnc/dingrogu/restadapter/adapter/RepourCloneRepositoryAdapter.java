@@ -18,6 +18,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
 public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneRepositoryDTO> {
@@ -38,7 +39,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
     RepourClient repourClient;
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(repourCreate.getRexTaskName(correlationId));
@@ -63,6 +64,8 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
                 .build();
 
         repourClient.cloneRequest(dto.getRepourUrl(), request);
+
+        return Optional.empty();
     }
 
     @Override
