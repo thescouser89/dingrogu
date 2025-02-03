@@ -18,6 +18,8 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
+import java.util.Optional;
+
 @ApplicationScoped
 public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
 
@@ -39,7 +41,7 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
     }
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
         RepourAdjustDTO repourAdjustDTO = objectMapper.convertValue(startRequest.getPayload(), RepourAdjustDTO.class);
 
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
@@ -68,6 +70,8 @@ public class RepourAdjustAdapter implements Adapter<RepourAdjustDTO> {
 
         // Send to Repour
         repourClient.adjust(repourAdjustDTO.getRepourUrl(), request);
+
+        return Optional.empty();
     }
 
     @Override

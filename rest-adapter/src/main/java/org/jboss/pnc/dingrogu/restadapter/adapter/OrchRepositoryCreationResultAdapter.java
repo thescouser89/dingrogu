@@ -18,6 +18,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.util.Map;
+import java.util.Optional;
 
 // TODO: replace this with rex notification
 @ApplicationScoped
@@ -47,7 +48,7 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
     }
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         // grab payload DTO
         OrchRepositoryCreationResultDTO dto = objectMapper
@@ -86,6 +87,8 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
                 Log.error("Error happened in rex client callback to Rex server for orch repository create", e);
             }
         });
+
+        return Optional.empty();
     }
 
     @Override

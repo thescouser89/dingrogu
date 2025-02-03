@@ -18,6 +18,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzerDTO> {
@@ -40,7 +41,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     }
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
         DeliverablesAnalyzerDTO deliverablesAnalyzerDTO = objectMapper
                 .convertValue(startRequest.getPayload(), DeliverablesAnalyzerDTO.class);
 
@@ -56,6 +57,7 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
                 null);
 
         deliverablesAnalyzerClient.analyze(deliverablesAnalyzerDTO.getDeliverablesAnalyzerUrl(), payload);
+        return Optional.empty();
     }
 
     @Override

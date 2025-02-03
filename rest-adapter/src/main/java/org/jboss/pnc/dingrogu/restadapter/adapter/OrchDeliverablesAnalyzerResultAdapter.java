@@ -21,6 +21,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Optional;
 
 @ApplicationScoped
 public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDeliverablesAnalyzerResultDTO> {
@@ -46,7 +47,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
     }
 
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
         Request callback;
         try {
             callback = new Request(
@@ -77,6 +78,8 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
                 .build();
 
         orchClient.submitDelAResult(dto.getOrchUrl(), result);
+
+        return Optional.empty();
     }
 
     @Override

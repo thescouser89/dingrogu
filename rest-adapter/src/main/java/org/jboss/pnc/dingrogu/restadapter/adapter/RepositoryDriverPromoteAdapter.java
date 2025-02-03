@@ -19,6 +19,7 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 @ApplicationScoped
 public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverPromoteDTO> {
@@ -47,7 +48,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
      * @param startRequest
      */
     @Override
-    public void start(String correlationId, StartRequest startRequest) {
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         Request callback;
         try {
@@ -76,6 +77,8 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 .build();
 
         repositoryDriverClient.promote(repoPromoteDTO.getRepositoryDriverUrl(), promoteRequest);
+
+        return Optional.empty();
     }
 
     /**
