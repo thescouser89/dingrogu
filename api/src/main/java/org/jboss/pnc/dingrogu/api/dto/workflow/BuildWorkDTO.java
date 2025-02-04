@@ -7,6 +7,7 @@ import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
+import org.jboss.pnc.dingrogu.api.dto.adapter.KonfluxBuildDriverDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
@@ -19,18 +20,20 @@ import java.util.Map;
 @Data
 @Builder
 // TODO: use Mapstruct in the future?
-// TODO: cleanup buildExecutionConfiguration and the current DTOs
 public class BuildWorkDTO {
 
     String repourUrl;
     String reqourUrl;
     String repositoryDriverUrl;
+    String konfluxBuildDriverUrl;
 
     String scmRepoURL;
     String scmRevision;
     boolean preBuildSyncEnabled;
     String originRepoURL;
+
     boolean tempBuild;
+
     AlignmentPreference alignmentPreference;
     @NotNull
     String buildContentId;
@@ -41,6 +44,14 @@ public class BuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
+
+    String buildScript;
+    String buildTool;
+    String recipeImage;
+    String podMemoryOverride;
+    String namespace;
+    String buildToolVersion;
+    String javaVersion;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         String alignmentPreferenceName = null;
@@ -95,6 +106,20 @@ public class BuildWorkDTO {
                 .buildType(buildTypeName)
                 .tempBuild(tempBuild)
                 .brewPullActive(brewPullActive)
+                .build();
+    }
+
+    public KonfluxBuildDriverDTO toKonfluxBuildDriverDTO() {
+        return KonfluxBuildDriverDTO.builder()
+                .konfluxBuildDriverUrl(konfluxBuildDriverUrl)
+                .buildContentId(buildContentId)
+                .buildScript(buildScript)
+                .buildTool(buildTool)
+                .recipeImage(recipeImage)
+                .podMemoryOverride(podMemoryOverride)
+                .namespace(namespace)
+                .buildToolVersion(buildToolVersion)
+                .javaVersion(javaVersion)
                 .build();
     }
 
