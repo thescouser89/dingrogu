@@ -9,20 +9,15 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 public class KonfluxBuildDriverDTO {
 
-    String konfluxBuildDriver;
+    String konfluxBuildDriverUrl;
 
     String buildContentId;
 
-    String scmUrl;
-    String scmRevision;
     String buildScript;
     String buildTool;
 
     String recipeImage;
     String podMemoryOverride;
-
-    String deployUrl;
-    String dependenciesUrl;
 
     String namespace;
     String buildToolVersion;

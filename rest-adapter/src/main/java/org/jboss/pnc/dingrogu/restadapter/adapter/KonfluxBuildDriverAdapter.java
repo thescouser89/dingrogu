@@ -11,6 +11,7 @@ import org.jboss.pnc.api.konfluxbuilddriver.dto.BuildRequest;
 import org.jboss.pnc.api.konfluxbuilddriver.dto.BuildResponse;
 import org.jboss.pnc.api.konfluxbuilddriver.dto.CancelRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
+import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.dingrogu.api.client.KonfluxBuildDriver;
 import org.jboss.pnc.dingrogu.api.client.KonfluxBuildDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.KonfluxBuildDriverDTO;
@@ -47,6 +48,9 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
     KonfluxBuildDriverProducer konfluxBuildDriverProducer;
 
     @Inject
+    ReqourAdjustAdapter reqourAdjustAdapter;
+
+    @Inject
     RepositoryDriverSetupAdapter repositoryDriverSetupAdapter;
 
     @Inject
@@ -74,18 +78,22 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
         KonfluxBuildDriverDTO dto = objectMapper.convertValue(startRequest.getPayload(), KonfluxBuildDriverDTO.class);
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
-        Object pastResult = pastResults.get(repositoryDriverSetupAdapter.getRexTaskName(correlationId));
-        ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
+        Object repoDriverSetup = pastResults.get(repositoryDriverSetupAdapter.getRexTaskName(correlationId));
+        ServerResponse serverResponseRepoDriver = objectMapper.convertValue(repoDriverSetup, ServerResponse.class);
         RepositoryCreateResponse repositoryResponse = objectMapper
-                .convertValue(serverResponse.getBody(), RepositoryCreateResponse.class);
+                .convertValue(serverResponseRepoDriver.getBody(), RepositoryCreateResponse.class);
+
+        Object alignSetup = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
+        ServerResponse serverResponseAlign = objectMapper.convertValue(alignSetup, ServerResponse.class);
+        AdjustResponse alignResponse = objectMapper.convertValue(serverResponseAlign.getBody(), AdjustResponse.class);
 
         KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
-                .getKonfluxBuildDriver(dto.getKonfluxBuildDriver());
+                .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
 
         BuildRequest buildRequest = BuildRequest.builder()
                 .repositoryBuildContentId(dto.getBuildContentId())
-                .scmUrl(dto.getScmUrl())
-                .scmRevision(dto.getScmRevision())
+                .scmUrl(alignResponse.getInternalUrl().getReadonlyUrl())
+                .scmRevision(alignResponse.getDownstreamCommit())
                 .buildScript(dto.getBuildScript())
                 .buildTool(dto.getBuildTool())
                 .recipeImage(dto.getRecipeImage())
@@ -133,7 +141,7 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
         TaskDTO ownTask = taskEndpoint.getSpecific(getRexTaskName(correlationId));
         List<ServerResponseDTO> serverResponses = ownTask.getServerResponses();
 
-        if (serverResponses.size() == 0) {
+        if (serverResponses.isEmpty()) {
             throw new RuntimeException("We didn't get any server response from konflux-build-driver: " + correlationId);
         }
 
@@ -142,7 +150,7 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
 
         KonfluxBuildDriverDTO dto = objectMapper.convertValue(stopRequest.getPayload(), KonfluxBuildDriverDTO.class);
         KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
-                .getKonfluxBuildDriver(dto.getKonfluxBuildDriver());
+                .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
 
         CancelRequest cancelRequest = CancelRequest.builder()
                 .namespace(konfluxResponse.getNamespace())
