@@ -105,8 +105,10 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
                 .javaVersion(dto.getJavaVersion())
                 .completionCallback(callback)
                 .build();
+        Log.infof("Konflux build request: %s", buildRequest);
 
         BuildResponse response = konfluxBuildDriver.build(buildRequest);
+        Log.infof("Konflux initial response: %s", response);
         return Optional.ofNullable(response);
     }
 
@@ -114,6 +116,7 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
     public void callback(String correlationId, Object object) {
         try {
             BuildCompleted response = objectMapper.convertValue(object, BuildCompleted.class);
+            Log.infof("Konflux response: %s", response);
             try {
                 callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
             } catch (Exception e) {
