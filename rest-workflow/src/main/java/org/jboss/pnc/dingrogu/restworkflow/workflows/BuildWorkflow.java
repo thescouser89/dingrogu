@@ -95,8 +95,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         }
 
         try {
-            CreateTaskDTO taskAlign = repour
-                    .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toRepourAdjustDTO());
             CreateTaskDTO taskAlignReqour = reqour
                     .generateRexTask(ownUrl, correlationId.getId(), buildWorkDTO, buildWorkDTO.toReqourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repoSetup.generateRexTask(
@@ -185,6 +183,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     correlationId.getId(),
                     startRequest,
                     buildWorkDTO.toRepositoryDriverSetupDTO());
+            CreateTaskDTO konfluxSetup = konflux.generateRexTask(
+                    ownUrl,
+                    correlationId.getId(),
+                    buildWorkDTO,
+                    buildWorkDTO.toKonfluxBuildDriverDTO());
             CreateTaskDTO taskRepoSeal = repoSeal.generateRexTask(
                     ownUrl,
                     correlationId.getId(),
@@ -196,25 +199,31 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     startRequest,
                     buildWorkDTO.toRepositoryDriverPromoteDTO());
 
-            List<CreateTaskDTO> tasks = List.of(taskAlignReqour, taskRepoSetup, taskRepoSeal, taskRepoPromote);
+            List<CreateTaskDTO> tasks = List
+                    .of(taskAlignReqour, taskRepoSetup, konfluxSetup, taskRepoSeal, taskRepoPromote);
             Map<String, CreateTaskDTO> vertices = getVertices(tasks);
 
             EdgeDTO alignToRepoSetup = EdgeDTO.builder()
                     .source(taskRepoSetup.name)
                     .target(taskAlignReqour.name)
                     .build();
-
-            // Temporary: testing
-            EdgeDTO repoSetupToRepoSeal = EdgeDTO.builder()
+            EdgeDTO repoSetupToKonflux = EdgeDTO.builder().source(konfluxSetup.name).target(taskRepoSetup.name).build();
+            EdgeDTO alignToKonflux = EdgeDTO.builder().source(konfluxSetup.name).target(taskAlignReqour.name).build();
+            EdgeDTO konfluxSetupToRepoSeal = EdgeDTO.builder()
                     .source(taskRepoSeal.name)
-                    .target(taskRepoSetup.name)
+                    .target(konfluxSetup.name)
                     .build();
             EdgeDTO repoSealToRepoPromote = EdgeDTO.builder()
                     .source(taskRepoPromote.name)
                     .target(taskRepoSeal.name)
                     .build();
 
-            Set<EdgeDTO> edges = Set.of(alignToRepoSetup, repoSetupToRepoSeal, repoSealToRepoPromote);
+            Set<EdgeDTO> edges = Set.of(
+                    alignToRepoSetup,
+                    repoSetupToKonflux,
+                    alignToKonflux,
+                    konfluxSetupToRepoSeal,
+                    repoSealToRepoPromote);
 
             ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
                     .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
