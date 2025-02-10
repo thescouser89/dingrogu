@@ -54,6 +54,6 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
         EdgeDTO edgeDTO = EdgeDTO.builder().source(causewayBrewPush.name).target(null).build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-        return new CreateGraphRequest(correlationId.getId(), null, edges, vertices);
+        return new CreateGraphRequest(correlationId.getId(), null, null, edges, vertices);
     }
 }

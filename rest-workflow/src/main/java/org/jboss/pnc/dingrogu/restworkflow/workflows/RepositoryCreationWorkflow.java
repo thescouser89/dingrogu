@@ -92,6 +92,6 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
         ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
                 .mdcHeaderKeyMapping(org.jboss.pnc.common.log.MDCUtils.HEADER_KEY_MAPPING)
                 .build();
-        return new CreateGraphRequest(correlationId.getId(), configurationDTO, edges, vertices);
+        return new CreateGraphRequest(correlationId.getId(), null, configurationDTO, edges, vertices);
     }
 }

@@ -152,6 +152,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),
+                    null,
                     configurationDTO,
                     edges,
                     vertices);
@@ -230,6 +231,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),
+                    null,
                     configurationDTO,
                     edges,
                     vertices);

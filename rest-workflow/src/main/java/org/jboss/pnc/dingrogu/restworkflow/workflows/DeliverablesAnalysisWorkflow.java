@@ -92,6 +92,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),
+                    null,
                     configurationDTO,
                     edges,
                     vertices);
