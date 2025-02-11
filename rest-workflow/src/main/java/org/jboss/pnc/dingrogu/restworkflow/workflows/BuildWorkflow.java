@@ -187,7 +187,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             CreateTaskDTO konfluxSetup = konflux.generateRexTask(
                     ownUrl,
                     correlationId.getId(),
-                    buildWorkDTO,
+                    startRequest,
                     buildWorkDTO.toKonfluxBuildDriverDTO());
             CreateTaskDTO taskRepoSeal = repoSeal.generateRexTask(
                     ownUrl,
