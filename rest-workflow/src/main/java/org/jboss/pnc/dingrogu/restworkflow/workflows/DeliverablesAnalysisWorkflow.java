@@ -146,7 +146,8 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                     notificationRequest.getTask().getCorrelationID());
 
             OperationResult operationResult;
-
+            Log.infof("Orch result: %s", orchResultSender);
+            Log.infof("Analysis result: %s", analysis);
             if (analysis.isEmpty() || orchResultSender.isEmpty()) {
                 operationResult = OperationResult.FAILED;
             } else {
