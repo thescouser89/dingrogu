@@ -12,6 +12,8 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 
+import java.net.URI;
+
 @ApplicationScoped
 public class OrchClient {
 
@@ -20,10 +22,9 @@ public class OrchClient {
 
     @Retry
     public void submitDelAResult(String orchUrl, AnalysisResult result) {
+        String orchUrlWithoutPath = URI.create(orchUrl).resolve("/").toString();
 
-        Log.info("Sending dela response to server: " + orchUrl);
-
-        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/deliverable-analyses/complete")
+        HttpResponse<JsonNode> response = Unirest.post(orchUrlWithoutPath + "pnc-rest/v2/deliverable-analyses/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))

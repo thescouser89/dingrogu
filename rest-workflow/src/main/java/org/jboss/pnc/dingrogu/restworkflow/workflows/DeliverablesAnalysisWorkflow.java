@@ -60,6 +60,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
     @Override
     public CorrelationId submitWorkflow(DeliverablesAnalysisWorkflowDTO dto) throws WorkflowSubmissionException {
+        Log.infof("DTO for submitWorkflow: %s", dto);
 
         CorrelationId correlationId = CorrelationId.generateUnique();
 
