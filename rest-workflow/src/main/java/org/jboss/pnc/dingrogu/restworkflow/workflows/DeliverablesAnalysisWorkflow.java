@@ -197,7 +197,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
     private Optional<AnalysisReport> getAnalysisReport(Set<TaskDTO> tasks, String correlationId) {
 
-        Optional<TaskDTO> task = findTask(tasks, orchAdapter.getRexTaskName(correlationId));
+        Optional<TaskDTO> task = findTask(tasks, deliverablesAnalyzerAdapter.getRexTaskName(correlationId));
         if (task.isEmpty()) {
             return Optional.empty();
         }
