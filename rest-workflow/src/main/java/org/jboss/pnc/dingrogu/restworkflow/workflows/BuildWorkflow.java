@@ -13,6 +13,7 @@ import org.jboss.pnc.api.repositorydriver.dto.RepositoryArtifact;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.dingrogu.api.dto.workflow.BuildExecutionConfigurationSimplifiedDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.common.NotificationHelper;
@@ -39,6 +40,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
@@ -274,7 +276,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 Log.info("No start request in the notification message");
             } else {
                 Log.info("Sending request to rex callback");
-                BuildResult buildResult = generateBuildResult(tasks, correlationId);
+                BuildResult buildResult = generateBuildResult(request, tasks, correlationId);
                 sendRexCallback(request, buildResult);
             }
         }
@@ -296,9 +298,12 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
      * @param correlationId
      * @return
      */
-    private BuildResult generateBuildResult(Set<TaskDTO> tasks, String correlationId) {
+    private BuildResult generateBuildResult(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
+        BuildWorkDTO workDTO = objectMapper.convertValue(request.getPayload(), BuildWorkDTO.class);
+
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
-        Optional<RepourResult> repourResult = getReqourResult(tasks, correlationId);
+        Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
+        Optional<RepourResult> repourResult = toRepourResult(reqourResult);
         CompletionStatus completionStatus = determineCompletionStatus(repoResult, repourResult);
         BuildDriverResult buildDriverResult = null;
         if (completionStatus.isFailed()) {
@@ -314,10 +319,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 }
             };
         }
+        // BuildExecutionConfiguration needed for legacy reasons
+        // PNC-Orch just extracts the reqour data in buildExecutionConfiguration
+        BuildExecutionConfiguration buildExecutionConfiguration = getBuildExecutionConfiguration(reqourResult);
         BuildResult buildResult = new BuildResult(
                 completionStatus,
                 Optional.empty(),
-                Optional.empty(),
+                Optional.ofNullable(buildExecutionConfiguration),
                 Optional.ofNullable(buildDriverResult),
                 repoResult,
                 Optional.empty(),
@@ -326,6 +334,20 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Log.infof("Build result: %s", buildResult);
 
         return buildResult;
+    }
+
+    private static BuildExecutionConfiguration getBuildExecutionConfiguration(Optional<AdjustResponse> reqourResult) {
+        BuildExecutionConfiguration buildExecutionConfiguration = null;
+        if (reqourResult.isPresent()) {
+            AdjustResponse reqourResultGet = reqourResult.get();
+            buildExecutionConfiguration = new BuildExecutionConfigurationSimplifiedDTO(
+                    reqourResultGet.getInternalUrl().getReadonlyUrl(),
+                    reqourResultGet.getDownstreamCommit(),
+                    reqourResultGet.getTag(),
+                    reqourResultGet.getUpstreamCommit(),
+                    reqourResultGet.isRefRevisionInternal());
+        }
+        return buildExecutionConfiguration;
     }
 
     private CompletionStatus determineCompletionStatus(
@@ -370,7 +392,33 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         genericClient.send(toSend);
     }
 
-    private Optional<RepourResult> getReqourResult(Set<TaskDTO> tasks, String correlationId) {
+    private Optional<RepourResult> toRepourResult(Optional<AdjustResponse> response) {
+
+        if (response.isEmpty()) {
+            return Optional.empty();
+        }
+        AdjustResponse adjustResponse = response.get();
+
+        RepourResult repourResult;
+        if (adjustResponse.getCallback().getStatus().isSuccess()) {
+            repourResult = RepourResult.builder()
+                    .completionStatus(CompletionStatus.valueOf(adjustResponse.getCallback().getStatus().name()))
+                    .executionRootName(
+                            adjustResponse.getManipulatorResult().getVersioningState().getExecutionRootName())
+                    .executionRootVersion(
+                            adjustResponse.getManipulatorResult().getVersioningState().getExecutionRootVersion())
+                    .build();
+        } else {
+            repourResult = RepourResult.builder()
+                    .completionStatus(CompletionStatus.valueOf(adjustResponse.getCallback().getStatus().name()))
+                    .build();
+        }
+
+        return Optional.of(repourResult);
+
+    }
+
+    private Optional<AdjustResponse> getReqourResult(Set<TaskDTO> tasks, String correlationId) {
         Optional<TaskDTO> task = findTask(tasks, reqour.getRexTaskName(correlationId));
 
         if (task.isEmpty()) {
@@ -389,26 +437,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
         AdjustResponse response = objectMapper.convertValue(finalResponse.getBody(), AdjustResponse.class);
 
-        if (response == null) {
-            Log.info("adjustresponse response task is empty");
-            return Optional.empty();
-        }
-
-        RepourResult repourResult;
-        if (response.getCallback().getStatus().isSuccess()) {
-            repourResult = RepourResult.builder()
-                    .completionStatus(CompletionStatus.valueOf(response.getCallback().getStatus().name()))
-                    .executionRootName(response.getManipulatorResult().getVersioningState().getExecutionRootName())
-                    .executionRootVersion(
-                            response.getManipulatorResult().getVersioningState().getExecutionRootVersion())
-                    .build();
-        } else {
-            repourResult = RepourResult.builder()
-                    .completionStatus(CompletionStatus.valueOf(response.getCallback().getStatus().name()))
-                    .build();
-        }
-
-        return Optional.of(repourResult);
+        return Optional.ofNullable(response);
     }
 
     private Optional<RepositoryManagerResult> getRepositoryManagerResult(Set<TaskDTO> tasks, String correlationId) {
