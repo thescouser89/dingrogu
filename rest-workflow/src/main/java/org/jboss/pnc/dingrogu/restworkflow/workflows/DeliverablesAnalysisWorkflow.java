@@ -29,6 +29,7 @@ import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -157,11 +158,12 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                     operationResult = toOperationResult(orchResultSender.get().getResult());
                 }
             }
+            // Orch wants the result to be passed as a query param
+            URI toSendURI = URI.create(dto.getCallback().getUri().toString() + "?result=" + operationResult.name());
             Request toSend = Request.builder()
                     .headers(dto.getCallback().getHeaders())
-                    .attachment(operationResult)
                     .method(dto.getCallback().getMethod())
-                    .uri(dto.getCallback().getUri())
+                    .uri(toSendURI)
                     .build();
             genericClient.send(toSend);
         }
