@@ -299,7 +299,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
      * @return
      */
     private BuildResult generateBuildResult(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
-        BuildWorkDTO workDTO = objectMapper.convertValue(request.getPayload(), BuildWorkDTO.class);
 
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
         Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
@@ -345,7 +344,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     reqourResultGet.getDownstreamCommit(),
                     reqourResultGet.getTag(),
                     reqourResultGet.getUpstreamCommit(),
-                    reqourResultGet.isRefRevisionInternal());
+                    reqourResultGet.isRefRevisionInternal(),
+                    // THis is a hack to get orch to parse build execution configuraiton properly. Oh well!
+                    Map.of("id", "0"));
         }
         return buildExecutionConfiguration;
     }

@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.api.dto.workflow;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
@@ -24,12 +25,14 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 public class BuildExecutionConfigurationSimplifiedDTO implements BuildExecutionConfiguration {
-
     String scmRepoUrl;
     String scmRevision;
     String scmTag;
     String scmBuildConfigRevision;
     boolean isScmBuildConfigRevisionInternal;
+
+    @Getter
+    Map<String, String> user;
 
     @Override
     public String getId() {
