@@ -300,6 +300,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 Optional.empty(),
                 repourResult);
 
+        Log.infof("Build result: %s", buildResult);
+
         return buildResult;
     }
 
