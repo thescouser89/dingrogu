@@ -23,6 +23,7 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
@@ -36,6 +37,7 @@ import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
@@ -287,15 +289,36 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         return vertices;
     }
 
+    /**
+     * Improve this as we get results from Konflux
+     * 
+     * @param tasks
+     * @param correlationId
+     * @return
+     */
     private BuildResult generateBuildResult(Set<TaskDTO> tasks, String correlationId) {
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
         Optional<RepourResult> repourResult = getReqourResult(tasks, correlationId);
         CompletionStatus completionStatus = determineCompletionStatus(repoResult, repourResult);
+        BuildDriverResult buildDriverResult = null;
+        if (completionStatus.isFailed()) {
+            buildDriverResult = new BuildDriverResult() {
+                @Override
+                public BuildStatus getBuildStatus() {
+                    return BuildStatus.FAILED;
+                }
+
+                @Override
+                public Optional<String> getOutputChecksum() {
+                    return Optional.empty();
+                }
+            };
+        }
         BuildResult buildResult = new BuildResult(
                 completionStatus,
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty(),
+                Optional.ofNullable(buildDriverResult),
                 repoResult,
                 Optional.empty(),
                 repourResult);
