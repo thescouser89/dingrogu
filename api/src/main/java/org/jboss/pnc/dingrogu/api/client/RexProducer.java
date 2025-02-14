@@ -6,6 +6,7 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
+import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 
 import java.net.URI;
@@ -35,5 +36,14 @@ public class RexProducer {
                 .baseUri(URI.create(rexClientUrl))
                 .clientHeadersFactory(authorizationClientHttpFactory)
                 .build(CallbackEndpoint.class);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public QueueEndpoint createQueueEndpoint() {
+        return QuarkusRestClientBuilder.newBuilder()
+                .baseUri(URI.create(rexClientUrl))
+                .clientHeadersFactory(authorizationClientHttpFactory)
+                .build(QueueEndpoint.class);
     }
 }

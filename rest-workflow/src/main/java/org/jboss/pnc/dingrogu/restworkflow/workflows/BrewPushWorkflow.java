@@ -6,6 +6,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.CausewayBrewPushAdapter;
+import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -29,6 +30,15 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
     @Inject
     TaskEndpoint taskEndpoint;
 
+    @Inject
+    QueueEndpoint queueEndpoint;
+
+    @ConfigProperty(name = "rexclient.brew_push.queue_name")
+    String rexQueueName;
+
+    @ConfigProperty(name = "rexclient.brew_push.queue_size")
+    int rexQueueSize;
+
     @Override
     public CorrelationId submitWorkflow(BrewPushDTO brewPushDTO) throws WorkflowSubmissionException {
 
@@ -36,6 +46,7 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
 
         try {
             CreateGraphRequest graph = generateWorkflow(uniqueCorrelationId, brewPushDTO);
+            setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
             taskEndpoint.start(graph);
 
             return uniqueCorrelationId;
@@ -54,6 +65,6 @@ public class BrewPushWorkflow implements Workflow<BrewPushDTO> {
         EdgeDTO edgeDTO = EdgeDTO.builder().source(causewayBrewPush.name).target(null).build();
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
-        return new CreateGraphRequest(correlationId.getId(), null, null, edges, vertices);
+        return new CreateGraphRequest(correlationId.getId(), rexQueueName, null, edges, vertices);
     }
 }

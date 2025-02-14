@@ -20,6 +20,7 @@ import org.jboss.pnc.dingrogu.common.NotificationHelper;
 import org.jboss.pnc.dingrogu.restadapter.adapter.DeliverablesAnalyzerAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.OrchDeliverablesAnalyzerResultAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
+import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -59,6 +60,15 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
     @Inject
     GenericClient genericClient;
 
+    @Inject
+    QueueEndpoint queueEndpoint;
+
+    @ConfigProperty(name = "rexclient.deliverables_analysis.queue_name")
+    String rexQueueName;
+
+    @ConfigProperty(name = "rexclient.deliverables_analysis.queue_size")
+    int rexQueueSize;
+
     @Override
     public CorrelationId submitWorkflow(DeliverablesAnalysisWorkflowDTO dto) throws WorkflowSubmissionException {
         Log.infof("DTO for submitWorkflow: %s", dto);
@@ -94,10 +104,11 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),
-                    null,
+                    rexQueueName,
                     configurationDTO,
                     edges,
                     vertices);
+            setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
             taskEndpoint.start(graphRequest);
 
             return correlationId;

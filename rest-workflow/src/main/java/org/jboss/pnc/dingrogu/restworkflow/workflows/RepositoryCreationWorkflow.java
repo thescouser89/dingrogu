@@ -9,6 +9,7 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCloneRepositoryAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCreateRepositoryAdapter;
+import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -31,6 +32,15 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
 
+    @Inject
+    QueueEndpoint queueEndpoint;
+
+    @ConfigProperty(name = "rexclient.repository_creation.queue_name")
+    String rexQueueName;
+
+    @ConfigProperty(name = "rexclient.repository_creation.queue_size")
+    int rexQueueSize;
+
     /**
      * Submit the workflow for repository-creation to Rex, and return back the correlation id
      * 
@@ -45,6 +55,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
 
         try {
             CreateGraphRequest graph = generateWorkflow(correlationId, repositoryCreationDTO);
+            setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
 
             // TODO: submit request to rex
 
@@ -92,6 +103,6 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
         ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
                 .mdcHeaderKeyMapping(org.jboss.pnc.common.log.MDCUtils.HEADER_KEY_MAPPING)
                 .build();
-        return new CreateGraphRequest(correlationId.getId(), null, configurationDTO, edges, vertices);
+        return new CreateGraphRequest(correlationId.getId(), rexQueueName, configurationDTO, edges, vertices);
     }
 }

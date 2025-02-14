@@ -4,6 +4,8 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
+import org.jboss.pnc.rex.api.QueueEndpoint;
+import org.jboss.pnc.rex.dto.responses.LongResponse;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
 /**
@@ -37,5 +39,26 @@ public interface Workflow<T> {
                 notificationRequest.getAfter(),
                 notificationRequest.getTask().getName());
         return Response.ok().build();
+    }
+
+    /**
+     * Set the rex queue size for a rex name. This is used to set the upper limit of concurrent tasks running at any
+     * point
+     *
+     * @param queueEndpoint the queue endpoint implementation
+     * @param rexQueueName name of the queue
+     * @param rexQueueSize size
+     */
+    default void setRexQueueSize(QueueEndpoint queueEndpoint, String rexQueueName, int rexQueueSize) {
+        try {
+            LongResponse response = queueEndpoint.getConcurrentNamed(rexQueueName);
+            if (!(response.getNumber() == rexQueueSize)) {
+                queueEndpoint.setConcurrentNamed(rexQueueName, (long) rexQueueSize);
+            }
+        } catch (Exception e) {
+            // perhaps queue not created yet?
+            Log.errorf(e, "Setting the queue size %s for queue: %s", rexQueueSize, rexQueueName);
+            queueEndpoint.setConcurrentNamed(rexQueueName, (long) rexQueueSize);
+        }
     }
 }
