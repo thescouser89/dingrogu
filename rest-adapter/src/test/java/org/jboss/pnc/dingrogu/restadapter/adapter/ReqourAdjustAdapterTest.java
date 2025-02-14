@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
 @QuarkusTest
-class RepourAdjustAdapterTest {
+class ReqourAdjustAdapterTest {
 
     @Inject
     ReqourAdjustAdapter reqourAdjustAdapter;
