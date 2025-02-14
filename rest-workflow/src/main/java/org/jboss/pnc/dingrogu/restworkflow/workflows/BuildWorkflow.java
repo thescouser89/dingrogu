@@ -28,6 +28,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -88,6 +89,15 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
+
+    @Inject
+    QueueEndpoint queueEndpoint;
+
+    @ConfigProperty(name = "rexclient.build.queue_name")
+    String rexQueueName;
+
+    @ConfigProperty(name = "rexclient.build.queue_size")
+    int rexQueueSize;
 
     @Override
     public CorrelationId submitWorkflow(BuildWorkDTO buildWorkDTO) throws WorkflowSubmissionException {
@@ -156,10 +166,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),
-                    null,
+                    rexQueueName,
                     configurationDTO,
                     edges,
                     vertices);
+            setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
             taskEndpoint.start(graphRequest);
 
             return correlationId;
@@ -235,7 +246,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     correlationId.getId(),
-                    null,
+                    rexQueueName,
                     configurationDTO,
                     edges,
                     vertices);

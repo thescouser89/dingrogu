@@ -3,6 +3,18 @@ dingrogu:
   url: http://localhost:8080
 rexclient:
   url: http://rex-newcastle-devel.apps.ocp-c1.prod.psi.redhat.com
+  brew_push:
+    queue_name: dingrogu-brew-push
+    queue_size: 10
+  build:
+    queue_name: dingrogu-build
+    queue_size: 50
+  deliverables_analysis:
+    queue_name: dingrogu-dela
+    queue_size: 10
+  repository_creation:
+    queue_name: dingrogu-repository-creation
+    queue_size: 10
 
 quarkus:
   arc:
