@@ -50,9 +50,11 @@ public interface Workflow<T> {
      * @param rexQueueSize size
      */
     default void setRexQueueSize(QueueEndpoint queueEndpoint, String rexQueueName, int rexQueueSize) {
+        Log.infof("Setting queue: %s to have size: %s", rexQueueName, rexQueueSize);
         try {
             LongResponse response = queueEndpoint.getConcurrentNamed(rexQueueName);
             if (!(response.getNumber() == rexQueueSize)) {
+                Log.infof("Got response: %s when setting queue size for: %s", response, rexQueueName);
                 queueEndpoint.setConcurrentNamed(rexQueueName, (long) rexQueueSize);
             }
         } catch (Exception e) {
