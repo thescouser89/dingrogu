@@ -18,6 +18,10 @@ import org.jboss.pnc.rex.model.requests.StopRequest;
 import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * Should be replaced by the Reqour equivalent
+ */
+@Deprecated
 @ApplicationScoped
 public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateRepositoryDTO> {
 

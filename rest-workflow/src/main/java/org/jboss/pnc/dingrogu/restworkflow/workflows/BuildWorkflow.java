@@ -21,7 +21,6 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.KonfluxBuildDriverAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
-import org.jboss.pnc.dingrogu.restadapter.adapter.RepourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
 import org.jboss.pnc.enums.BuildStatus;
@@ -59,9 +58,6 @@ import java.util.stream.Collectors;
  */
 @ApplicationScoped
 public class BuildWorkflow implements Workflow<BuildWorkDTO> {
-
-    @Inject
-    RepourAdjustAdapter repour;
 
     @Inject
     ReqourAdjustAdapter reqour;
