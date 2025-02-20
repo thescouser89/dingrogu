@@ -11,7 +11,6 @@ import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
-import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -57,9 +56,7 @@ public class RepositoryDriverSetupAdapterTest {
         // create reqour response
         Map<String, Object> pastResults = new HashMap<>();
         AdjustResponse adjustResponse = Instancio.create(AdjustResponse.class);
-        pastResults.put(
-                reqourAdjustAdapter.getRexTaskName(correlationId),
-                ServerResponse.builder().body(adjustResponse).build());
+        pastResults.put(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse);
 
         StartRequest startRequest = StartRequest.builder().payload(dto).taskResults(pastResults).build();
         // when repository driver client get the request, return with a response

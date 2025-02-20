@@ -13,7 +13,6 @@ import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
-import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -56,9 +55,8 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(repourCreate.getRexTaskName(correlationId));
-        ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
         RepourCreateRepoResponse repourCreateResponse = objectMapper
-                .convertValue(serverResponse.getBody(), RepourCreateRepoResponse.class);
+                .convertValue(pastResult, RepourCreateRepoResponse.class);
 
         // generate result for Orch
         // TODO: adjust the status
