@@ -352,14 +352,16 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         BuildExecutionConfiguration buildExecutionConfiguration = null;
         if (reqourResult.isPresent()) {
             AdjustResponse reqourResultGet = reqourResult.get();
-            buildExecutionConfiguration = new BuildExecutionConfigurationSimplifiedDTO(
-                    reqourResultGet.getInternalUrl().getReadonlyUrl(),
-                    reqourResultGet.getDownstreamCommit(),
-                    reqourResultGet.getTag(),
-                    reqourResultGet.getUpstreamCommit(),
-                    reqourResultGet.isRefRevisionInternal(),
-                    // THis is a hack to get orch to parse build execution configuraiton properly. Oh well!
-                    Map.of("id", "0"));
+            if (reqourResultGet.getInternalUrl() != null) {
+                buildExecutionConfiguration = new BuildExecutionConfigurationSimplifiedDTO(
+                        reqourResultGet.getInternalUrl().getReadonlyUrl(),
+                        reqourResultGet.getDownstreamCommit(),
+                        reqourResultGet.getTag(),
+                        reqourResultGet.getUpstreamCommit(),
+                        reqourResultGet.isRefRevisionInternal(),
+                        // THis is a hack to get orch to parse build execution configuraiton properly. Oh well!
+                        Map.of("id", "0"));
+            }
         }
         return buildExecutionConfiguration;
     }
