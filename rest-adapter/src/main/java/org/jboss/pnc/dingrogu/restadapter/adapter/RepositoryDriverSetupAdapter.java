@@ -103,9 +103,15 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * We cannot cancel this operation since it is a synchronous one
+     * 
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        return;
     }
 
     @Override

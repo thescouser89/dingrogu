@@ -9,10 +9,14 @@ import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
 import org.eclipse.microprofile.faulttolerance.Retry;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.reqour.dto.AdjustRequest;
+import org.jboss.pnc.api.reqour.dto.CancelRequest;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
+
+import java.net.URI;
 
 @ApplicationScoped
 public class ReqourClient {
@@ -34,6 +38,28 @@ public class ReqourClient {
             Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
+    }
+
+    @Retry
+    public void cancel(String reqourUrl, String taskId) {
+
+        // for now we don't care about the callback
+        Request callback = Request.builder().method(Request.Method.GET).uri(URI.create(reqourUrl + "/version")).build();
+
+        CancelRequest cancelRequest = CancelRequest.builder().taskId(taskId).callback(callback).build();
+
+        HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/cancel")
+                .contentType(ContentType.APPLICATION_JSON)
+                .accept(ContentType.APPLICATION_JSON)
+                .headers(ClientHelper.getClientHeaders(tokens))
+                .body(cancelRequest)
+                .asJson();
+
+        if (!response.isSuccess()) {
+            Log.errorf("Cancel request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            throw new RuntimeException("Cancel request didn't go through");
+        }
+
     }
 
     @Retry

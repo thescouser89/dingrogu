@@ -116,8 +116,14 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
         return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
     }
 
+    /**
+     * Cancellation not supported by repository-driver for promotion
+     *
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        return;
     }
 }

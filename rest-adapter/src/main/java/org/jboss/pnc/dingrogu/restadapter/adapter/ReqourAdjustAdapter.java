@@ -129,8 +129,8 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
     }
 
     @Override
-    // TODO
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        ReqourAdjustDTO reqourAdjustDTO = objectMapper.convertValue(stopRequest.getPayload(), ReqourAdjustDTO.class);
+        reqourClient.cancel(reqourAdjustDTO.getReqourUrl(), reqourAdjustDTO.getId());
     }
 }

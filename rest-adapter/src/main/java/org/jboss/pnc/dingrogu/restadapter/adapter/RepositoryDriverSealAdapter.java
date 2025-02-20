@@ -81,8 +81,14 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Cancellation not supported by repository driver for the seal operation
+     * 
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        return;
     }
 }
