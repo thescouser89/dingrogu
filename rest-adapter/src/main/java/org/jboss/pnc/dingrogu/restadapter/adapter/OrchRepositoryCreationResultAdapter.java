@@ -94,9 +94,15 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * There's nothing to cancel, the request is synchronous
+     * 
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        return;
     }
 
     @Override

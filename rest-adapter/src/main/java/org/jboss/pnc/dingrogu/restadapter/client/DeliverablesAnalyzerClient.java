@@ -6,10 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
-import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
+import org.jboss.pnc.dingrogu.api.dto.adapter.DelAAnalyzeResponse;
 
 @ApplicationScoped
 public class DeliverablesAnalyzerClient {
@@ -18,18 +18,20 @@ public class DeliverablesAnalyzerClient {
     Tokens tokens;
 
     @Retry
-    public void analyze(String deliverablesAnalyzerUrl, AnalyzePayload request) {
+    public DelAAnalyzeResponse analyze(String deliverablesAnalyzerUrl, AnalyzePayload request) {
 
-        HttpResponse<JsonNode> response = Unirest.post(deliverablesAnalyzerUrl + "/api/analyze")
+        HttpResponse<DelAAnalyzeResponse> response = Unirest.post(deliverablesAnalyzerUrl + "/api/analyze")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
                 .body(request)
-                .asJson();
+                .asObject(DelAAnalyzeResponse.class);
 
         if (!response.isSuccess()) {
             Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
+
+        return response.getBody();
     }
 }

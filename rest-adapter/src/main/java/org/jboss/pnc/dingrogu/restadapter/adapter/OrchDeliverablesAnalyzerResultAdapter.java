@@ -94,9 +94,15 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
         return adapterUrl + WorkflowEndpoint.DELIVERABLES_ANALYSIS_REX_NOTIFY;
     }
 
+    /**
+     * There's nothing really we can cancel about this
+     * 
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        return;
     }
 
     /**

@@ -68,9 +68,15 @@ public class RepourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * There's nothing to cancel, this process is synchronous
+     * 
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        return;
     }
 
     @Override
