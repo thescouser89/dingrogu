@@ -13,7 +13,6 @@ import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
-import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -43,9 +42,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(repourCreate.getRexTaskName(correlationId));
-        ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
-        RepourCreateRepoResponse repourResponse = objectMapper
-                .convertValue(serverResponse.getBody(), RepourCreateRepoResponse.class);
+        RepourCreateRepoResponse repourResponse = objectMapper.convertValue(pastResult, RepourCreateRepoResponse.class);
 
         RepourCloneRepositoryDTO dto = objectMapper
                 .convertValue(startRequest.getPayload(), RepourCloneRepositoryDTO.class);

@@ -14,7 +14,6 @@ import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
-import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -66,8 +65,7 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(deliverablesAnalyzerAdapter.getRexTaskName(correlationId));
-        ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
-        AnalysisReport analysisReport = objectMapper.convertValue(serverResponse.getBody(), AnalysisReport.class);
+        AnalysisReport analysisReport = objectMapper.convertValue(pastResult, AnalysisReport.class);
 
         // generate result for Orch
         AnalysisResult result = AnalysisResult.builder()

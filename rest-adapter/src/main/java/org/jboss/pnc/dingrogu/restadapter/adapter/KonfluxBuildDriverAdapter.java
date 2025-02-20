@@ -79,9 +79,8 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object repoDriverSetup = pastResults.get(repositoryDriverSetupAdapter.getRexTaskName(correlationId));
-        ServerResponse serverResponseRepoDriver = objectMapper.convertValue(repoDriverSetup, ServerResponse.class);
         RepositoryCreateResponse repositoryResponse = objectMapper
-                .convertValue(serverResponseRepoDriver.getBody(), RepositoryCreateResponse.class);
+                .convertValue(repoDriverSetup, RepositoryCreateResponse.class);
 
         Object alignSetup = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
         ServerResponse serverResponseAlign = objectMapper.convertValue(alignSetup, ServerResponse.class);

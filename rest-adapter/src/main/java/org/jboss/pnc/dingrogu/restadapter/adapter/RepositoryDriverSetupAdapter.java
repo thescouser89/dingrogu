@@ -13,7 +13,6 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
-import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -55,8 +54,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(reqour.getRexTaskName(correlationId));
-        ServerResponse serverResponse = objectMapper.convertValue(pastResult, ServerResponse.class);
-        AdjustResponse reqourResponse = objectMapper.convertValue(serverResponse.getBody(), AdjustResponse.class);
+        AdjustResponse reqourResponse = objectMapper.convertValue(pastResult, AdjustResponse.class);
 
         List<String> repositoriesToCreate = reqourResponse.getManipulatorResult()
                 .getRemovedRepositories()
