@@ -250,6 +250,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     configurationDTO,
                     edges,
                     vertices);
+
+            setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
             taskEndpoint.start(graphRequest);
 
             return correlationId;
