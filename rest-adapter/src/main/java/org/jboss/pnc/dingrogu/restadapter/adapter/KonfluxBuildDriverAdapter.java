@@ -22,7 +22,6 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
-import org.jboss.pnc.rex.model.ServerResponse;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -83,8 +82,7 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
                 .convertValue(repoDriverSetup, RepositoryCreateResponse.class);
 
         Object alignSetup = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
-        ServerResponse serverResponseAlign = objectMapper.convertValue(alignSetup, ServerResponse.class);
-        AdjustResponse alignResponse = objectMapper.convertValue(serverResponseAlign.getBody(), AdjustResponse.class);
+        AdjustResponse alignResponse = objectMapper.convertValue(alignSetup, AdjustResponse.class);
 
         KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
                 .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
