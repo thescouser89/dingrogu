@@ -10,7 +10,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
-import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
@@ -35,12 +35,12 @@ public interface WorkflowEndpoint {
     /**
      * Start the brew push workflow
      *
-     * @param brewPushDTO dto
+     * @param brewPushWorkflowDTO dto
      * @return DTO of the correlationId
      */
     @Path("/workflow/brew-push/start")
     @POST
-    CorrelationId startBrewPushWorkflow(BrewPushDTO brewPushDTO);
+    CorrelationId startBrewPushWorkflow(BrewPushWorkflowDTO brewPushWorkflowDTO);
 
     @Path(BREW_PUSH_REX_NOTIFY)
     @POST
