@@ -11,10 +11,10 @@ import org.jboss.pnc.api.causeway.dto.push.PushResult;
 import org.jboss.pnc.api.causeway.rest.Causeway;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.dingrogu.api.client.AuthorizationClientHttpFactory;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BrewPushDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
-import org.jboss.pnc.dingrogu.restadapter.client.RequestHeaderFactory;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
@@ -34,7 +34,7 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
     CallbackEndpoint callbackEndpoint;
 
     @Inject
-    RequestHeaderFactory requestHeaderFactory;
+    AuthorizationClientHttpFactory authorizationClientHttpFactory;
 
     @jakarta.inject.Inject
     public CausewayBuildPushAdapter(ObjectMapper objectMapper) {
@@ -94,7 +94,7 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
     private Causeway buildCausewayClient(String causewayUrl) {
         return QuarkusRestClientBuilder.newBuilder()
                 .baseUri(URI.create(causewayUrl))
-                .clientHeadersFactory(requestHeaderFactory)
+                .clientHeadersFactory(authorizationClientHttpFactory)
                 .build(Causeway.class);
     }
 }
