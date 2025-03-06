@@ -7,10 +7,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.OperationResult;
-import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
@@ -20,18 +18,17 @@ import org.jboss.pnc.dingrogu.common.NotificationHelper;
 import org.jboss.pnc.dingrogu.restadapter.adapter.DeliverablesAnalyzerAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.OrchDeliverablesAnalyzerResultAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
+import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
+import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.WorkflowHelper;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
-import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
-import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -62,6 +59,12 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
     @Inject
     QueueEndpoint queueEndpoint;
+
+    @Inject
+    WorkflowHelper workflowHelper;
+
+    @Inject
+    OrchClient orchClient;
 
     @ConfigProperty(name = "rexclient.deliverables_analysis.queue_name")
     String rexQueueName;
@@ -150,12 +153,13 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
             // we set the notification attachment to be the StartRequest in submitWorkflow method
             DeliverablesAnalysisWorkflowDTO dto = objectMapper
                     .convertValue(notificationRequest.getAttachment(), DeliverablesAnalysisWorkflowDTO.class);
-            Optional<AnalysisReport> analysis = getAnalysisReport(
+            Optional<AnalysisReport> analysis = workflowHelper.getTaskData(
                     tasks,
-                    notificationRequest.getTask().getCorrelationID());
-            Optional<Result> orchResultSender = getSendingDelAResult(
-                    tasks,
-                    notificationRequest.getTask().getCorrelationID());
+                    notificationRequest.getTask().getCorrelationID(),
+                    deliverablesAnalyzerAdapter,
+                    AnalysisReport.class);
+            Optional<Result> orchResultSender = workflowHelper
+                    .getTaskData(tasks, notificationRequest.getTask().getCorrelationID(), orchAdapter, Result.class);
 
             OperationResult operationResult;
             Log.infof("Orch result: %s", orchResultSender);
@@ -166,68 +170,12 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                 if (!analysis.get().isSuccess()) {
                     operationResult = OperationResult.FAILED;
                 } else {
-                    operationResult = toOperationResult(orchResultSender.get().getResult());
+                    operationResult = workflowHelper.toOperationResult(orchResultSender.get().getResult());
                 }
             }
-            // Orch wants the result to be passed as a query param
-            URI toSendURI = URI.create(dto.getCallback().getUri().toString() + "?result=" + operationResult.name());
-            Request toSend = Request.builder()
-                    .headers(dto.getCallback().getHeaders())
-                    .method(dto.getCallback().getMethod())
-                    .uri(toSendURI)
-                    .build();
-            genericClient.send(toSend);
+
+            orchClient.completeOperation(dto.getOrchUrl(), operationResult, dto.getOperationId());
         }
         return Response.ok().build();
-    }
-
-    private OperationResult toOperationResult(ResultStatus resultStatus) {
-        return switch (resultStatus) {
-            case SUCCESS -> OperationResult.SUCCESSFUL;
-            case FAILED -> OperationResult.FAILED;
-            case CANCELLED -> OperationResult.CANCELLED;
-            case TIMED_OUT -> OperationResult.TIMEOUT;
-            case SYSTEM_ERROR -> OperationResult.SYSTEM_ERROR;
-        };
-    }
-
-    private Optional<Result> getSendingDelAResult(Set<TaskDTO> tasks, String correlationId) {
-        Optional<TaskDTO> task = findTask(tasks, orchAdapter.getRexTaskName(correlationId));
-        if (task.isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<ServerResponseDTO> responses = task.get().getServerResponses();
-        if (responses.isEmpty()) {
-            Log.warnf("No responses for task %s", task.get().getName());
-            return Optional.empty();
-        }
-
-        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
-        Result result = objectMapper.convertValue(finalResponse.getBody(), Result.class);
-        return Optional.ofNullable(result);
-    }
-
-    private Optional<AnalysisReport> getAnalysisReport(Set<TaskDTO> tasks, String correlationId) {
-
-        Optional<TaskDTO> task = findTask(tasks, deliverablesAnalyzerAdapter.getRexTaskName(correlationId));
-        if (task.isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<ServerResponseDTO> responses = task.get().getServerResponses();
-        if (responses.isEmpty()) {
-            Log.warnf("No responses for task %s", task.get().getName());
-            return Optional.empty();
-        }
-
-        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
-        AnalysisReport report = objectMapper.convertValue(finalResponse.getBody(), AnalysisReport.class);
-        return Optional.ofNullable(report);
-
-    }
-
-    private Optional<TaskDTO> findTask(Set<TaskDTO> tasks, String name) {
-        return tasks.stream().filter(task -> task.getName().equals(name)).findFirst();
     }
 }
