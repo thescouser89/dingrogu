@@ -1,9 +1,12 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
@@ -16,9 +19,9 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSetupDTO> {
@@ -33,7 +36,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     CallbackEndpoint callbackEndpoint;
 
     @Inject
-    ReqourAdjustAdapter reqour;
+    ReqourAdjustAdapter reqourAdjustAdapter;
 
     @Inject
     ManagedExecutor managedExecutor;
@@ -53,7 +56,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
-        Object pastResult = pastResults.get(reqour.getRexTaskName(correlationId));
+        Object pastResult = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
         AdjustResponse reqourResponse = objectMapper.convertValue(pastResult, AdjustResponse.class);
 
         List<String> repositoriesToCreate = reqourResponse.getManipulatorResult()

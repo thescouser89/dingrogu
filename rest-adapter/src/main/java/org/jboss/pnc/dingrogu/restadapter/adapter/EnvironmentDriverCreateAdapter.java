@@ -1,0 +1,159 @@
+package org.jboss.pnc.dingrogu.restadapter.adapter;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateRequest;
+import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResponse;
+import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
+import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
+import org.jboss.pnc.dingrogu.api.client.EnvironmentDriver;
+import org.jboss.pnc.dingrogu.api.client.EnvironmentDriverProducer;
+import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCreateDTO;
+import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
+import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.dto.ServerResponseDTO;
+import org.jboss.pnc.rex.dto.TaskDTO;
+import org.jboss.pnc.rex.model.requests.StartRequest;
+import org.jboss.pnc.rex.model.requests.StopRequest;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.logging.Log;
+
+@ApplicationScoped
+public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriverCreateDTO> {
+
+    @ConfigProperty(name = "dingrogu.url")
+    String dingroguUrl;
+
+    @Inject
+    ObjectMapper objectMapper;
+
+    @Inject
+    CallbackEndpoint callbackEndpoint;
+
+    @Inject
+    EnvironmentDriverProducer environmentDriverProducer;
+
+    @Inject
+    RepositoryDriverSetupAdapter repositoryDriverSetupAdapter;
+
+    @Inject
+    TaskEndpoint taskEndpoint;
+
+    @Override
+    public String getAdapterName() {
+        return "environment-driver-create";
+    }
+
+    @Override
+    public Optional<Object> start(String correlationId, StartRequest startRequest) {
+
+        Request callback;
+        try {
+            callback = new Request(
+                    Request.Method.POST,
+                    new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId)),
+                    TaskHelper.getHTTPHeaders(),
+                    null);
+        } catch (URISyntaxException e) {
+            Log.error(e);
+            throw new RuntimeException(e);
+        }
+        EnvironmentDriverCreateDTO dto = objectMapper
+                .convertValue(startRequest.getPayload(), EnvironmentDriverCreateDTO.class);
+
+        Map<String, Object> pastResults = startRequest.getTaskResults();
+        Object repoDriverSetup = pastResults.get(repositoryDriverSetupAdapter.getRexTaskName(correlationId));
+        RepositoryCreateResponse repositoryResponse = objectMapper
+                .convertValue(repoDriverSetup, RepositoryCreateResponse.class);
+
+        EnvironmentDriver environmentDriver = environmentDriverProducer
+                .getEnvironmentDriver(dto.getEnvironmentDriverUrl());
+
+        EnvironmentCreateRequest environmentCreateRequest = EnvironmentCreateRequest.builder()
+                .environmentLabel(dto.getEnvironmentLabel())
+                .imageId(dto.getEnvironmentImage())
+                .repositoryDependencyUrl(repositoryResponse.getRepositoryDependencyUrl())
+                .repositoryDeployUrl(repositoryResponse.getRepositoryDeployUrl())
+                .repositoryBuildContentId(dto.getBuildContentId())
+                .podMemoryOverride(dto.getPodMemoryOverride())
+                .allowSshDebug(dto.isDebugEnabled())
+                .buildConfigId(dto.getBuildConfigId())
+                .sidecarEnabled(repositoryResponse.isSidecarEnabled())
+                .sidecarArchiveEnabled(repositoryResponse.isSidecarArchiveEnabled())
+                .completionCallback(callback)
+                .build();
+        Log.infof("Environment create request: %s", environmentCreateRequest);
+
+        EnvironmentCreateResponse environmentCreateResponse = environmentDriver.build(environmentCreateRequest)
+                .toCompletableFuture()
+                .join();
+        Log.infof("Initial environment create response: %s", environmentCreateResponse);
+        return Optional.ofNullable(environmentCreateResponse);
+    }
+
+    @Override
+    public void callback(String correlationId, Object object) {
+        try {
+            EnvironmentCreateResult response = objectMapper.convertValue(object, EnvironmentCreateResult.class);
+            Log.infof("Environment create response: %s", response);
+            try {
+                if (response == null || !response.getStatus().isSuccess()) {
+                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null);
+                } else {
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+                }
+            } catch (Exception e) {
+                Log.error("Error happened in callback adapter", e);
+            }
+        } catch (IllegalArgumentException e) {
+            try {
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+            } catch (Exception ex) {
+                Log.error("Error happened in callback adapter", ex);
+            }
+        }
+    }
+
+    @Override
+    public String getNotificationEndpoint(String adapterUrl) {
+        return adapterUrl + WorkflowEndpoint.BUILD_REX_NOTIFY;
+    }
+
+    @Override
+    public void cancel(String correlationId, StopRequest stopRequest) {
+
+        // get own unique id created by environment-driver-create sent back to rex in the start method
+        TaskDTO ownTask = taskEndpoint.getSpecific(getRexTaskName(correlationId));
+        List<ServerResponseDTO> serverResponses = ownTask.getServerResponses();
+
+        if (serverResponses.isEmpty()) {
+            throw new RuntimeException(
+                    "We didn't get any server response from " + getAdapterName() + ": " + correlationId);
+        }
+
+        ServerResponseDTO last = serverResponses.get(serverResponses.size() - 1);
+        EnvironmentCreateResponse environmentCreateResponse = objectMapper
+                .convertValue(last.getBody(), EnvironmentCreateResponse.class);
+
+        EnvironmentDriverCreateDTO dto = objectMapper
+                .convertValue(stopRequest.getPayload(), EnvironmentDriverCreateDTO.class);
+        EnvironmentDriver environmentDriver = environmentDriverProducer
+                .getEnvironmentDriver(dto.getEnvironmentDriverUrl());
+
+        environmentDriver.cancel(environmentCreateResponse.getEnvironmentId());
+    }
+}

@@ -7,19 +7,12 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Data
 @Builder
-public class KonfluxBuildDriverDTO {
-
-    String konfluxBuildDriverUrl;
-
+public class EnvironmentDriverCreateDTO {
+    String environmentDriverUrl;
+    String environmentLabel;
+    String environmentImage;
     String buildContentId;
-
-    String buildScript;
-    String buildTool;
-
-    String recipeImage;
     String podMemoryOverride;
-
-    String namespace;
-    String buildToolVersion;
-    String javaVersion;
+    boolean debugEnabled;
+    String buildConfigId;
 }

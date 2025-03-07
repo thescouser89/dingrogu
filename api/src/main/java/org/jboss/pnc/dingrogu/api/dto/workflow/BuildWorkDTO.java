@@ -1,20 +1,24 @@
 package org.jboss.pnc.dingrogu.api.dto.workflow;
 
+import java.util.Map;
+
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.BuildType;
-import org.jboss.pnc.dingrogu.api.dto.adapter.KonfluxBuildDriverDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.BuildDriverDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCompleteDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCreateDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
 
-import java.util.Map;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 @Jacksonized
 @Data
@@ -25,7 +29,8 @@ public class BuildWorkDTO {
     String repourUrl;
     String reqourUrl;
     String repositoryDriverUrl;
-    String konfluxBuildDriverUrl;
+    String buildDriverUrl;
+    String environmentDriverUrl;
 
     String scmRepoURL;
     String scmRevision;
@@ -44,14 +49,12 @@ public class BuildWorkDTO {
     Map<String, String> genericParameters;
     String buildConfigurationId;
     String correlationId;
+    boolean debugEnabled;
+    String environmentLabel;
+    String environmentImage;
 
     String buildScript;
-    String buildTool;
-    String recipeImage;
     String podMemoryOverride;
-    String namespace;
-    String buildToolVersion;
-    String javaVersion;
 
     public RepourAdjustDTO toRepourAdjustDTO() {
         String alignmentPreferenceName = null;
@@ -109,17 +112,30 @@ public class BuildWorkDTO {
                 .build();
     }
 
-    public KonfluxBuildDriverDTO toKonfluxBuildDriverDTO() {
-        return KonfluxBuildDriverDTO.builder()
-                .konfluxBuildDriverUrl(konfluxBuildDriverUrl)
+    public EnvironmentDriverCreateDTO toEnvironmentDriverCreateDTO() {
+        return EnvironmentDriverCreateDTO.builder()
+                .environmentDriverUrl(environmentDriverUrl)
+                .environmentLabel(environmentLabel)
+                .environmentImage(environmentImage)
                 .buildContentId(buildContentId)
-                .buildScript(buildScript)
-                .buildTool(buildTool)
-                .recipeImage(recipeImage)
                 .podMemoryOverride(podMemoryOverride)
-                .namespace(namespace)
-                .buildToolVersion(buildToolVersion)
-                .javaVersion(javaVersion)
+                .debugEnabled(debugEnabled)
+                .buildConfigId(buildConfigurationId)
+                .build();
+    }
+
+    public BuildDriverDTO toBuildDriverDTO() {
+        return BuildDriverDTO.builder()
+                .buildDriverUrl(buildDriverUrl)
+                .buildCommand(buildScript)
+                .debugEnabled(debugEnabled)
+                .build();
+    }
+
+    public EnvironmentDriverCompleteDTO toEnvironmentDriverCompleteDTO() {
+        return EnvironmentDriverCompleteDTO.builder()
+                .environmentDriverUrl(environmentDriverUrl)
+                .debugEnabled(debugEnabled)
                 .build();
     }
 
