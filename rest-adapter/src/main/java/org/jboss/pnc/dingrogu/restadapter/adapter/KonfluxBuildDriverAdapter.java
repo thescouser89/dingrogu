@@ -7,13 +7,9 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.konfluxbuilddriver.dto.BuildCompleted;
-import org.jboss.pnc.api.konfluxbuilddriver.dto.BuildRequest;
 import org.jboss.pnc.api.konfluxbuilddriver.dto.BuildResponse;
-import org.jboss.pnc.api.konfluxbuilddriver.dto.CancelRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
-import org.jboss.pnc.dingrogu.api.client.KonfluxBuildDriver;
-import org.jboss.pnc.dingrogu.api.client.KonfluxBuildDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.KonfluxBuildDriverDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
@@ -43,8 +39,8 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
     @Inject
     CallbackEndpoint callbackEndpoint;
 
-    @Inject
-    KonfluxBuildDriverProducer konfluxBuildDriverProducer;
+    // @Inject
+    // KonfluxBuildDriverProducer konfluxBuildDriverProducer;
 
     @Inject
     ReqourAdjustAdapter reqourAdjustAdapter;
@@ -84,29 +80,29 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
         Object alignSetup = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
         AdjustResponse alignResponse = objectMapper.convertValue(alignSetup, AdjustResponse.class);
 
-        KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
-                .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
-
-        BuildRequest buildRequest = BuildRequest.builder()
-                .repositoryBuildContentId(dto.getBuildContentId())
-                .scmUrl(alignResponse.getInternalUrl().getReadonlyUrl())
-                .scmRevision(alignResponse.getDownstreamCommit())
-                .buildScript(dto.getBuildScript())
-                .buildTool(dto.getBuildTool())
-                .recipeImage(dto.getRecipeImage())
-                .podMemoryOverride(dto.getPodMemoryOverride())
-                .repositoryDeployUrl(repositoryResponse.getRepositoryDeployUrl())
-                .repositoryDependencyUrl(repositoryResponse.getRepositoryDependencyUrl())
-                .namespace(dto.getNamespace())
-                .buildToolVersion(dto.getBuildToolVersion())
-                .javaVersion(dto.getJavaVersion())
-                .completionCallback(callback)
-                .build();
-        Log.infof("Konflux build request: %s", buildRequest);
-
-        BuildResponse response = konfluxBuildDriver.build(buildRequest);
-        Log.infof("Konflux initial response: %s", response);
-        return Optional.ofNullable(response);
+        // KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
+        // .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
+        //
+        // BuildRequest buildRequest = BuildRequest.builder()
+        // .repositoryBuildContentId(dto.getBuildContentId())
+        // .scmUrl(alignResponse.getInternalUrl().getReadonlyUrl())
+        // .scmRevision(alignResponse.getDownstreamCommit())
+        // .buildScript(dto.getBuildScript())
+        // .buildTool(dto.getBuildTool())
+        // .recipeImage(dto.getRecipeImage())
+        // .podMemoryOverride(dto.getPodMemoryOverride())
+        // .repositoryDeployUrl(repositoryResponse.getRepositoryDeployUrl())
+        // .repositoryDependencyUrl(repositoryResponse.getRepositoryDependencyUrl())
+        // .namespace(dto.getNamespace())
+        // .buildToolVersion(dto.getBuildToolVersion())
+        // .javaVersion(dto.getJavaVersion())
+        // .completionCallback(callback)
+        // .build();
+        // Log.infof("Konflux build request: %s", buildRequest);
+        //
+        // BuildResponse response = konfluxBuildDriver.build(buildRequest);
+        // Log.infof("Konflux initial response: %s", response);
+        return Optional.ofNullable(null);
     }
 
     @Override
@@ -149,14 +145,14 @@ public class KonfluxBuildDriverAdapter implements Adapter<KonfluxBuildDriverDTO>
         BuildResponse konfluxResponse = objectMapper.convertValue(last.getBody(), BuildResponse.class);
 
         KonfluxBuildDriverDTO dto = objectMapper.convertValue(stopRequest.getPayload(), KonfluxBuildDriverDTO.class);
-        KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
-                .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
-
-        CancelRequest cancelRequest = CancelRequest.builder()
-                .namespace(konfluxResponse.getNamespace())
-                .pipelineId(konfluxResponse.getPipelineId())
-                .build();
-        konfluxBuildDriver.cancel(cancelRequest);
+        // KonfluxBuildDriver konfluxBuildDriver = konfluxBuildDriverProducer
+        // .getKonfluxBuildDriver(dto.getKonfluxBuildDriverUrl());
+        //
+        // CancelRequest cancelRequest = CancelRequest.builder()
+        // .namespace(konfluxResponse.getNamespace())
+        // .pipelineId(konfluxResponse.getPipelineId())
+        // .build();
+        // konfluxBuildDriver.cancel(cancelRequest);
     }
 
     @Override

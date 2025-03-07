@@ -1,21 +1,22 @@
 package org.jboss.pnc.dingrogu.api.client;
 
-import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
+import java.net.URI;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.net.URI;
+import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
 @ApplicationScoped
-public class KonfluxBuildDriverProducer {
+public class EnvironmentDriverProducer {
 
     @Inject
     AuthorizationClientHttpFactory authorizationClientHttpFactory;
 
-    public KonfluxBuildDriver getKonfluxBuildDriver(String konfluxBuildDriverUrl) {
+    public EnvironmentDriver getEnvironmentDriver(final String environmentDriverUrl) {
         return QuarkusRestClientBuilder.newBuilder()
-                .baseUri(URI.create(konfluxBuildDriverUrl))
+                .baseUri(URI.create(environmentDriverUrl))
                 .clientHeadersFactory(authorizationClientHttpFactory)
-                .build(KonfluxBuildDriver.class);
+                .build(EnvironmentDriver.class);
     }
 }
