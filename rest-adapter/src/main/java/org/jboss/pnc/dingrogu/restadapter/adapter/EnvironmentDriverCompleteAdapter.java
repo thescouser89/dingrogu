@@ -1,24 +1,18 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCompleteRequest;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCompleteResponse;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResponse;
 import org.jboss.pnc.dingrogu.api.client.EnvironmentDriver;
 import org.jboss.pnc.dingrogu.api.client.EnvironmentDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCompleteDTO;
-import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
-import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
@@ -31,9 +25,6 @@ import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriverCompleteDTO> {
-
-    @ConfigProperty(name = "dingrogu.url")
-    String dingroguUrl;
 
     @Inject
     ObjectMapper objectMapper;
@@ -54,18 +45,6 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
-
-        Request callback;
-        try {
-            callback = new Request(
-                    Request.Method.POST,
-                    new URI(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId)),
-                    TaskHelper.getHTTPHeaders(),
-                    null);
-        } catch (URISyntaxException e) {
-            Log.error(e);
-            throw new RuntimeException(e);
-        }
         EnvironmentDriverCompleteDTO dto = objectMapper
                 .convertValue(startRequest.getPayload(), EnvironmentDriverCompleteDTO.class);
 

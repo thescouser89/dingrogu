@@ -60,7 +60,6 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
-
         Request callback;
         try {
             callback = new Request(
@@ -135,7 +134,6 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-
         // get own unique id created by environment-driver-create sent back to rex in the start method
         TaskDTO ownTask = taskEndpoint.getSpecific(getRexTaskName(correlationId));
         List<ServerResponseDTO> serverResponses = ownTask.getServerResponses();

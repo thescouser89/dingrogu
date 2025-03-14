@@ -65,7 +65,6 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
-
         Request callback;
         try {
             callback = new Request(
@@ -137,7 +136,6 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-
         // get own unique id created by build-driver sent back to rex in the start method
         TaskDTO ownTask = taskEndpoint.getSpecific(getRexTaskName(correlationId));
         List<ServerResponseDTO> serverResponses = ownTask.getServerResponses();
