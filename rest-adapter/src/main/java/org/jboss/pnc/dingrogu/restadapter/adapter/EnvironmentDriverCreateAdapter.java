@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.restadapter.adapter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,7 +84,8 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
                 .getEnvironmentDriver(dto.getEnvironmentDriverUrl());
 
         EnvironmentCreateRequest environmentCreateRequest = EnvironmentCreateRequest.builder()
-                .environmentLabel(dto.getEnvironmentLabel())
+                .environmentLabel(dto.getEnvironmentLabel().toLowerCase(Locale.ROOT)) // toLowerCase because pod names
+                                                                                      // have to be in lowercase
                 .imageId(dto.getEnvironmentImage())
                 .repositoryDependencyUrl(repositoryResponse.getRepositoryDependencyUrl())
                 .repositoryDeployUrl(repositoryResponse.getRepositoryDeployUrl())

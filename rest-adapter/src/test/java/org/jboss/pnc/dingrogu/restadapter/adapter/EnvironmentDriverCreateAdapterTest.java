@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -100,7 +101,7 @@ class EnvironmentDriverCreateAdapterTest {
         EnvironmentCreateRequest generated = captor.getValue();
 
         // verify that the environment create request sent to environment driver is generated properly
-        assertThat(generated.getEnvironmentLabel()).isEqualTo(dto.getEnvironmentLabel());
+        assertThat(generated.getEnvironmentLabel()).isEqualTo(dto.getEnvironmentLabel().toLowerCase(Locale.ROOT));
         assertThat(generated.getImageId()).isEqualTo(dto.getEnvironmentImage());
         assertThat(generated.getRepositoryBuildContentId()).isEqualTo(dto.getBuildContentId());
         assertThat(generated.getPodMemoryOverride()).isEqualTo(dto.getPodMemoryOverride());
