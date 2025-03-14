@@ -154,4 +154,14 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
         environmentDriver.cancel(environmentCreateResponse.getEnvironmentId());
     }
+
+    /**
+     * We read past results to build final request
+     *
+     * @return true
+     */
+    @Override
+    public boolean shouldGetResultsFromDependencies() {
+        return true;
+    }
 }
