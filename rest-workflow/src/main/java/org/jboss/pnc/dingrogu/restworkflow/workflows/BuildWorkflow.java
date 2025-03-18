@@ -106,6 +106,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     @ConfigProperty(name = "rexclient.build.queue_size")
     int rexQueueSize;
 
+    @Deprecated
     @Override
     public CorrelationId submitWorkflow(BuildWorkDTO buildWorkDTO) throws WorkflowSubmissionException {
         CorrelationId correlationId;
@@ -215,6 +216,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
      */
     public CorrelationId submitWorkflow(StartRequest startRequest) throws WorkflowSubmissionException {
         BuildWorkDTO buildWorkDTO = objectMapper.convertValue(startRequest.getPayload(), BuildWorkDTO.class);
+        Log.info(buildWorkDTO);
         CorrelationId correlationId = CorrelationId.generateUnique();
 
         try {

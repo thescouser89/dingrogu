@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCompleteRequest;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCompleteResponse;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResponse;
@@ -13,6 +14,7 @@ import org.jboss.pnc.dingrogu.api.client.EnvironmentDriver;
 import org.jboss.pnc.dingrogu.api.client.EnvironmentDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCompleteDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
@@ -36,7 +38,13 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
     EnvironmentDriverCreateAdapter environmentDriverCreateAdapter;
 
     @Inject
+    ManagedExecutor managedExecutor;
+
+    @Inject
     TaskEndpoint taskEndpoint;
+
+    @Inject
+    CallbackEndpoint callbackEndpoint;
 
     @Override
     public String getAdapterName() {
@@ -75,7 +83,25 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
                 .toCompletableFuture()
                 .join();
         Log.infof("Initial environment complete response: %s", environmentCompleteResponse);
+
+        sendDelayedSuccessfulCallbackToRex(correlationId);
         return Optional.ofNullable(environmentCompleteResponse);
+    }
+
+    private void sendDelayedSuccessfulCallbackToRex(String correlationId) {
+        managedExecutor.submit(() -> {
+            try {
+                // sleep for 5 seconds to make sure that Rex has processed the successful start
+                Thread.sleep(2000L);
+            } catch (InterruptedException e) {
+                Log.error(e);
+            }
+            try {
+                callbackEndpoint.succeed(getRexTaskName(correlationId), null, null);
+            } catch (Exception e) {
+                Log.error("Error happened in rex client callback to Rex server for environment driver complete", e);
+            }
+        });
     }
 
     @Override
@@ -90,6 +116,6 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
+        // do nothing
     }
 }
