@@ -198,6 +198,13 @@
                 <version>5.4.0</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <!-- added for PNC's Artifact model -->
+                <groupId>javax.persistence</groupId>
+                <artifactId>javax.persistence-api</artifactId>
+                <version>2.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <repositories>
