@@ -354,7 +354,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     }
 
     private BuildResult generateBuildResult(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
-
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
         Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
         Optional<RepourResult> repourResult = toRepourResult(reqourResult);
@@ -480,7 +479,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<TaskDTO> task = findTask(tasks, reqourAdjustAdapter.getRexTaskName(correlationId));
 
         if (task.isEmpty()) {
-            Log.info("repour task is empty");
+            Log.info("reqour task is empty");
             return Optional.empty();
         }
 

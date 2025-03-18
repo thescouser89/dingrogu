@@ -49,5 +49,10 @@
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
     </dependency>
+    <dependency>
+      <!-- added for PNC's Artifact model -->
+      <groupId>javax.persistence</groupId>
+      <artifactId>javax.persistence-api</artifactId>
+    </dependency>
   </dependencies>
 </project>
