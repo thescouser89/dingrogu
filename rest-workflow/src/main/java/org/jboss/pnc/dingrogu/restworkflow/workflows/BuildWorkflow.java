@@ -376,20 +376,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
         Optional<RepourResult> repourResult = toRepourResult(reqourResult);
         CompletionStatus completionStatus = determineCompletionStatus(repoResult, buildCompleted, repourResult);
-        BuildDriverResult buildDriverResult = null;
-        if (completionStatus.isFailed()) {
-            buildDriverResult = new BuildDriverResult() {
-                @Override
-                public BuildStatus getBuildStatus() {
-                    return BuildStatus.FAILED;
-                }
-
-                @Override
-                public Optional<String> getOutputChecksum() {
-                    return Optional.empty();
-                }
-            };
-        }
+        BuildDriverResult buildDriverResult = getBuildDriverResult(buildCompleted);
         // BuildExecutionConfiguration needed for legacy reasons
         // PNC-Orch just extracts the reqour data in buildExecutionConfiguration
         BuildExecutionConfiguration buildExecutionConfiguration = getBuildExecutionConfiguration(reqourResult);
@@ -405,6 +392,25 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Log.infof("Build result: %s", buildResult);
 
         return buildResult;
+    }
+
+    private static BuildDriverResult getBuildDriverResult(Optional<BuildCompleted> buildCompleted) {
+        BuildDriverResult buildDriverResult = null;
+
+        if (buildCompleted.isPresent()) {
+            buildDriverResult = new BuildDriverResult() {
+                @Override
+                public BuildStatus getBuildStatus() {
+                    return BuildStatus.valueOf(buildCompleted.get().getBuildStatus().name());
+                }
+
+                @Override
+                public Optional<String> getOutputChecksum() {
+                    return Optional.empty();
+                }
+            };
+        }
+        return buildDriverResult;
     }
 
     private static BuildExecutionConfiguration getBuildExecutionConfiguration(Optional<AdjustResponse> reqourResult) {
