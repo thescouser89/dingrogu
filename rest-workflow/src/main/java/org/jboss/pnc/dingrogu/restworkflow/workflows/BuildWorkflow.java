@@ -284,6 +284,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .target(taskAdjustReqour.name)
                     .build();
             EdgeDTO buildToCompleteEnv = EdgeDTO.builder().source(taskCompleteEnv.name).target(taskBuild.name).build();
+
+            // WARN: NCL-9060: dependency tasks like reqour adjust are deleted if the taskCompleteEnv has no dependents.
+            // Adding that edge artifically so that the dependency tasks are not deleted prematurely
+            EdgeDTO completeToRepoSealEnv = EdgeDTO.builder()
+                    .source(taskRepoSeal.name)
+                    .target(taskCompleteEnv.name)
+                    .build();
             EdgeDTO buildToRepoSeal = EdgeDTO.builder().source(taskRepoSeal.name).target(taskBuild.name).build();
             EdgeDTO repoSealToRepoPromote = EdgeDTO.builder()
                     .source(taskRepoPromote.name)
@@ -296,6 +303,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     createEnvToBuild,
                     adjustReqourToBuild,
                     buildToCompleteEnv,
+                    completeToRepoSealEnv,
                     buildToRepoSeal,
                     repoSealToRepoPromote);
 
