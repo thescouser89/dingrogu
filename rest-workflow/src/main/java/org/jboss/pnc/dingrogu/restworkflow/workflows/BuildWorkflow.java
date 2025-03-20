@@ -566,11 +566,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         return tasks.stream().filter(task -> task.getName().equals(name)).findFirst();
     }
 
-    private List<Artifact> convertFromRepositoryArtifacts(List<RepositoryArtifact> builtArtifacts) {
-        if (builtArtifacts == null) {
+    private List<Artifact> convertFromRepositoryArtifacts(List<RepositoryArtifact> artifacts) {
+        if (artifacts == null) {
             return Collections.emptyList();
         }
-        return builtArtifacts.stream()
+        return artifacts.stream()
                 .map(
                         ra -> Artifact.builder()
                                 .identifier(ra.getIdentifier())
@@ -582,7 +582,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                                 .sha256(ra.getSha256())
                                 .filename(ra.getFilename())
                                 .deployPath(ra.getDeployPath())
-                                .importDate(Date.from(ra.getImportDate()))
+                                .importDate(ra.getImportDate() == null ? null : Date.from(ra.getImportDate()))
                                 .originUrl(ra.getOriginUrl())
                                 .size(ra.getSize())
                                 .targetRepository(convertTargetRepository(ra.getTargetRepository()))
