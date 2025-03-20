@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ArtifactQuality;
 import org.jboss.pnc.api.enums.BuildCategory;
@@ -371,9 +372,10 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private BuildResult generateBuildResult(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
+        Optional<BuildCompleted> buildCompleted = getBuildCompleted(tasks, correlationId);
         Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
         Optional<RepourResult> repourResult = toRepourResult(reqourResult);
-        CompletionStatus completionStatus = determineCompletionStatus(repoResult, repourResult);
+        CompletionStatus completionStatus = determineCompletionStatus(repoResult, buildCompleted, repourResult);
         BuildDriverResult buildDriverResult = null;
         if (completionStatus.isFailed()) {
             buildDriverResult = new BuildDriverResult() {
@@ -425,19 +427,26 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private CompletionStatus determineCompletionStatus(
             Optional<RepositoryManagerResult> repoResult,
+            Optional<BuildCompleted> buildCompleted,
             Optional<RepourResult> repourResult) {
         // debug
         if (repoResult.isEmpty()) {
             Log.warn("repository result is empty");
         }
+        if (buildCompleted.isEmpty()) {
+            Log.warn("build result is empty");
+        }
         if (repourResult.isEmpty()) {
             Log.warn("repour result is empty");
         }
-        if (repoResult.isEmpty() || repourResult.isEmpty()) {
+        if (repoResult.isEmpty() || repourResult.isEmpty() || buildCompleted.isEmpty()) {
             return CompletionStatus.FAILED;
         }
         if (repourResult.get().getCompletionStatus().isFailed()) {
             return repourResult.get().getCompletionStatus();
+        }
+        if (!buildCompleted.get().getBuildStatus().isSuccess()) {
+            return CompletionStatus.valueOf(buildCompleted.get().getBuildStatus().name());
         }
         if (repoResult.get().getCompletionStatus().isFailed()) {
             return repoResult.get().getCompletionStatus();
@@ -509,6 +518,36 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
         AdjustResponse response = objectMapper.convertValue(finalResponse.getBody(), AdjustResponse.class);
+
+        return Optional.ofNullable(response);
+    }
+
+    private Optional<BuildCompleted> getBuildCompleted(Set<TaskDTO> tasks, String correlationId) {
+        Optional<TaskDTO> task = findTask(tasks, buildDriverAdapter.getRexTaskName(correlationId));
+        if (task.isEmpty()) {
+            Log.infof("build driver task is supposed to be: %s", buildDriverAdapter.getRexTaskName(correlationId));
+            for (TaskDTO taskTemp : tasks) {
+                Log.infof("Present: task: %s", taskTemp.getName());
+            }
+            Log.info("build driver task is empty");
+            return Optional.empty();
+        }
+
+        TaskDTO repoTask = task.get();
+        List<ServerResponseDTO> responses = repoTask.getServerResponses();
+
+        if (responses.isEmpty()) {
+            Log.info("build driver response task is empty");
+            return Optional.empty();
+        }
+
+        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
+        BuildCompleted response = objectMapper.convertValue(finalResponse.getBody(), BuildCompleted.class);
+
+        if (response == null) {
+            Log.info("build completed response task is empty");
+            return Optional.empty();
+        }
 
         return Optional.ofNullable(response);
     }
