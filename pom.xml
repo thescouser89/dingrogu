@@ -178,6 +178,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.jboss.pnc</groupId>
+                <artifactId>model</artifactId>
+                <version>${version.pnc}</version>
+                <exclusions>
+                    <!-- it's bringing in the non-jakarta pnc-api. yuck! -->
+                    <exclusion>
+                        <groupId>org.jboss.pnc</groupId>
+                        <artifactId>pnc-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
 
             <!-- OR maybe you like Jackson better? -->
