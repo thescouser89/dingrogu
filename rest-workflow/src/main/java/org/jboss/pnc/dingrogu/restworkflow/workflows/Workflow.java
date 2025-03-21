@@ -28,7 +28,7 @@ public interface Workflow<T> {
      * Handle notifications from Rex after a state change. Override for more fancy logic, like notifying the caller that
      * the entire workflow is done successfully/failed with the appropriate Response DTO made up of data from all the
      * adapters in the workflow
-     * 
+     *
      * @param notificationRequest
      * @return response
      */
@@ -50,16 +50,21 @@ public interface Workflow<T> {
      * @param rexQueueSize size
      */
     default void setRexQueueSize(QueueEndpoint queueEndpoint, String rexQueueName, int rexQueueSize) {
-        Log.infof("Setting queue: %s to have size: %s", rexQueueName, rexQueueSize);
         try {
+            Log.infof("Getting queue size: %s", rexQueueName);
             LongResponse response = queueEndpoint.getConcurrentNamed(rexQueueName);
-            if (!(response.getNumber() == rexQueueSize)) {
-                Log.infof("Got response: %s when setting queue size for: %s", response, rexQueueName);
+            if (response.getNumber() != rexQueueSize) {
+                Log.infof(
+                        "Got response: %s. Setting the queue size to %s for: %s",
+                        response,
+                        rexQueueSize,
+                        rexQueueName);
                 queueEndpoint.setConcurrentNamed(rexQueueName, (long) rexQueueSize);
             }
         } catch (Exception e) {
             // perhaps queue not created yet?
-            Log.errorf(e, "Setting the queue size %s for queue: %s", rexQueueSize, rexQueueName);
+            Log.warnf(e, "Error when getting queue size. Perhaps it doesn't exist yet.");
+            Log.infof("Initializing the queue: %s, setting the size to %s.", rexQueueName, rexQueueSize);
             queueEndpoint.setConcurrentNamed(rexQueueName, (long) rexQueueSize);
         }
     }
