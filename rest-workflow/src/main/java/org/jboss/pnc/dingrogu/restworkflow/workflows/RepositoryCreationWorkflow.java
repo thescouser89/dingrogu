@@ -10,6 +10,7 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCloneRepositoryAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCreateRepositoryAdapter;
 import org.jboss.pnc.rex.api.QueueEndpoint;
+import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -35,6 +36,9 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
     @Inject
     QueueEndpoint queueEndpoint;
 
+    @Inject
+    TaskEndpoint taskEndpoint;
+
     @ConfigProperty(name = "rexclient.repository_creation.queue_name")
     String rexQueueName;
 
@@ -43,7 +47,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
 
     /**
      * Submit the workflow for repository-creation to Rex, and return back the correlation id
-     * 
+     *
      * @param repositoryCreationDTO: workflow input
      * @return
      * @throws WorkflowSubmissionException
@@ -57,7 +61,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
             CreateGraphRequest graph = generateWorkflow(correlationId, repositoryCreationDTO);
             setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
 
-            // TODO: submit request to rex
+            taskEndpoint.start(graph);
 
             return correlationId;
 
@@ -68,7 +72,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
 
     /**
      * TODO: work on the workflow
-     * 
+     *
      * @param correlationId
      * @param repositoryCreationDTO
      * @return
