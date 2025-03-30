@@ -53,7 +53,7 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
 
     @Override
     public Response repositoryCreationNotificationFromRex(NotificationRequest notificationRequest) {
-        return brewPushWorkflow.rexNotification(notificationRequest);
+        return repositoryCreationWorkflow.rexNotification(notificationRequest);
     }
 
     @Override
