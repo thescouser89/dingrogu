@@ -36,7 +36,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
     ObjectMapper objectMapper;
 
     @Inject
-    RepourCreateRepositoryAdapter repourCreate;
+    ReqourCreateRepositoryAdapter repourCreate;
 
     @Inject
     RepourClient repourClient;

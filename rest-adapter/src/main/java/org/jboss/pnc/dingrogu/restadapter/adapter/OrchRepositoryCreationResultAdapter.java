@@ -39,7 +39,7 @@ public class OrchRepositoryCreationResultAdapter implements Adapter<OrchReposito
     OrchClient orchClient;
 
     @Inject
-    RepourCreateRepositoryAdapter repourCreate;
+    ReqourCreateRepositoryAdapter repourCreate;
 
     @Override
     public String getAdapterName() {

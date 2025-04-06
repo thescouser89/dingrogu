@@ -8,7 +8,7 @@ import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCloneRepositoryAdapter;
-import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCreateRepositoryAdapter;
+import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourCreateRepositoryAdapter;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
@@ -25,7 +25,7 @@ import java.util.*;
 public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDTO> {
 
     @Inject
-    RepourCreateRepositoryAdapter repourCreateRepositoryAdapter;
+    ReqourCreateRepositoryAdapter repourCreateRepositoryAdapter;
 
     @Inject
     RepourCloneRepositoryAdapter repourCloneRepositoryAdapter;
