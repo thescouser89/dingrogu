@@ -35,7 +35,10 @@ public class ReqourClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            Log.errorf(
+                    "Request to /adjust didn't go through: HTTP %s, body: %s",
+                    response.getStatus(),
+                    response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
@@ -56,7 +59,10 @@ public class ReqourClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Cancel request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            Log.errorf(
+                    "Cancel to /cancel request didn't go through: HTTP %s, body: %s",
+                    response.getStatus(),
+                    response.getBody());
             throw new RuntimeException("Cancel request didn't go through");
         }
 
@@ -73,7 +79,10 @@ public class ReqourClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            Log.errorf(
+                    "Request to /clone didn't go through: HTTP %s, body: %s",
+                    response.getStatus(),
+                    response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
@@ -89,7 +98,10 @@ public class ReqourClient {
                 .asObject(RepourCreateRepoResponse.class);
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            Log.errorf(
+                    "Request to /internal-scm didn't go through: HTTP %s, body: %s",
+                    response.getStatus(),
+                    response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
 
