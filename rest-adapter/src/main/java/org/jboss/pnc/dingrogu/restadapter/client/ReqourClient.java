@@ -14,7 +14,6 @@ import org.jboss.pnc.api.reqour.dto.AdjustRequest;
 import org.jboss.pnc.api.reqour.dto.CancelRequest;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 
 import java.net.URI;
 
@@ -35,11 +34,7 @@ public class ReqourClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf(
-                    "Request to /adjust didn't go through: HTTP %s, body: %s",
-                    response.getStatus(),
-                    response.getBody());
-            throw new RuntimeException("Request didn't go through");
+            processUnsuccessfulResponse(response, "/adjust");
         }
     }
 
@@ -59,11 +54,7 @@ public class ReqourClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf(
-                    "Cancel to /cancel request didn't go through: HTTP %s, body: %s",
-                    response.getStatus(),
-                    response.getBody());
-            throw new RuntimeException("Cancel request didn't go through");
+            processUnsuccessfulResponse(response, "/cancel");
         }
 
     }
@@ -79,32 +70,41 @@ public class ReqourClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf(
-                    "Request to /clone didn't go through: HTTP %s, body: %s",
-                    response.getStatus(),
-                    response.getBody());
-            throw new RuntimeException("Request didn't go through");
+            processUnsuccessfulResponse(response, "/clone");
         }
     }
 
     @Retry
-    public RepourCreateRepoResponse createRepository(String reqourUrl, InternalSCMCreationRequest request) {
+    public void createRepository(String reqourUrl, InternalSCMCreationRequest request) {
 
-        HttpResponse<RepourCreateRepoResponse> response = Unirest.post(reqourUrl + "/internal-scm")
+        HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/internal-scm")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
                 .body(request)
-                .asObject(RepourCreateRepoResponse.class);
+                .asJson();
 
         if (!response.isSuccess()) {
+            processUnsuccessfulResponse(response, "/internal-scm");
+        }
+    }
+
+    private <T> void processUnsuccessfulResponse(HttpResponse<T> response, String endpoint) {
+        if (response.getParsingError().isPresent()) {
             Log.errorf(
-                    "Request to /internal-scm didn't go through: HTTP %s, body: %s",
+                    "Request to %s: HTTP %s, body: %s\nfinished with parsing error: %s",
+                    endpoint,
+                    response.getStatus(),
+                    response.getBody(),
+                    response.getParsingError().get());
+            throw new RuntimeException("Request finished with parsing error");
+        } else {
+            Log.errorf(
+                    "Request to %s didn't go through: HTTP %s, body: %s",
+                    endpoint,
                     response.getStatus(),
                     response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
-
-        return response.getBody();
     }
 }

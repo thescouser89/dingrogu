@@ -6,7 +6,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCloneRepositoryAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourCreateRepositoryAdapter;
 import org.jboss.pnc.rex.api.QueueEndpoint;
@@ -80,7 +80,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
      */
     CreateGraphRequest generateWorkflow(CorrelationId correlationId, RepositoryCreationDTO repositoryCreationDTO)
             throws Exception {
-        RepourCreateRepositoryDTO repourCreateRepositoryDTO = RepourCreateRepositoryDTO.builder()
+        ReqourCreateRepositoryDTO repourCreateRepositoryDTO = ReqourCreateRepositoryDTO.builder()
                 .repourUrl(repositoryCreationDTO.getRepourUrl())
                 .externalUrl(repositoryCreationDTO.getExternalRepoUrl())
                 .build();

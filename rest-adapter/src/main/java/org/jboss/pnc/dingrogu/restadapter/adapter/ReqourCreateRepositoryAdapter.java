@@ -9,8 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationResponse;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepositoryDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCreateRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.GitUrlParser;
@@ -25,7 +24,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 @ApplicationScoped
-public class ReqourCreateRepositoryAdapter implements Adapter<RepourCreateRepositoryDTO> {
+public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateRepositoryDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     String dingroguUrl;
@@ -41,8 +40,8 @@ public class ReqourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
-        RepourCreateRepositoryDTO repourCreateDTO = objectMapper
-                .convertValue(startRequest.getPayload(), RepourCreateRepositoryDTO.class);
+        ReqourCreateRepositoryDTO repourCreateDTO = objectMapper
+                .convertValue(startRequest.getPayload(), ReqourCreateRepositoryDTO.class);
 
         Request callback;
         try {
@@ -62,7 +61,7 @@ public class ReqourCreateRepositoryAdapter implements Adapter<RepourCreateReposi
                 .taskId(correlationId)
                 .build();
 
-        RepourCreateRepoResponse response = reqourClient.createRepository(repourCreateDTO.getRepourUrl(), request);
+        reqourClient.createRepository(repourCreateDTO.getRepourUrl(), request);
 
         return Optional.empty();
     }
