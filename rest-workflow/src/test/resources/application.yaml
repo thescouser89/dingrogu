@@ -1,0 +1,32 @@
+---
+dingrogu:
+  url: http://localhost:8080
+rexclient:
+  url: http://rex-newcastle-devel.apps.ocp-c1.prod.psi.redhat.com
+  brew_push:
+    queue_name: dingrogu-brew-push
+    # per design document for brew push, we should only run 3 concurrent builds per causeway instance
+    queue_size: 6
+  build:
+    queue_name: dingrogu-build
+    queue_size: 50
+  deliverables_analysis:
+    queue_name: dingrogu-dela
+    queue_size: 10
+  repository_creation:
+    queue_name: dingrogu-repository-creation
+    queue_size: 10
+
+quarkus:
+  arc:
+    # Do not remove the adapter implementations since we'll dynamically use them in the adapter endpoint
+    unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
+  swagger-ui:
+    always-include: false
+  otel:
+    sdk:
+      disabled: true
+  oidc:
+    enabled: false
+  oidc-client:
+    enabled: false
