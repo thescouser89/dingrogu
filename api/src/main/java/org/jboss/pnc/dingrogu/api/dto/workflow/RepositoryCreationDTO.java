@@ -12,7 +12,7 @@ import org.jboss.pnc.dto.BuildConfiguration;
 public class RepositoryCreationDTO {
 
     public String orchUrl;
-    public String repourUrl;
+    public String reqourUrl;
 
     public String externalRepoUrl;
     public String ref;

@@ -7,9 +7,9 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Data
 @Builder
-public class RepourCloneRepositoryDTO {
+public class ReqourCloneRepositoryDTO {
 
-    String repourUrl;
+    String reqourUrl;
     String externalUrl;
     String ref;
 }

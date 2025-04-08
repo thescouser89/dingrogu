@@ -2,12 +2,13 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
-import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCreateRepositoryDTO;
-import org.jboss.pnc.dingrogu.restadapter.adapter.RepourCloneRepositoryAdapter;
+import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
+import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourCloneRepositoryAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourCreateRepositoryAdapter;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
@@ -16,7 +17,8 @@ import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of the repository-creation workflow
@@ -25,10 +27,10 @@ import java.util.*;
 public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDTO> {
 
     @Inject
-    ReqourCreateRepositoryAdapter repourCreateRepositoryAdapter;
+    ReqourCreateRepositoryAdapter reqourCreateRepositoryAdapter;
 
     @Inject
-    RepourCloneRepositoryAdapter repourCloneRepositoryAdapter;
+    ReqourCloneRepositoryAdapter reqourCloneRepositoryAdapter;
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
@@ -80,22 +82,22 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
      */
     CreateGraphRequest generateWorkflow(CorrelationId correlationId, RepositoryCreationDTO repositoryCreationDTO)
             throws Exception {
-        ReqourCreateRepositoryDTO repourCreateRepositoryDTO = ReqourCreateRepositoryDTO.builder()
-                .repourUrl(repositoryCreationDTO.getRepourUrl())
+        ReqourCreateRepositoryDTO reqourCreateRepositoryDTO = ReqourCreateRepositoryDTO.builder()
+                .repourUrl(repositoryCreationDTO.getReqourUrl())
                 .externalUrl(repositoryCreationDTO.getExternalRepoUrl())
                 .build();
 
         // TODO: should that be external url?
-        RepourCloneRepositoryDTO repourCloneRepositoryDTO = RepourCloneRepositoryDTO.builder()
-                .repourUrl(repositoryCreationDTO.getRepourUrl())
+        ReqourCloneRepositoryDTO reqourCloneRepositoryDTO = ReqourCloneRepositoryDTO.builder()
+                .reqourUrl(repositoryCreationDTO.getReqourUrl())
                 .externalUrl(repositoryCreationDTO.getExternalRepoUrl())
                 .ref(repositoryCreationDTO.getRef())
                 .build();
 
-        CreateTaskDTO taskInternalScm = repourCreateRepositoryAdapter
-                .generateRexTask(ownUrl, correlationId.getId(), repositoryCreationDTO, repourCreateRepositoryDTO);
-        CreateTaskDTO taskCloneScm = repourCloneRepositoryAdapter
-                .generateRexTask(ownUrl, correlationId.getId(), repositoryCreationDTO, repourCloneRepositoryDTO);
+        CreateTaskDTO taskInternalScm = reqourCreateRepositoryAdapter
+                .generateRexTask(ownUrl, correlationId.getId(), repositoryCreationDTO, reqourCreateRepositoryDTO);
+        CreateTaskDTO taskCloneScm = reqourCloneRepositoryAdapter
+                .generateRexTask(ownUrl, correlationId.getId(), repositoryCreationDTO, reqourCloneRepositoryDTO);
 
         // setting up the graph
         Map<String, CreateTaskDTO> vertices = Map

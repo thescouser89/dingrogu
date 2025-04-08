@@ -5,26 +5,25 @@ import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.repour.dto.RepourCloneCallback;
-import org.jboss.pnc.api.repour.dto.RepourCloneRepositoryRequest;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCloneRepositoryDTO;
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
-import org.jboss.pnc.dingrogu.restadapter.client.RepourClient;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.dingrogu.restadapter.client.ReqourClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Should be replaced by the Reqour equivalent
- */
-@Deprecated
 @ApplicationScoped
-public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneRepositoryDTO> {
+public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneRepositoryDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     String dingroguUrl;
@@ -36,35 +35,44 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
     ObjectMapper objectMapper;
 
     @Inject
-    ReqourCreateRepositoryAdapter repourCreate;
+    ReqourCreateRepositoryAdapter reqourCreate;
 
     @Inject
-    RepourClient repourClient;
+    ReqourClient reqourClient;
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
-        Object pastResult = pastResults.get(repourCreate.getRexTaskName(correlationId));
-        RepourCreateRepoResponse repourResponse = objectMapper.convertValue(pastResult, RepourCreateRepoResponse.class);
+        Object pastResult = pastResults.get(reqourCreate.getRexTaskName(correlationId));
+        RepourCreateRepoResponse reqourResponse = objectMapper.convertValue(pastResult, RepourCreateRepoResponse.class);
 
-        RepourCloneRepositoryDTO dto = objectMapper
-                .convertValue(startRequest.getPayload(), RepourCloneRepositoryDTO.class);
+        ReqourCloneRepositoryDTO dto = objectMapper
+                .convertValue(startRequest.getPayload(), ReqourCloneRepositoryDTO.class);
 
-        RepourCloneCallback callback = RepourCloneCallback.builder()
-                .url(AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId))
-                .method("POST")
-                .build();
+        Request callback;
+        try {
+            URI callbackUri = new URI(
+                    AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId));
+            callback = Request.builder()
+                    .method(Request.Method.POST)
+                    .uri(callbackUri)
+                    .headers(TaskHelper.getHTTPHeaders())
+                    .build();
+        } catch (URISyntaxException e) {
+            Log.error(e);
+            throw new RuntimeException(e);
+        }
 
-        RepourCloneRepositoryRequest request = RepourCloneRepositoryRequest.builder()
-                .type("git")
+        RepositoryCloneRequest request = RepositoryCloneRequest.builder()
                 .originRepoUrl(dto.getExternalUrl())
-                .targetRepoUrl(repourResponse.getReadwriteUrl())
+                .targetRepoUrl(reqourResponse.getReadwriteUrl())
                 .ref(dto.getRef())
+                .taskId(getRexTaskName(correlationId))
                 .callback(callback)
                 .build();
 
-        repourClient.cloneRequest(dto.getRepourUrl(), request);
+        reqourClient.cloneRequest(dto.getReqourUrl(), request);
 
         return Optional.empty();
     }
@@ -97,7 +105,7 @@ public class RepourCloneRepositoryAdapter implements Adapter<RepourCloneReposito
 
     /**
      * We read past results to build final request
-     * 
+     *
      * @return true
      */
     @Override

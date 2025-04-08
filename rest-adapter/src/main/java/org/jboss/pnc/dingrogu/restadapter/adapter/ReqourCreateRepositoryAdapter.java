@@ -58,7 +58,7 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
         InternalSCMCreationRequest request = InternalSCMCreationRequest.builder()
                 .project(getProjectName(repourCreateDTO.getExternalUrl()))
                 .callback(callback)
-                .taskId(correlationId)
+                .taskId(getRexTaskName(correlationId))
                 .build();
 
         reqourClient.createRepository(repourCreateDTO.getRepourUrl(), request);
