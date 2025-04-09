@@ -73,8 +73,6 @@ public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneReposito
                 .callback(callback)
                 .build();
 
-        Log.infof("Calling Reqour clone with %s", request);
-
         reqourClient.cloneRequest(dto.getReqourUrl(), request);
 
         return Optional.empty();
