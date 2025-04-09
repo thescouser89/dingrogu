@@ -6,9 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.reqour.dto.InternalSCMCreationResponse;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCloneRepositoryDTO;
-import org.jboss.pnc.dingrogu.api.dto.adapter.RepourCreateRepoResponse;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
@@ -45,7 +45,8 @@ public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneReposito
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(reqourCreate.getRexTaskName(correlationId));
-        RepourCreateRepoResponse reqourResponse = objectMapper.convertValue(pastResult, RepourCreateRepoResponse.class);
+        InternalSCMCreationResponse reqourResponse = objectMapper
+                .convertValue(pastResult, InternalSCMCreationResponse.class);
 
         ReqourCloneRepositoryDTO dto = objectMapper
                 .convertValue(startRequest.getPayload(), ReqourCloneRepositoryDTO.class);

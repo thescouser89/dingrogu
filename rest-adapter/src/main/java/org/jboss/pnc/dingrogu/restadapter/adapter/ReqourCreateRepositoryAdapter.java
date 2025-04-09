@@ -7,6 +7,7 @@ import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.InternalSCMCreationStatus;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationResponse;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCreateRepositoryDTO;
@@ -71,7 +72,8 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
         try {
             InternalSCMCreationResponse response = objectMapper.convertValue(object, InternalSCMCreationResponse.class);
             try {
-                if (response == null || !response.getCallback().getStatus().isSuccess()) {
+                if (response == null || response.getStatus() == InternalSCMCreationStatus.FAILED
+                        || !response.getCallback().getStatus().isSuccess()) {
                     callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
                 } else {
                     Log.infof("Repo creation response: %s", response.toString());
