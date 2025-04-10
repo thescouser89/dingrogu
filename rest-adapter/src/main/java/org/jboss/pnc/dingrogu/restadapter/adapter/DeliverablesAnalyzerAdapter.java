@@ -76,11 +76,16 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
 
     @Override
     public void callback(String correlationId, Object object) {
-        AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
         try {
-            callbackEndpoint.succeed(getRexTaskName(correlationId), report, null);
+            AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
+            if (report != null && report.isSuccess()) {
+                callbackEndpoint.succeed(getRexTaskName(correlationId), report, null);
+            } else {
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+            }
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
+            callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
         }
     }
 
