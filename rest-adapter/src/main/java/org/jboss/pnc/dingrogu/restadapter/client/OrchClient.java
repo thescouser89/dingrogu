@@ -58,12 +58,11 @@ public class OrchClient {
     }
 
     @Retry
-    public void submitRepourRepositoryCreationResult(String orchUrl, RepositoryCreationResult result) {
+    public void completeRepositoryCreation(String orchUrl, RepositoryCreationResult result) {
 
-        Log.info("Sending Repour repository to server: " + orchUrl);
+        Log.info("Sending Reqour repository to server: " + orchUrl);
 
-        // TODO: figure out endpoint
-        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/???")
+        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/bpm/repository-creation/completed")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))

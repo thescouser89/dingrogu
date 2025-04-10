@@ -17,9 +17,9 @@ import org.jboss.pnc.rex.model.requests.NotificationRequest;
 public interface Workflow<T> {
 
     /**
-     * Submit the workflow to Rex and return back the correlation id
+     * Submit the workflow to Rex and return back the correlation id.
      *
-     * @param t: workflow input
+     * @param t workflow input
      * @return correlationId
      */
     CorrelationId submitWorkflow(T t) throws WorkflowSubmissionException;
