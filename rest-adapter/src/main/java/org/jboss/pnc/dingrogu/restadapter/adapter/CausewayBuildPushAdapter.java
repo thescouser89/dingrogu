@@ -2,16 +2,15 @@ package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
-import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushRequest;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
-import org.jboss.pnc.api.causeway.rest.Causeway;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.dingrogu.api.client.AuthorizationClientHttpFactory;
+import org.jboss.pnc.dingrogu.api.client.CausewayProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BrewPushDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
@@ -32,6 +31,9 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
 
     @Inject
     CallbackEndpoint callbackEndpoint;
+
+    @Inject
+    CausewayProducer causewayProducer;
 
     @Inject
     AuthorizationClientHttpFactory authorizationClientHttpFactory;
@@ -63,21 +65,25 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
                 .heartbeat(null)
                 .build();
 
-        buildCausewayClient(brewPushDTO.getCausewayUrl()).importBuild(request);
+        causewayProducer.getCauseway(brewPushDTO.getCausewayUrl()).importBuild(request);
         return Optional.empty();
     }
 
     @Override
     public void callback(String correlationId, Object o) {
-        PushResult pushResult = objectMapper.convertValue(o, PushResult.class);
         try {
-            if (pushResult.getResult() == ResultStatus.SUCCESS) {
+
+            PushResult pushResult = objectMapper.convertValue(o, PushResult.class);
+
+            if (pushResult != null && pushResult.getResult() != null
+                    && pushResult.getResult() == ResultStatus.SUCCESS) {
                 callbackEndpoint.succeed(getRexTaskName(correlationId), pushResult, null);
             } else {
                 callbackEndpoint.fail(getRexTaskName(correlationId), pushResult, null);
             }
         } catch (Exception e) {
             Log.error("Error while receiving callback", e);
+            callbackEndpoint.fail(getRexTaskName(correlationId), o, null);
         }
     }
 
@@ -89,12 +95,5 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
     @Override
     public String getNotificationEndpoint(String adapterUrl) {
         return adapterUrl + WorkflowEndpoint.BREW_PUSH_REX_NOTIFY;
-    }
-
-    private Causeway buildCausewayClient(String causewayUrl) {
-        return QuarkusRestClientBuilder.newBuilder()
-                .baseUri(URI.create(causewayUrl))
-                .clientHeadersFactory(authorizationClientHttpFactory)
-                .build(Causeway.class);
     }
 }
