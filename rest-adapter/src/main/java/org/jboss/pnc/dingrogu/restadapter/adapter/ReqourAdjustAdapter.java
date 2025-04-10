@@ -77,6 +77,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
             }
         }
 
+        // TODO: heartbeat
         AdjustRequest request = AdjustRequest.builder()
                 .internalUrl(internalUrl)
                 .ref(reqourAdjustDTO.getScmRevision())
