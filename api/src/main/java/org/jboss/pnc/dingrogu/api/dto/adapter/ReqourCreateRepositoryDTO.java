@@ -9,6 +9,6 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 public class ReqourCreateRepositoryDTO {
 
-    String repourUrl;
+    String reqourUrl;
     String externalUrl;
 }

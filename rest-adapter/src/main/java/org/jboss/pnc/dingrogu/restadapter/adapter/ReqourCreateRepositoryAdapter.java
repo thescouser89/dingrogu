@@ -41,7 +41,7 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
-        ReqourCreateRepositoryDTO repourCreateDTO = objectMapper
+        ReqourCreateRepositoryDTO reqourCreateDTO = objectMapper
                 .convertValue(startRequest.getPayload(), ReqourCreateRepositoryDTO.class);
 
         Request callback;
@@ -57,12 +57,12 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
         }
 
         InternalSCMCreationRequest request = InternalSCMCreationRequest.builder()
-                .project(getProjectName(repourCreateDTO.getExternalUrl()))
+                .project(getProjectName(reqourCreateDTO.getExternalUrl()))
                 .callback(callback)
                 .taskId(getRexTaskName(correlationId))
                 .build();
 
-        reqourClient.createRepository(repourCreateDTO.getRepourUrl(), request);
+        reqourClient.createRepository(reqourCreateDTO.getReqourUrl(), request);
 
         return Optional.empty();
     }
@@ -110,7 +110,7 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
 
     @Override
     public String getAdapterName() {
-        return "repour-create-repository";
+        return "reqour-create-repository";
     }
 
     private static String getProjectName(String externalUrl) {

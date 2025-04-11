@@ -108,7 +108,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
     CreateGraphRequest generateWorkflow(CorrelationId correlationId, RepositoryCreationDTO repositoryCreationDTO)
             throws Exception {
         ReqourCreateRepositoryDTO reqourCreateRepositoryDTO = ReqourCreateRepositoryDTO.builder()
-                .repourUrl(repositoryCreationDTO.getReqourUrl())
+                .reqourUrl(repositoryCreationDTO.getReqourUrl())
                 .externalUrl(repositoryCreationDTO.getExternalRepoUrl())
                 .build();
 
@@ -183,6 +183,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
             }
 
             // generate result for Orch
+            // TODO replace with the one from pnc-api
             RepositoryCreationResult result = RepositoryCreationResult.builder()
                     .status(opResultToResultStatus(operationResult))
                     .repoCreatedSuccessfully(true)

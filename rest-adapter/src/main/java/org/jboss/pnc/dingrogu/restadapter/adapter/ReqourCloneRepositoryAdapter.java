@@ -101,7 +101,7 @@ public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneReposito
 
     @Override
     public String getAdapterName() {
-        return "repour-clone-repository";
+        return "reqour-clone-repository";
     }
 
     /**
