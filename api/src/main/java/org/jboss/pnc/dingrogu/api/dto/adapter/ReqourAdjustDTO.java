@@ -1,12 +1,13 @@
 package org.jboss.pnc.dingrogu.api.dto.adapter;
 
+import java.util.Map;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.api.enums.BuildType;
-
-import java.util.Map;
 
 @Jacksonized
 @Data

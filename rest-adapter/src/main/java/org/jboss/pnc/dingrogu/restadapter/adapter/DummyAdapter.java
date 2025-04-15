@@ -1,10 +1,13 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
+import java.util.Map;
+import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
@@ -15,8 +18,8 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 
 /**
  * Just a dummy adapter to test for Rex functionality. It does nothing and just calls the Rex callback. Supports the

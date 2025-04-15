@@ -1,12 +1,13 @@
 package org.jboss.pnc.dingrogu.common;
 
-import jakarta.ws.rs.core.MediaType;
-import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.common.log.MDCUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.ws.rs.core.MediaType;
+
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.common.log.MDCUtils;
 
 public class TaskHelper {
 

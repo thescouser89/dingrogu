@@ -1,8 +1,15 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import jakarta.inject.Inject;
+
 import org.instancio.Instancio;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
@@ -16,13 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 public class RepositoryDriverSetupAdapterTest {

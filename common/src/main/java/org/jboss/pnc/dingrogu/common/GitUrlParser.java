@@ -1,13 +1,13 @@
 package org.jboss.pnc.dingrogu.common;
 
-import io.quarkus.logging.Log;
+import static java.util.regex.Pattern.compile;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.regex.Pattern.compile;
+import io.quarkus.logging.Log;
 
 /**
  * Parse a nice name from git repo URL.

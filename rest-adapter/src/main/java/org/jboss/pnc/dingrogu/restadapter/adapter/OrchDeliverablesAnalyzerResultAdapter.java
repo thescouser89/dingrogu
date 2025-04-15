@@ -1,9 +1,13 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
@@ -17,10 +21,8 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 
 @ApplicationScoped
 public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDeliverablesAnalyzerResultDTO> {

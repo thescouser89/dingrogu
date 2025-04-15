@@ -1,15 +1,15 @@
 package org.jboss.pnc.dingrogu.common;
 
-import org.jboss.pnc.api.constants.MDCHeaderKeys;
-import org.jboss.pnc.api.dto.Request;
-import org.junit.jupiter.api.Test;
-import org.slf4j.MDC;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
+import org.jboss.pnc.api.dto.Request;
+import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 
 class TaskHelperTest {
 

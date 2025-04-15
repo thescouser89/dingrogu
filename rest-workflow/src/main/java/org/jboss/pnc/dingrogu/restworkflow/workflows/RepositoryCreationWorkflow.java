@@ -1,11 +1,12 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
-import io.quarkus.logging.Log;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.enums.OperationResult;
@@ -32,9 +33,8 @@ import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 
 /**
  * Implementation of the repository-creation workflow

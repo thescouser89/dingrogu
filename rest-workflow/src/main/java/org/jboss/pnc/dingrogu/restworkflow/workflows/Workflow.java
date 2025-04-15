@@ -1,12 +1,14 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
+
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.dto.responses.LongResponse;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
+
+import io.quarkus.logging.Log;
 
 /**
  * Interface for which each workflow class should implement

@@ -1,8 +1,11 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+
 import jakarta.inject.Inject;
+
+import org.instancio.Instancio;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.reqour.dto.AdjustRequest;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
@@ -15,10 +18,9 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.instancio.Instancio;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class ReqourAdjustAdapterTest {

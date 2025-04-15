@@ -1,16 +1,20 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.jboss.pnc.api.dto.Request;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 
 @ApplicationScoped
 public class GenericClient {

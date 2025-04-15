@@ -1,10 +1,10 @@
 package org.jboss.pnc.dingrogu.common;
 
+import java.util.Collection;
+
 import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
-
-import java.util.Collection;
 
 public class NotificationHelper {
 

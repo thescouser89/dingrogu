@@ -1,20 +1,23 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
-import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import java.net.URI;
+
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
 import kong.unirest.core.Unirest;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 
-import java.net.URI;
+import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 
 @ApplicationScoped
 public class OrchClient {

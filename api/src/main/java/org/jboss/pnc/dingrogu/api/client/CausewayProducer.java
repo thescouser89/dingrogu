@@ -1,11 +1,13 @@
 package org.jboss.pnc.dingrogu.api.client;
 
-import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
+import java.net.URI;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import org.jboss.pnc.api.causeway.rest.Causeway;
 
-import java.net.URI;
+import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
 @ApplicationScoped
 public class CausewayProducer {

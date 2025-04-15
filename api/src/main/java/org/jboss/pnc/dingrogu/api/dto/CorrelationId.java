@@ -1,8 +1,8 @@
 package org.jboss.pnc.dingrogu.api.dto;
 
-import lombok.Getter;
-
 import java.util.UUID;
+
+import lombok.Getter;
 
 /**
  * Simple DTO to enforce that some methods return the Correlation id.

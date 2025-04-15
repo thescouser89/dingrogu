@@ -2,6 +2,10 @@ package org.jboss.pnc.dingrogu.api.dto.workflow;
 
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
+
 import jakarta.validation.constraints.NotNull;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
@@ -15,10 +19,6 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepourAdjustDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourAdjustDTO;
-
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.jackson.Jacksonized;
 
 @Jacksonized
 @Data
