@@ -44,8 +44,10 @@ public class DummyAdapter implements Adapter<DummyDTO> {
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
         Map<String, String> mdcMap = startRequest.getMdc();
-        for (String key : mdcMap.keySet()) {
-            log.info("Adapter start mdc: {}::{}", key, mdcMap.get(key));
+        if (mdcMap != null) {
+            for (String key : mdcMap.keySet()) {
+                log.info("Adapter start mdc: {}::{}", key, mdcMap.get(key));
+            }
         }
 
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
