@@ -60,9 +60,12 @@ public class OrchClient {
     @Retry
     public void completeRepositoryCreation(String orchUrl, RepositoryCreationResult result) {
 
-        Log.info("Sending Reqour repository to server: " + orchUrl);
+        String orchUrlWithoutPath = URI.create(orchUrl).resolve("/").toString();
 
-        HttpResponse<JsonNode> response = Unirest.post(orchUrl + "/pnc-rest/v2/bpm/repository-creation/completed")
+        Log.info("Sending Reqour repository to server: " + orchUrlWithoutPath);
+
+        HttpResponse<JsonNode> response = Unirest
+                .post(orchUrlWithoutPath + "pnc-rest/v2/bpm/repository-creation/completed")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
