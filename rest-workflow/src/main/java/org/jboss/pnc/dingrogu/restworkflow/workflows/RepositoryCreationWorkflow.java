@@ -82,6 +82,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
     @Override
     public CorrelationId submitWorkflow(RepositoryCreationDTO repositoryCreationDTO)
             throws WorkflowSubmissionException {
+        Log.infof("Received: %s", repositoryCreationDTO);
         CorrelationId correlationId = CorrelationId.generateUnique();
 
         try {
