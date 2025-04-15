@@ -20,4 +20,6 @@ public class RepositoryCreationDTO {
     public JobNotificationType jobNotificationType;
     public BuildConfiguration buildConfiguration;
 
+    // Needed for notification purposes. Perhaps we can switch to operationId in the future
+    public String taskId;
 }

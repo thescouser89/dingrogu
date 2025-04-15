@@ -191,7 +191,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
                     .internalScmUrl(creationResponse.get().getReadwriteUrl())
                     .externalUrl(dto.getExternalRepoUrl())
                     .preBuildSyncEnabled(dto.isPreBuildSyncEnabled())
-                    // .taskId(dto.getTaskId())
+                    .taskId(Long.parseLong(dto.getTaskId()))
                     .jobType(convertJobType(dto.getJobNotificationType()))
                     .buildConfiguration(dto.getBuildConfiguration())
                     .build();
