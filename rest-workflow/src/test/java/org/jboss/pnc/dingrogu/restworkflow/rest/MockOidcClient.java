@@ -1,13 +1,13 @@
 package org.jboss.pnc.dingrogu.restworkflow.rest;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+
 import io.quarkus.oidc.client.OidcClient;
 import io.quarkus.oidc.client.Tokens;
 import io.quarkus.test.Mock;
 import io.smallrye.mutiny.Uni;
-
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 @Mock
 public class MockOidcClient implements OidcClient {

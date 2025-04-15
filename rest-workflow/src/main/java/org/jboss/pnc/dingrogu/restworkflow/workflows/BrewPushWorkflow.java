@@ -1,17 +1,19 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
-import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BrewPushDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchBuildPushResultDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushWorkflowDTO;
@@ -20,6 +22,7 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.CausewayBuildPushAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.OrchBuildPushResultAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.OrchClient;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.WorkflowHelper;
+import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -28,9 +31,8 @@ import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 
 /**
  * Implementation of the milestone-release workflow

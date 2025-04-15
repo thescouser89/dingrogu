@@ -1,11 +1,12 @@
 package org.jboss.pnc.dingrogu.restworkflow.rest;
 
-import io.quarkus.oidc.client.Tokens;
-import io.quarkus.test.Mock;
+import java.time.Duration;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.Produces;
 
-import java.time.Duration;
+import io.quarkus.oidc.client.Tokens;
+import io.quarkus.test.Mock;
 
 @Mock
 public class TokensAlternative {

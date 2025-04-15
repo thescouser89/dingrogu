@@ -1,8 +1,10 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+
 import jakarta.inject.Inject;
+
 import org.instancio.Instancio;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushRequest;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
@@ -19,8 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class CausewayBuildPushAdapterTest {

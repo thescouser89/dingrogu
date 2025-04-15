@@ -1,5 +1,11 @@
 package org.jboss.pnc.dingrogu.application.runtime;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import lombok.extern.slf4j.Slf4j;
+
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -8,14 +14,10 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
-import lombok.extern.slf4j.Slf4j;
+
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.slf4j.MDC;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Written by Matej Lazar. Copied from the repository-driver codebase

@@ -1,15 +1,17 @@
 package org.jboss.pnc.dingrogu.api.client;
 
-import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
+import java.net.URI;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 
-import java.net.URI;
+import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
 @ApplicationScoped
 public class RexProducer {

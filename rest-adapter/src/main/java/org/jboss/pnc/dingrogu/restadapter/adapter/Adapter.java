@@ -1,6 +1,10 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import java.net.URI;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
+
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
@@ -8,9 +12,6 @@ import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
-
-import java.net.URI;
-import java.util.Optional;
 
 /**
  * Interface for all the adapters

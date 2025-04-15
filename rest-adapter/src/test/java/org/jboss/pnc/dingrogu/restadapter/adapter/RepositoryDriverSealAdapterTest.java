@@ -1,8 +1,9 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import jakarta.inject.Inject;
+
 import org.instancio.Instancio;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
@@ -14,7 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.quarkus.test.InjectMock;
+import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
 class RepositoryDriverSealAdapterTest {

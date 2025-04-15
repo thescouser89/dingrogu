@@ -1,20 +1,24 @@
 package org.jboss.pnc.dingrogu.api.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.OidcClient;
-import io.quarkus.oidc.client.Tokens;
+import java.io.IOException;
+import java.util.List;
+
+import okhttp3.*;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
-import okhttp3.*;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 
-import java.io.IOException;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.OidcClient;
+import io.quarkus.oidc.client.Tokens;
 
 /**
  * I don't know if this RexClient will be replaced by something else in the future, but keeping it for now until

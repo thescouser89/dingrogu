@@ -1,8 +1,13 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
+import java.util.Map;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
@@ -14,9 +19,6 @@ import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Just a dummy workflow to test functionality with Rex and validate ideas

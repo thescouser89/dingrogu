@@ -1,12 +1,14 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
-import io.quarkus.oidc.client.Tokens;
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.common.log.MDCUtils;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
 import java.util.Map;
 
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import lombok.extern.slf4j.Slf4j;
+
+import org.jboss.pnc.common.log.MDCUtils;
+
+import io.quarkus.oidc.client.Tokens;
 
 @Slf4j
 public class ClientHelper {

@@ -1,23 +1,26 @@
 package org.jboss.pnc.dingrogu.restadapter.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.arc.All;
-import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.quarkus.arc.All;
+import io.quarkus.logging.Log;
+import io.quarkus.oidc.client.Tokens;
 
 /**
  * Adapter endpoint: Each Rex task will call the Adapter endpoint for that task. The endpoint will translate the Rex DTO

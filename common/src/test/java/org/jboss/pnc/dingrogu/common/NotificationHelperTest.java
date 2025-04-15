@@ -1,13 +1,13 @@
 package org.jboss.pnc.dingrogu.common;
 
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.List;
+
 import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 
 class NotificationHelperTest {
 

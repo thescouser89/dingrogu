@@ -30,7 +30,6 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.quarkus.logging.Log;
 
 @ApplicationScoped
@@ -85,7 +84,7 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
         EnvironmentCreateRequest environmentCreateRequest = EnvironmentCreateRequest.builder()
                 .environmentLabel(dto.getEnvironmentLabel().toLowerCase(Locale.ROOT)) // toLowerCase because pod names
-                                                                                      // have to be in lowercase
+                // have to be in lowercase
                 .imageId(dto.getEnvironmentImage())
                 .repositoryDependencyUrl(repositoryResponse.getRepositoryDependencyUrl())
                 .repositoryDeployUrl(repositoryResponse.getRepositoryDeployUrl())

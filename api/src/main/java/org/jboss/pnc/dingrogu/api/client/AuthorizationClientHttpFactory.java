@@ -1,16 +1,18 @@
 package org.jboss.pnc.dingrogu.api.client;
 
-import io.quarkus.oidc.client.OidcClient;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
+
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 import org.jboss.pnc.common.log.MDCUtils;
 
-import java.util.Map;
-
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import io.quarkus.oidc.client.OidcClient;
 
 @ApplicationScoped
 public class AuthorizationClientHttpFactory implements ClientHeadersFactory {
