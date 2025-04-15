@@ -13,15 +13,6 @@ public class TokensAlternative {
     @Produces
     @RequestScoped
     public Tokens produceTokens() {
-        Tokens tokens = new Tokens(
-                "theToken",
-                Long.MAX_VALUE,
-                Duration.ofDays(1),
-                "refreshToken",
-                null,
-                null,
-                "client-id");
-
-        return tokens;
+        return new Tokens("theToken", Long.MAX_VALUE, Duration.ofDays(1), "refreshToken", null, null, "client-id");
     }
 }

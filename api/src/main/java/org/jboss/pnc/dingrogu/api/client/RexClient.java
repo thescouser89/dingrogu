@@ -144,7 +144,7 @@ public class RexClient {
             List<ServerResponseDTO> responses = dto.getServerResponses();
 
             // get last index
-            if (responses.size() == 0) {
+            if (responses.isEmpty()) {
                 return null;
             } else {
                 ServerResponseDTO serverResponseDTO = responses.get(responses.size() - 1);

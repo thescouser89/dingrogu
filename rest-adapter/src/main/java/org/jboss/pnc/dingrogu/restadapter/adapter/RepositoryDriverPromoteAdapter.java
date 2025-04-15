@@ -124,6 +124,5 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        return;
     }
 }

@@ -112,7 +112,6 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        return;
     }
 
     @Override

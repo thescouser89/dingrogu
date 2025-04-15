@@ -100,7 +100,6 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        return;
     }
 
     @Override

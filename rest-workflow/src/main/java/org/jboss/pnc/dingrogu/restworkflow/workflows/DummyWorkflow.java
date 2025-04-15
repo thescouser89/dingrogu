@@ -48,8 +48,6 @@ public class DummyWorkflow implements Workflow<DummyWorkflowDTO> {
 
             Map<String, CreateTaskDTO> vertices = Map.of(task.name, task);
 
-            // EdgeDTO edgeDTO = EdgeDTO.builder().source(task.name).target(null).build();
-            // Set<EdgeDTO> edges = Set.of(edgeDTO);
             Set<EdgeDTO> edges = Set.of();
 
             ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
