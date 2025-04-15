@@ -90,6 +90,5 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        return;
     }
 }

@@ -102,7 +102,6 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        return;
     }
 
     /**

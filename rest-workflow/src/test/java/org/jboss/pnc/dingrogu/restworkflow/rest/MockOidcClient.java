@@ -5,7 +5,6 @@ import io.quarkus.oidc.client.Tokens;
 import io.quarkus.test.Mock;
 import io.smallrye.mutiny.Uni;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -38,7 +37,7 @@ public class MockOidcClient implements OidcClient {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
     }
 }
