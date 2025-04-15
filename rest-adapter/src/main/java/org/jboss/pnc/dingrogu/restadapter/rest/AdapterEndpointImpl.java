@@ -57,7 +57,9 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
     @PostConstruct
     public void setup() {
 
+        Log.error(">>> Inside adapter setup");
         for (Adapter<?> adapter : adapters) {
+            Log.infof(">>> Processing adapter: %s", adapter.getAdapterName());
             adapterNameMap.put(adapter.getAdapterName(), adapter);
         }
     }
