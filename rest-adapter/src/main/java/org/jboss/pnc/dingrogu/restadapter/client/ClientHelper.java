@@ -4,11 +4,10 @@ import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.jboss.pnc.common.log.MDCUtils;
 
 import io.quarkus.oidc.client.Tokens;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ClientHelper {

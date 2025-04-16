@@ -1,10 +1,5 @@
 package org.jboss.pnc.dingrogu.restadapter.client;
 
-import kong.unirest.core.ContentType;
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.JsonNode;
-import kong.unirest.core.Unirest;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,6 +8,10 @@ import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 
 import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
+import kong.unirest.core.ContentType;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.JsonNode;
+import kong.unirest.core.Unirest;
 
 @ApplicationScoped
 public class DummyClient {

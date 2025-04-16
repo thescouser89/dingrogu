@@ -1,11 +1,11 @@
 package org.jboss.pnc.dingrogu.api.dto.workflow;
 
+import org.jboss.pnc.api.enums.JobNotificationType;
+import org.jboss.pnc.dto.BuildConfiguration;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-
-import org.jboss.pnc.api.enums.JobNotificationType;
-import org.jboss.pnc.dto.BuildConfiguration;
 
 @Jacksonized
 @Data

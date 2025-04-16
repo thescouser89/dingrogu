@@ -56,6 +56,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
 
 /**

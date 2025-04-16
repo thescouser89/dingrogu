@@ -1,10 +1,10 @@
 package org.jboss.pnc.dingrogu.api.dto.adapter;
 
+import org.jboss.pnc.api.dto.Request;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-
-import org.jboss.pnc.api.dto.Request;
 
 /**
  * This DTO represents the response when Deliverables Analyze returns for the analyze endpoint

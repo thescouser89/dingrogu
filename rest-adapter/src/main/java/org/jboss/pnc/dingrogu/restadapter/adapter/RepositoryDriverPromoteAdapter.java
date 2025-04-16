@@ -21,6 +21,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
 
 @ApplicationScoped

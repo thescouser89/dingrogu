@@ -14,6 +14,7 @@ import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
 
 @ApplicationScoped

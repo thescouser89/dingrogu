@@ -2,11 +2,11 @@ package org.jboss.pnc.dingrogu.api.dto.adapter;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Callback DTO from Repour
