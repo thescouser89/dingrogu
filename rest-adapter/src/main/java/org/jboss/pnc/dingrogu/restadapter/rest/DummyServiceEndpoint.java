@@ -1,9 +1,5 @@
 package org.jboss.pnc.dingrogu.restadapter.rest;
 
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.JsonNode;
-import kong.unirest.core.Unirest;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -16,7 +12,11 @@ import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceRequestDTO;
 import org.jboss.pnc.dingrogu.api.dto.dummy.DummyServiceResponseDTO;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.JsonNode;
+import kong.unirest.core.Unirest;
 
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

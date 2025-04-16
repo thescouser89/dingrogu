@@ -3,17 +3,17 @@ package org.jboss.pnc.dingrogu.api.dto.workflow;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.extern.jackson.Jacksonized;
-
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * Super simplified BuildExecutionConfiguration, where the only values we set are for the scm stuff, since this is the

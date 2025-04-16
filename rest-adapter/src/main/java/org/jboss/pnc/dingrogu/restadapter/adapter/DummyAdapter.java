@@ -3,8 +3,6 @@ package org.jboss.pnc.dingrogu.restadapter.adapter;
 import java.util.Map;
 import java.util.Optional;
 
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -19,7 +17,9 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.quarkus.logging.Log;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Just a dummy adapter to test for Rex functionality. It does nothing and just calls the Rex callback. Supports the

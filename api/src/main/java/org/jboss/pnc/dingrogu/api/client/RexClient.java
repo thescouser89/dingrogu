@@ -3,8 +3,6 @@ package org.jboss.pnc.dingrogu.api.client;
 import java.io.IOException;
 import java.util.List;
 
-import okhttp3.*;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
@@ -19,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.OidcClient;
 import io.quarkus.oidc.client.Tokens;
+import okhttp3.*;
 
 /**
  * I don't know if this RexClient will be replaced by something else in the future, but keeping it for now until
