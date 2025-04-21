@@ -196,7 +196,7 @@
             <dependency>
                 <groupId>com.konghq</groupId>
                 <artifactId>unirest-modules-jackson</artifactId>
-                <version>4.4.5</version>
+                <version>4.4.6</version>
             </dependency>
             <dependency>
               <groupId>org.assertj</groupId>
