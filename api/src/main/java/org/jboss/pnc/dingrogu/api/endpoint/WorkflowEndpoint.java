@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.api.endpoint;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -14,6 +15,7 @@ import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
+import org.jboss.pnc.dingrogu.common.AuthorizationConstants;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 
@@ -41,10 +43,12 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/brew-push/start")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startBrewPushWorkflow(BrewPushWorkflowDTO brewPushWorkflowDTO);
 
     @Path(BREW_PUSH_REX_NOTIFY)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response brewPushNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
@@ -55,10 +59,12 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/repository-creation/start")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startRepositoryCreationWorkflow(RepositoryCreationDTO repositoryCreationDTO);
 
     @Path(REPOSITORY_CREATION_REX_NOTIFY)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response repositoryCreationNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
@@ -70,6 +76,7 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/build/start")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startBuildWorkflow(BuildWorkDTO buildWorkDTO);
 
     /**
@@ -80,10 +87,12 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/build/rex-start")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startBuildWorkflowFromRex(StartRequest startRequest);
 
     @Path(BUILD_REX_NOTIFY)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response buildWorkflowNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
@@ -94,10 +103,12 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/deliverables-analysis/start")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startDeliverablesAnalysisWorkflow(DeliverablesAnalysisWorkflowDTO deliverablesAnalysisWorkDTO);
 
     @Path(DELIVERABLES_ANALYSIS_REX_NOTIFY)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response deliverablesAnalysisNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
@@ -108,10 +119,12 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/dummy/start")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startDummyWorkflow(DummyWorkflowDTO dummyWorkflowDTO);
 
     @Path(DUMMY_REX_NOTIFY)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response dummyNotificationFromRex(NotificationRequest notificationRequest);
 
     /**
@@ -121,5 +134,6 @@ public interface WorkflowEndpoint {
      */
     @Path("/workflow/id/{correlationId}/cancel")
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response cancelWorkflow(String correlationId);
 }

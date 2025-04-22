@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.api.endpoint;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -9,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.pnc.dingrogu.common.AuthorizationConstants;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 
@@ -51,6 +53,7 @@ public interface AdapterEndpoint {
      */
     @Path(START)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response start(
             @PathParam("name") String name,
             @PathParam("correlationId") String correlationId,
@@ -66,6 +69,7 @@ public interface AdapterEndpoint {
      */
     @Path(CANCEL)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response cancel(
             @PathParam("name") String name,
             @PathParam("correlationId") String correlationId,
@@ -81,5 +85,6 @@ public interface AdapterEndpoint {
      */
     @Path(CALLBACK)
     @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response callback(@PathParam("name") String name, @PathParam("correlationId") String correlationId, Object object);
 }
