@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushWorkflowDTO;
-import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
@@ -66,18 +65,6 @@ public interface WorkflowEndpoint {
     @POST
     @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     Response repositoryCreationNotificationFromRex(NotificationRequest notificationRequest);
-
-    /**
-     * Start the build workflow. The build workflow will be driven from Rex itself, but we leave it here for debug
-     * purposes
-     *
-     * @param buildWorkDTO dto
-     * @return DTO of the correlationId
-     */
-    @Path("/workflow/build/start")
-    @POST
-    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
-    CorrelationId startBuildWorkflow(BuildWorkDTO buildWorkDTO);
 
     /**
      * Start the build workflow, accepting the Rex's StartRequest DTO

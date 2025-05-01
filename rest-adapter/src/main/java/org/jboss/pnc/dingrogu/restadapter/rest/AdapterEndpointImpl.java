@@ -8,6 +8,7 @@ import java.util.Optional;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.Response;
 
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
@@ -57,7 +58,6 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
     @PostConstruct
     public void setup() {
 
-        Log.error(">>> Inside adapter setup");
         for (Adapter<?> adapter : adapters) {
             Log.infof(">>> Processing adapter: %s", adapter.getAdapterName());
             adapterNameMap.put(adapter.getAdapterName(), adapter);
@@ -74,12 +74,17 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Optional<Object> response = adapter.start(correlationId, startRequest);
+        try {
+            Optional<Object> response = adapter.start(correlationId, startRequest);
 
-        if (response.isEmpty()) {
-            return Response.accepted().build();
-        } else {
-            return Response.accepted(response.get()).build();
+            if (response.isEmpty()) {
+                return Response.accepted().build();
+            } else {
+                return Response.accepted(response.get()).build();
+            }
+        } catch (Exception e) {
+            Log.errorf("Exception happened in the adapter start %s", e);
+            throw new BadRequestException(e);
         }
     }
 
@@ -93,8 +98,13 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        adapter.cancel(correlationId, stopRequest);
-        return Response.accepted().build();
+        try {
+            adapter.cancel(correlationId, stopRequest);
+            return Response.accepted().build();
+        } catch (Exception e) {
+            Log.errorf("Exception happened in the adapter cancel: %s", e);
+            throw new BadRequestException(e);
+        }
     }
 
     @Override
@@ -107,7 +117,12 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        adapter.callback(correlationId, object);
-        return Response.ok().build();
+        try {
+            adapter.callback(correlationId, object);
+            return Response.ok().build();
+        } catch (Exception e) {
+            Log.errorf("Exception happened in the adapter callback: %s", e);
+            throw new BadRequestException(e);
+        }
     }
 }
