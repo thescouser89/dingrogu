@@ -26,6 +26,17 @@ quarkus:
   otel:
     sdk:
       disabled: true
+  log:
+    handler:
+      kafka:
+        enabled: false
+        broker-list: kafka.example.com:443
+        topic: kafka-topic
+        security-protocol: SSL
+        ssl-truststore-location: /mnt/kafka-client-truststore.jks
+        ssl-truststore-password: none
+        filter-logger-name-pattern: org.jboss.pnc.*
+        level: INFO
   oidc:
     enabled: false
   oidc-client:
