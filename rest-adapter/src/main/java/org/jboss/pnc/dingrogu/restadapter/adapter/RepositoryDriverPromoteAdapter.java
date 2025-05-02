@@ -11,6 +11,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
+import org.jboss.pnc.common.log.ProcessStageUtils;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
@@ -53,6 +55,9 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
+        ProcessStageUtils.logProcessStageBegin(
+                ProcessStage.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER.name(),
+                "Collecting results from repository manager");
         Request callback;
         try {
             callback = new Request(
@@ -93,6 +98,9 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     public void callback(String correlationId, Object object) {
         try {
             RepositoryPromoteResult response = objectMapper.convertValue(object, RepositoryPromoteResult.class);
+            ProcessStageUtils.logProcessStageEnd(
+                    ProcessStage.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER.name(),
+                    "Done collecting results from repository manager");
 
             try {
                 if (response == null || !response.getStatus().isSuccess()) {

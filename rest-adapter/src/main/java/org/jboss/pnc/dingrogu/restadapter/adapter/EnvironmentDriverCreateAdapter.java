@@ -16,9 +16,11 @@ import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateRequest;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResponse;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
+import org.jboss.pnc.common.log.ProcessStageUtils;
 import org.jboss.pnc.dingrogu.api.client.EnvironmentDriver;
 import org.jboss.pnc.dingrogu.api.client.EnvironmentDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCreateDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
@@ -61,6 +63,9 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
+
+        ProcessStageUtils
+                .logProcessStageBegin(ProcessStage.BUILD_ENV_SETTING_UP.name(), "Starting the build container");
         Request callback;
         try {
             callback = new Request(
@@ -108,6 +113,7 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
     @Override
     public void callback(String correlationId, Object object) {
+        ProcessStageUtils.logProcessStageEnd(ProcessStage.BUILD_ENV_SETTING_UP.name(), "Build container started");
         try {
             EnvironmentCreateResult response = objectMapper.convertValue(object, EnvironmentCreateResult.class);
             Log.infof("Environment create response: %s", response);

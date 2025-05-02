@@ -86,5 +86,10 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-common</artifactId>
+            <classifier>jakarta</classifier>
+        </dependency>
     </dependencies>
 </project>

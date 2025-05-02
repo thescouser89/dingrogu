@@ -6,6 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.context.ManagedExecutor;
+import org.jboss.pnc.common.log.ProcessStageUtils;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSealDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
@@ -46,11 +48,14 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
+        ProcessStageUtils
+                .logProcessStageBegin(ProcessStage.SEALING_REPOSITORY_MANAGER_RESULTS.name(), "Sealing repository");
         RepositoryDriverSealDTO repositorySealDTO = objectMapper
                 .convertValue(startRequest.getPayload(), RepositoryDriverSealDTO.class);
 
         repositoryDriverClient.seal(repositorySealDTO.getRepositoryDriverUrl(), repositorySealDTO.getBuildContentId());
-
+        ProcessStageUtils
+                .logProcessStageEnd(ProcessStage.SEALING_REPOSITORY_MANAGER_RESULTS.name(), "Done sealing repository");
         managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start
