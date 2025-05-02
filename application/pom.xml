@@ -49,6 +49,14 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.logging</groupId>
+            <artifactId>quarkus-logging-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.logging</groupId>
+            <artifactId>quarkus-logging-kafka-deployment</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
