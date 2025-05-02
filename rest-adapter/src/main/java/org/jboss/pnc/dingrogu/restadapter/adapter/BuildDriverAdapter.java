@@ -17,9 +17,11 @@ import org.jboss.pnc.api.builddriver.dto.BuildResponse;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
+import org.jboss.pnc.common.log.ProcessStageUtils;
 import org.jboss.pnc.dingrogu.api.client.BuildDriver;
 import org.jboss.pnc.dingrogu.api.client.BuildDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BuildDriverDTO;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
@@ -65,6 +67,9 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
+
+        ProcessStageUtils.logProcessStageBegin(ProcessStage.BUILD_SETTING_UP.name(), "Starting build");
+
         Request callback;
         try {
             callback = new Request(
@@ -108,6 +113,7 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
     @Override
     public void callback(String correlationId, Object object) {
+        ProcessStageUtils.logProcessStageEnd(ProcessStage.BUILD_SETTING_UP.name(), "Build part ended");
         try {
             BuildCompleted response = objectMapper.convertValue(object, BuildCompleted.class);
             Log.infof("Build response: %s", response);

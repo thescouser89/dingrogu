@@ -12,6 +12,8 @@ import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
+import org.jboss.pnc.common.log.ProcessStageUtils;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverSetupDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
@@ -54,6 +56,8 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
      */
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
+        ProcessStageUtils
+                .logProcessStageBegin(ProcessStage.REPO_SETTING_UP.name(), "Setting up Repository driver repository");
 
         Map<String, Object> pastResults = startRequest.getTaskResults();
         Object pastResult = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
@@ -76,6 +80,9 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
         RepositoryCreateResponse response = repositoryDriverClient
                 .setup(repositorySetupDTO.getRepositoryDriverUrl(), createRequest);
+        ProcessStageUtils.logProcessStageEnd(
+                ProcessStage.REPO_SETTING_UP.name(),
+                "Done setting up Repository driver repository");
         managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start
