@@ -22,7 +22,9 @@ import org.jboss.pnc.api.repositorydriver.dto.RepositoryArtifact;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.common.log.ProcessStageUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
+import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildExecutionConfigurationSimplifiedDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.common.NotificationHelper;
@@ -252,6 +254,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 Log.info("No start request in the notification message");
             } else {
                 Log.info("Sending request to rex callback");
+                ProcessStageUtils
+                        .logProcessStageBegin(ProcessStage.FINALIZING_BUILD.name(), "Submitting final result to Orch");
                 BuildResult buildResult = generateBuildResult(request, tasks, correlationId);
                 sendRexCallback(request, buildResult);
             }
