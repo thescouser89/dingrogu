@@ -29,14 +29,16 @@ quarkus:
   log:
     handler:
       kafka:
-        enabled: false
-        broker-list: kafka.example.com:443
-        topic: kafka-topic
-        security-protocol: SSL
-        ssl-truststore-location: /mnt/kafka-client-truststore.jks
-        ssl-truststore-password: none
-        filter-logger-name-pattern: org.jboss.pnc.*
+        enabled: ${KAFKA_LOG_ENABLED:false}
+        broker-list: ${KAFKA_LOG_SERVER:kafka.example.com:443}
+        topic: ${KAFKA_LOG_TOPIC:kafka-topic}
+        security-protocol: SASL_SSL
+        sasl-mechanism: SCRAM-SHA-512
+        sasl-jaas-conf: "${sasl_jaas_conf}"
+        filter-logger-name-pattern: ${KAFKA_LOG_FILTER:org.jboss.pnc.*}
         level: INFO
+        # set this to empty because default config set the wrong path
+        ssl-truststore-location: ""
   oidc:
     enabled: false
   oidc-client:
