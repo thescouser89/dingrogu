@@ -84,7 +84,8 @@ public class OrchBuildPushResultAdapter implements Adapter<OrchBuildPushResultDT
 
     @Override
     public void callback(String correlationId, Object object) {
-        // Do not have a ProcessStageUtils.logProcessStageEnd since this is done on the Orch side
+        ProcessStageUtils
+                .logProcessStageEnd(ProcessStage.FINALIZING_BUILD.name(), "Done Submitting final result to Orch");
         try {
             callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
         } catch (Exception e) {
