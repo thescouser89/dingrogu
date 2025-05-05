@@ -12,9 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.common.log.ProcessStageUtils;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchBuildPushResultDTO;
-import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
@@ -53,7 +51,6 @@ public class OrchBuildPushResultAdapter implements Adapter<OrchBuildPushResultDT
     @Override
     public Optional<Object> start(String correlationId, StartRequest startRequest) {
 
-        ProcessStageUtils.logProcessStageBegin(ProcessStage.FINALIZING_BUILD.name(), "Submitting final result to Orch");
         Request callback;
         try {
             callback = new Request(
@@ -84,8 +81,6 @@ public class OrchBuildPushResultAdapter implements Adapter<OrchBuildPushResultDT
 
     @Override
     public void callback(String correlationId, Object object) {
-        ProcessStageUtils
-                .logProcessStageEnd(ProcessStage.FINALIZING_BUILD.name(), "Done Submitting final result to Orch");
         try {
             callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
         } catch (Exception e) {
