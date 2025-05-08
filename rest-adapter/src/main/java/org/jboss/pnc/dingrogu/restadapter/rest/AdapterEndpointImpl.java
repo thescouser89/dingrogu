@@ -16,6 +16,8 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
+import org.jboss.resteasy.reactive.RestResponse;
+import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -62,6 +64,17 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
             Log.infof(">>> Processing adapter: %s", adapter.getAdapterName());
             adapterNameMap.put(adapter.getAdapterName(), adapter);
         }
+    }
+
+    /**
+     * Needed so that any runtime exception from the REST client is mapped and the message is sent to the caller
+     *
+     * @param e
+     * @return
+     */
+    @ServerExceptionMapper
+    public RestResponse<String> mapException(RuntimeException e) {
+        return RestResponse.status(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @Override
