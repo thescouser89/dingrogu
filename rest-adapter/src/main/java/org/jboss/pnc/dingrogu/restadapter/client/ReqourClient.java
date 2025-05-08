@@ -11,8 +11,8 @@ import org.jboss.pnc.api.reqour.dto.AdjustRequest;
 import org.jboss.pnc.api.reqour.dto.CancelRequest;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
 
-import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
@@ -93,16 +93,15 @@ public class ReqourClient {
 
     private <T> void processUnsuccessfulResponse(HttpResponse<T> response, String endpoint) {
         if (response.getParsingError().isPresent()) {
-            Log.errorf(
-                    "Request to %s: HTTP %s, body: %s\nfinished with parsing error: %s",
+            TaskHelper.LIVE_LOG.error(
+                    "Request to {}: finished with HTTP {}, body: {} and parsing error",
                     endpoint,
                     response.getStatus(),
-                    response.getBody(),
-                    response.getParsingError().get());
+                    response.getBody());
             throw new RuntimeException("Request finished with parsing error");
         } else {
-            Log.errorf(
-                    "Request to %s didn't go through: HTTP %s, body: %s",
+            TaskHelper.LIVE_LOG.error(
+                    "Request to {} didn't go through: HTTP {}, body: {}",
                     endpoint,
                     response.getStatus(),
                     response.getBody());

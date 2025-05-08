@@ -8,11 +8,15 @@ import jakarta.ws.rs.core.MediaType;
 
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.common.log.MDCUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskHelper {
 
     private static final Request.Header JSON_HEADER = new Request.Header("Content-Type", MediaType.APPLICATION_JSON);
     private static final Request.Header ACCEPT_JSON_HEADER = new Request.Header("Accept", MediaType.APPLICATION_JSON);
+
+    public static final Logger LIVE_LOG = LoggerFactory.getLogger("org.jboss.pnc._userlog_.dingrogu");
 
     /**
      * Get a list of HTTP headers to add to a request based on the MDC values for that task

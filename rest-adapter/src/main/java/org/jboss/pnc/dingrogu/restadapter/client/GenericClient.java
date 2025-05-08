@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +40,8 @@ public class GenericClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
