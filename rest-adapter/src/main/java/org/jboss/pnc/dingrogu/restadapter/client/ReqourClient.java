@@ -106,7 +106,7 @@ public class ReqourClient {
                     endpoint,
                     response.getStatus(),
                     response.getBody());
-            throw new RuntimeException("Request didn't go through");
+            throw new RuntimeException("Request didn't go through: " + response.getBody());
         }
     }
 }
