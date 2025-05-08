@@ -7,6 +7,7 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
 
 import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
@@ -48,7 +49,8 @@ public class RepositoryDriverClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
@@ -63,7 +65,8 @@ public class RepositoryDriverClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }

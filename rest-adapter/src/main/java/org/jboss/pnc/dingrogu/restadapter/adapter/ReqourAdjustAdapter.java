@@ -24,6 +24,8 @@ import org.jboss.pnc.dingrogu.restadapter.client.ReqourClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,6 +45,8 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
 
     @Inject
     ReqourClient reqourClient;
+
+    private static final Logger LIVE_LOG = LoggerFactory.getLogger("org.jboss.pnc._userlog_.dingrogu");
 
     @Override
     public String getAdapterName() {

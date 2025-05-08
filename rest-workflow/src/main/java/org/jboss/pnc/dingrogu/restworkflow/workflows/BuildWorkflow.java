@@ -18,9 +18,11 @@ import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ArtifactQuality;
 import org.jboss.pnc.api.enums.BuildCategory;
+import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryArtifact;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
+import org.jboss.pnc.api.reqour.dto.ReqourCallback;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.log.ProcessStageUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
@@ -425,6 +427,15 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
         AdjustResponse response = objectMapper.convertValue(finalResponse.getBody(), AdjustResponse.class);
+
+        if (response == null) {
+            ReqourCallback callback = ReqourCallback.builder()
+                    .status(ResultStatus.FAILED)
+                    .build();
+            response = AdjustResponse.builder()
+                    .callback(callback)
+                    .build();
+        }
 
         return Optional.ofNullable(response);
     }

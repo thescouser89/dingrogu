@@ -9,6 +9,7 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 
 import io.quarkus.logging.Log;
@@ -37,7 +38,8 @@ public class OrchClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
@@ -54,7 +56,8 @@ public class OrchClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
@@ -75,7 +78,8 @@ public class OrchClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
@@ -92,7 +96,8 @@ public class OrchClient {
                 .asJson();
 
         if (!response.isSuccess()) {
-            Log.errorf("Request didn't go through: HTTP %s, body: %s", response.getStatus(), response.getBody());
+            TaskHelper.LIVE_LOG
+                    .error("Request didn't go through: HTTP {}, body: {}", response.getStatus(), response.getBody());
             throw new RuntimeException("Request didn't go through");
         }
     }
