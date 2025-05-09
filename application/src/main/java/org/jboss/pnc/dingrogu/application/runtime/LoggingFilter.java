@@ -8,13 +8,11 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Request;
-import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
 
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.slf4j.MDC;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,20 +32,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
     public void filter(ContainerRequestContext requestContext) {
         MDC.clear();
 
-        MultivaluedMap<String, String> headers = requestContext.getHeaders();
-
-        UriInfo uriInfo = requestContext.getUriInfo();
-        Request request = requestContext.getRequest();
-        Map<String, String> mdcContext = getContextMap();
-        headerToMap(mdcContext, MDCHeaderKeys.PROCESS_CONTEXT, requestContext);
-        headerToMap(mdcContext, MDCHeaderKeys.TMP, requestContext);
-        headerToMap(mdcContext, MDCHeaderKeys.EXP, requestContext);
-        headerToMap(mdcContext, MDCHeaderKeys.USER_ID, requestContext);
-        headerToMap(mdcContext, MDCHeaderKeys.TRACE_ID, requestContext);
-        headerToMap(mdcContext, MDCHeaderKeys.SPAN_ID, requestContext);
-        headerToMap(mdcContext, MDCHeaderKeys.PARENT_ID, requestContext);
-        MDC.setContextMap(mdcContext);
-
+        MDCUtils.setMDCFromRequestContext(requestContext);
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
     }
 
