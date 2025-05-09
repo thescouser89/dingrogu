@@ -32,6 +32,7 @@ public class AuthorizationClientHttpFactory implements ClientHeadersFactory {
         // Add MDC headers
         Map<String, String> mdcHeaders = MDCUtils.getHeadersFromMDC();
         for (String key : mdcHeaders.keySet()) {
+            System.out.println("Adding header " + key + ": " + mdcHeaders.get(key));
             result.add(key, mdcHeaders.get(key));
         }
 
