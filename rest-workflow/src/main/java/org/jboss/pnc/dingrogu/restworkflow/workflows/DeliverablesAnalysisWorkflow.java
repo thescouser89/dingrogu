@@ -96,7 +96,7 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
 
         try {
             CreateTaskDTO taskAnalyze = deliverablesAnalyzerAdapter
-                    .generateRexTask(ownUrl, correlationId.getId(), dto, delaDTO);
+                    .generateRexTaskRetryItself(ownUrl, correlationId.getId(), dto, delaDTO);
 
             CreateTaskDTO taskResult = orchAdapter.generateRexTask(ownUrl, correlationId.getId(), dto, orchResultDTO);
 

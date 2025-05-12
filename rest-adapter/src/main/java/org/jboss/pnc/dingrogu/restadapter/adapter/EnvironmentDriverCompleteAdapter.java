@@ -56,6 +56,18 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
         EnvironmentDriverCompleteDTO dto = objectMapper
                 .convertValue(startRequest.getPayload(), EnvironmentDriverCompleteDTO.class);
 
+        EnvironmentCompleteResponse environmentCompleteResponse = clearEnvironment(
+                dto.getEnvironmentDriverUrl(),
+                correlationId,
+                dto.isDebugEnabled());
+        sendDelayedSuccessfulCallbackToRex(correlationId);
+        return Optional.ofNullable(environmentCompleteResponse);
+    }
+
+    public EnvironmentCompleteResponse clearEnvironment(
+            String environmentDriverUrl,
+            String correlationId,
+            boolean isDebugEnabled) {
         // get unique id created by environment-driver-create sent back to rex in the start method
         TaskDTO envDriverCreateTask = taskEndpoint
                 .getSpecific(environmentDriverCreateAdapter.getRexTaskName(correlationId));
@@ -71,11 +83,11 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
         EnvironmentCreateResponse response = objectMapper.convertValue(last.getBody(), EnvironmentCreateResponse.class);
 
         EnvironmentDriver environmentDriver = environmentDriverProducer
-                .getEnvironmentDriver(dto.getEnvironmentDriverUrl());
+                .getEnvironmentDriver(environmentDriverUrl);
 
         EnvironmentCompleteRequest environmentCompleteRequest = EnvironmentCompleteRequest.builder()
                 .environmentId(response.getEnvironmentId())
-                .enableDebug(dto.isDebugEnabled())
+                .enableDebug(isDebugEnabled)
                 .build();
         Log.infof("Environment complete request: %s", environmentCompleteRequest);
 
@@ -83,9 +95,7 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
                 .toCompletableFuture()
                 .join();
         Log.infof("Initial environment complete response: %s", environmentCompleteResponse);
-
-        sendDelayedSuccessfulCallbackToRex(correlationId);
-        return Optional.ofNullable(environmentCompleteResponse);
+        return environmentCompleteResponse;
     }
 
     private void sendDelayedSuccessfulCallbackToRex(String correlationId) {
