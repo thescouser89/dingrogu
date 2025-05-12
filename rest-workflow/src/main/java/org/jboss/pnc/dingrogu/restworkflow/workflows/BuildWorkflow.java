@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildExecutionConfigurationSimplifiedDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkflowClearEnvironmentDTO;
+import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.NotificationHelper;
 import org.jboss.pnc.dingrogu.restadapter.adapter.BuildDriverAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.EnvironmentDriverCompleteAdapter;
@@ -131,20 +134,44 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         try {
             CreateTaskDTO taskAdjustReqour = reqourAdjustAdapter
-                    .generateRexTask(ownUrl, correlationId.getId(), startRequest, buildWorkDTO.toReqourAdjustDTO());
+                    .generateRexTaskRetryItself(
+                            ownUrl,
+                            correlationId.getId(),
+                            startRequest,
+                            buildWorkDTO.toReqourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repositoryDriverSetupAdapter.generateRexTask(
                     ownUrl,
                     correlationId.getId(),
                     startRequest,
                     buildWorkDTO.toRepositoryDriverSetupDTO());
 
-            CreateTaskDTO taskCreateEnv = environmentDriverCreateAdapter.generateRexTask(
+            CreateTaskDTO taskCreateEnv = environmentDriverCreateAdapter.generateRexTaskRetryItself(
                     ownUrl,
                     correlationId.getId(),
                     startRequest,
                     buildWorkDTO.toEnvironmentDriverCreateDTO());
+
+            BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO = BuildWorkflowClearEnvironmentDTO
+                    .builder()
+                    .environmentDriverUrl(buildWorkDTO.getEnvironmentDriverUrl())
+                    .correlationId(correlationId.getId())
+                    .build();
+
+            Request cleanBuildEnvOnFailure = Request.builder()
+                    .uri(URI.create(this.ownUrl + WorkflowEndpoint.BUILD_CLEAR_ENVIRONMENT))
+                    .method(Request.Method.POST)
+                    .attachment(buildWorkflowClearEnvironmentDTO)
+                    .build();
+
             CreateTaskDTO taskBuild = buildDriverAdapter
-                    .generateRexTask(ownUrl, correlationId.getId(), startRequest, buildWorkDTO.toBuildDriverDTO());
+                    .generateRexTask(
+                            ownUrl,
+                            correlationId.getId(),
+                            startRequest,
+                            buildWorkDTO.toBuildDriverDTO(),
+                            taskRepoSetup.name,
+                            cleanBuildEnvOnFailure);
+
             CreateTaskDTO taskCompleteEnv = environmentDriverCompleteAdapter.generateRexTask(
                     ownUrl,
                     correlationId.getId(),
@@ -263,6 +290,22 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             }
         }
         return Response.ok().build();
+    }
+
+    /**
+     * Try your best to clear the environment. If you cannot, that's ok. Any failure here shouldn't stop the build
+     *
+     * @param dto
+     */
+    public void clearEnvironment(BuildWorkflowClearEnvironmentDTO dto) {
+
+        Log.infof("Clearing environment from workflow, possibly due to retries: %s", dto.getCorrelationId());
+        try {
+            environmentDriverCompleteAdapter
+                    .clearEnvironment(dto.getEnvironmentDriverUrl(), dto.getCorrelationId(), false);
+        } catch (RuntimeException e) {
+            Log.warnf("Clearing environment from workflow, for correlation: %s failed", dto.getCorrelationId());
+        }
     }
 
     private static Map<String, CreateTaskDTO> getVertices(List<CreateTaskDTO> tasks) {

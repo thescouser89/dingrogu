@@ -93,6 +93,57 @@ public interface Adapter<T> {
      */
     default CreateTaskDTO generateRexTask(String adapterUrl, String correlationId, Object notificationAttachment, T t)
             throws Exception {
+        return generateRexTask(adapterUrl, correlationId, notificationAttachment, t, null, null);
+
+    }
+
+    /**
+     * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint. The task retries itself in
+     * case of failure
+     *
+     * @param adapterUrl
+     * @param correlationId
+     * @param notificationAttachment
+     * @param t data needed to generate the rex task
+     * @return Rex task
+     * @throws Exception if something went wrong
+     */
+    default CreateTaskDTO generateRexTaskRetryItself(
+            String adapterUrl,
+            String correlationId,
+            Object notificationAttachment,
+            T t)
+            throws Exception {
+        return generateRexTask(
+                adapterUrl,
+                correlationId,
+                notificationAttachment,
+                t,
+                getRexTaskName(correlationId),
+                null);
+
+    }
+
+    /**
+     * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint
+     *
+     * @param adapterUrl
+     * @param correlationId
+     * @param notificationAttachment
+     * @param t data needed to generate the rex task
+     * @param milestoneTask task to rollback to in case of faillure
+     * @param rollbackRequest request to send when rollback happens
+     * @return Rex task
+     * @throws Exception if something went wrong
+     */
+    default CreateTaskDTO generateRexTask(
+            String adapterUrl,
+            String correlationId,
+            Object notificationAttachment,
+            T t,
+            String milestoneTask,
+            Request rollbackRequest)
+            throws Exception {
 
         Request startAdjust = new Request(
                 Request.Method.POST,
@@ -117,6 +168,8 @@ public interface Adapter<T> {
                 .remoteStart(startAdjust)
                 .remoteCancel(cancelAdjust)
                 .callerNotifications(callerNotification)
+                .milestoneTask(milestoneTask)
+                .remoteRollback(rollbackRequest)
                 .configuration(
                         ConfigurationDTO.builder()
                                 .passResultsOfDependencies(shouldGetResultsFromDependencies())

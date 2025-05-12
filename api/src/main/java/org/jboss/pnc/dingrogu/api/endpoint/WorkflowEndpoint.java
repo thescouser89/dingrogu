@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushWorkflowDTO;
+import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkflowClearEnvironmentDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
@@ -31,6 +32,7 @@ public interface WorkflowEndpoint {
     String BREW_PUSH_REX_NOTIFY = "/workflow/brew-push/rex-notify";
     String REPOSITORY_CREATION_REX_NOTIFY = "/workflow/repository-creation/rex-notify";
     String BUILD_REX_NOTIFY = "/workflow/build/rex-notify";
+    String BUILD_CLEAR_ENVIRONMENT = "/workflow/build/clear-environment";
     String DELIVERABLES_ANALYSIS_REX_NOTIFY = "/workflow/deliverables-analysis/rex-notify";
     String DUMMY_REX_NOTIFY = "/workflow/dummy/rex-notify";
 
@@ -76,6 +78,11 @@ public interface WorkflowEndpoint {
     @POST
     @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
     CorrelationId startBuildWorkflowFromRex(StartRequest startRequest);
+
+    @Path(BUILD_CLEAR_ENVIRONMENT)
+    @POST
+    @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
+    void buildWorkflowClearEnvironment(BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO);
 
     @Path(BUILD_REX_NOTIFY)
     @POST
