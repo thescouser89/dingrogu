@@ -154,7 +154,7 @@
             <dependency>
                 <groupId>com.konghq</groupId>
                 <artifactId>unirest-java-core</artifactId>
-                <version>4.4.6</version>
+                <version>4.4.7</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
