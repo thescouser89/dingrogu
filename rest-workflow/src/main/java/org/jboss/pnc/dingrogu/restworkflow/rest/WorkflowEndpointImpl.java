@@ -1,5 +1,7 @@
 package org.jboss.pnc.dingrogu.restworkflow.rest;
 
+import java.util.Set;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -15,8 +17,12 @@ import org.jboss.pnc.dingrogu.restworkflow.workflows.BuildWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.DeliverablesAnalysisWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.DummyWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.RepositoryCreationWorkflow;
+import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
+
+import io.quarkus.logging.Log;
 
 /**
  * Implementation of the workflow endpoint
@@ -40,6 +46,9 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
 
     @Inject
     DummyWorkflow dummyWorkflow;
+
+    @Inject
+    TaskEndpoint taskEndpoint;
 
     @Override
     public CorrelationId startBrewPushWorkflow(BrewPushWorkflowDTO brewPushWorkflowDTO) {
@@ -94,8 +103,19 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
 
     @Override
     public Response cancelWorkflow(String correlationId) {
-        // TODO: interact with Rex to submit cancel of the graph, and return an error for not found or rex not
-        // responding
-        throw new UnsupportedOperationException();
+        Log.infof("Cancelling workflow with correlation id %s", correlationId);
+
+        Set<TaskDTO> tasks = taskEndpoint.byCorrelation(correlationId);
+
+        for (TaskDTO task : tasks) {
+            if (!task.getState().isFinal()) {
+                try (Response response = taskEndpoint.cancel(task.getName())) {
+                    if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
+                        Log.warnf("Couldn't cancel Rex task: %s", task.getName());
+                    }
+                }
+            }
+        }
+        return Response.ok().build();
     }
 }
