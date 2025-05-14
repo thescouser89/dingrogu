@@ -4,6 +4,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -129,5 +130,5 @@ public interface WorkflowEndpoint {
     @Path("/workflow/id/{correlationId}/cancel")
     @POST
     @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
-    Response cancelWorkflow(String correlationId);
+    Response cancelWorkflow(@PathParam("correlationId") String correlationId);
 }
