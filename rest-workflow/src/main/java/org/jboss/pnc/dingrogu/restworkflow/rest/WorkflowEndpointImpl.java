@@ -22,6 +22,7 @@ import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 
 import io.quarkus.logging.Log;
 
@@ -119,6 +120,8 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
                     if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
                         Log.warnf("Couldn't cancel Rex task: %s", task.getName());
                     }
+                } catch (ClientWebApplicationException e) {
+                    Log.warnf("Couldn't cancel Rex task: %s with exception %s", task.getName(), e.getMessage());
                 }
             }
         }
