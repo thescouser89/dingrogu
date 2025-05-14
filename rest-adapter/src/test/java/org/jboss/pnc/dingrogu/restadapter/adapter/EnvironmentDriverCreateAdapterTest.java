@@ -24,6 +24,7 @@ import org.jboss.pnc.dingrogu.api.client.EnvironmentDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCreateDTO;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -176,7 +177,10 @@ class EnvironmentDriverCreateAdapterTest {
         EnvironmentCreateResponse environmentCreateResponse = EnvironmentCreateResponse.builder()
                 .environmentId("foo")
                 .build();
-        ServerResponseDTO serverResponse = ServerResponseDTO.builder().body(environmentCreateResponse).build();
+        ServerResponseDTO serverResponse = ServerResponseDTO.builder()
+                .body(environmentCreateResponse)
+                .state(State.STARTING)
+                .build();
         TaskDTO task = TaskDTO.builder().serverResponses(Collections.singletonList(serverResponse)).build();
         Mockito.when(taskEndpoint.getSpecific(environmentDriverCreateAdapter.getRexTaskName(correlationId)))
                 .thenReturn(task);

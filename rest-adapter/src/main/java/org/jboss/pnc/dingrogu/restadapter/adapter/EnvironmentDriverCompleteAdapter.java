@@ -16,6 +16,7 @@ import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCompleteDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -79,7 +80,15 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
                             + correlationId);
         }
 
-        ServerResponseDTO last = serverResponses.get(serverResponses.size() - 1);
+        // Only the STARTING server responses contain the initial EnvironmentCreateResponse. it's not in the callback from env-driver to dingrogu.
+        List<ServerResponseDTO> responses = serverResponses.stream()
+                .filter(response -> response.getState() == State.STARTING)
+                .toList();
+        if (responses.isEmpty()) {
+            Log.infof("Not enough information to be able to delete the environment. Correlation id: %s", correlationId);
+            return null;
+        }
+        ServerResponseDTO last = responses.get(responses.size() - 1);
         EnvironmentCreateResponse response = objectMapper.convertValue(last.getBody(), EnvironmentCreateResponse.class);
 
         EnvironmentDriver environmentDriver = environmentDriverProducer

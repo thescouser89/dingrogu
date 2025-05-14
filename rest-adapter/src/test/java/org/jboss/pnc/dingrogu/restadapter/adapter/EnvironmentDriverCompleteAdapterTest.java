@@ -17,6 +17,7 @@ import org.jboss.pnc.dingrogu.api.client.EnvironmentDriver;
 import org.jboss.pnc.dingrogu.api.client.EnvironmentDriverProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCompleteDTO;
 import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -71,7 +72,10 @@ class EnvironmentDriverCompleteAdapterTest {
         EnvironmentCreateResponse environmentCreateResponse = EnvironmentCreateResponse.builder()
                 .environmentId("foo")
                 .build();
-        ServerResponseDTO serverResponse = ServerResponseDTO.builder().body(environmentCreateResponse).build();
+        ServerResponseDTO serverResponse = ServerResponseDTO.builder()
+                .body(environmentCreateResponse)
+                .state(State.STARTING)
+                .build();
         TaskDTO task = TaskDTO.builder().serverResponses(Collections.singletonList(serverResponse)).build();
         Mockito.when(taskEndpoint.getSpecific(environmentDriverCreateAdapter.getRexTaskName(correlationId)))
                 .thenReturn(task);
