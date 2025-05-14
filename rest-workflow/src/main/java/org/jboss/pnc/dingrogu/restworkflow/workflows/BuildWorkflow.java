@@ -130,31 +130,30 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     public CorrelationId submitWorkflow(StartRequest startRequest) throws WorkflowSubmissionException {
         BuildWorkDTO buildWorkDTO = objectMapper.convertValue(startRequest.getPayload(), BuildWorkDTO.class);
         Log.info(buildWorkDTO);
-        CorrelationId correlationId = CorrelationId.generateUnique();
 
         try {
             CreateTaskDTO taskAdjustReqour = reqourAdjustAdapter
                     .generateRexTaskRetryItself(
                             ownUrl,
-                            correlationId.getId(),
+                            buildWorkDTO.getCorrelationId(),
                             startRequest,
                             buildWorkDTO.toReqourAdjustDTO());
             CreateTaskDTO taskRepoSetup = repositoryDriverSetupAdapter.generateRexTask(
                     ownUrl,
-                    correlationId.getId(),
+                    buildWorkDTO.getCorrelationId(),
                     startRequest,
                     buildWorkDTO.toRepositoryDriverSetupDTO());
 
             CreateTaskDTO taskCreateEnv = environmentDriverCreateAdapter.generateRexTaskRetryItself(
                     ownUrl,
-                    correlationId.getId(),
+                    buildWorkDTO.getCorrelationId(),
                     startRequest,
                     buildWorkDTO.toEnvironmentDriverCreateDTO());
 
             BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO = BuildWorkflowClearEnvironmentDTO
                     .builder()
                     .environmentDriverUrl(buildWorkDTO.getEnvironmentDriverUrl())
-                    .correlationId(correlationId.getId())
+                    .correlationId(buildWorkDTO.getCorrelationId())
                     .build();
 
             Request cleanBuildEnvOnFailure = Request.builder()
@@ -166,7 +165,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             CreateTaskDTO taskBuild = buildDriverAdapter
                     .generateRexTask(
                             ownUrl,
-                            correlationId.getId(),
+                            buildWorkDTO.getCorrelationId(),
                             startRequest,
                             buildWorkDTO.toBuildDriverDTO(),
                             taskRepoSetup.name,
@@ -174,18 +173,18 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
             CreateTaskDTO taskCompleteEnv = environmentDriverCompleteAdapter.generateRexTask(
                     ownUrl,
-                    correlationId.getId(),
+                    buildWorkDTO.getCorrelationId(),
                     startRequest,
                     buildWorkDTO.toEnvironmentDriverCompleteDTO());
 
             CreateTaskDTO taskRepoSeal = repositoryDriverSealAdapter.generateRexTask(
                     ownUrl,
-                    correlationId.getId(),
+                    buildWorkDTO.getCorrelationId(),
                     startRequest,
                     buildWorkDTO.toRepositoryDriverSealDTO());
             CreateTaskDTO taskRepoPromote = repositoryDriverPromoteAdapter.generateRexTask(
                     ownUrl,
-                    correlationId.getId(),
+                    buildWorkDTO.getCorrelationId(),
                     startRequest,
                     buildWorkDTO.toRepositoryDriverPromoteDTO());
 
@@ -240,7 +239,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
-                    correlationId.getId(),
+                    buildWorkDTO.getCorrelationId(),
                     rexQueueName,
                     configurationDTO,
                     edges,
@@ -248,7 +247,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
             taskEndpoint.start(graphRequest);
 
-            return correlationId;
+            return new CorrelationId(buildWorkDTO.getCorrelationId());
 
         } catch (Exception e) {
             throw new WorkflowSubmissionException(e);
