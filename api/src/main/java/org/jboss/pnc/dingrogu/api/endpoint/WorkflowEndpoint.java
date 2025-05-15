@@ -12,12 +12,12 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushWorkflowDTO;
-import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkflowClearEnvironmentDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 import org.jboss.pnc.dingrogu.common.AuthorizationConstants;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
+import org.jboss.pnc.rex.model.requests.RollbackRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 
 /**
@@ -83,7 +83,7 @@ public interface WorkflowEndpoint {
     @Path(BUILD_CLEAR_ENVIRONMENT)
     @POST
     @RolesAllowed({ AuthorizationConstants.ADMIN_ROLE, AuthorizationConstants.DINGROGU_ROLE })
-    void buildWorkflowClearEnvironment(BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO);
+    void buildWorkflowClearEnvironment(RollbackRequest rollbackRequest);
 
     @Path(BUILD_REX_NOTIFY)
     @POST

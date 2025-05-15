@@ -24,8 +24,11 @@ import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
+import org.jboss.pnc.rex.model.requests.RollbackRequest;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
 
@@ -64,6 +67,9 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     @Inject
     ManagedExecutor managedExecutor;
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @Override
     public CorrelationId startBrewPushWorkflow(BrewPushWorkflowDTO brewPushWorkflowDTO) {
         return brewPushWorkflow.submitWorkflow(brewPushWorkflowDTO);
@@ -90,8 +96,10 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     }
 
     @Override
-    public void buildWorkflowClearEnvironment(BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO) {
+    public void buildWorkflowClearEnvironment(RollbackRequest rollbackRequest) {
 
+        BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO = objectMapper
+                .convertValue(rollbackRequest.getPayload(), BuildWorkflowClearEnvironmentDTO.class);
         buildWorkflow.clearEnvironment(buildWorkflowClearEnvironmentDTO);
 
         // whatever happens, let's just say that it succeeded
