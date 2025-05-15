@@ -133,7 +133,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         try {
             CreateTaskDTO taskAdjustReqour = reqourAdjustAdapter
-                    .generateRexTaskRetryItself(
+                    .generateRexTask(
                             ownUrl,
                             buildWorkDTO.getCorrelationId(),
                             startRequest,
