@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import org.eclipse.microprofile.context.ManagedExecutor;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BrewPushWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkflowClearEnvironmentDTO;
@@ -13,11 +14,13 @@ import org.jboss.pnc.dingrogu.api.dto.workflow.DeliverablesAnalysisWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.RepositoryCreationDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
+import org.jboss.pnc.dingrogu.restadapter.adapter.BuildDriverAdapter;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.BrewPushWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.BuildWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.DeliverablesAnalysisWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.DummyWorkflow;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.RepositoryCreationWorkflow;
+import org.jboss.pnc.rex.api.CallbackEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.model.requests.NotificationRequest;
@@ -52,6 +55,15 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
     @Inject
     TaskEndpoint taskEndpoint;
 
+    @Inject
+    CallbackEndpoint callbackEndpoint;
+
+    @Inject
+    BuildDriverAdapter buildDriverAdapter;
+
+    @Inject
+    ManagedExecutor managedExecutor;
+
     @Override
     public CorrelationId startBrewPushWorkflow(BrewPushWorkflowDTO brewPushWorkflowDTO) {
         return brewPushWorkflow.submitWorkflow(brewPushWorkflowDTO);
@@ -79,7 +91,30 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
 
     @Override
     public void buildWorkflowClearEnvironment(BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO) {
+
         buildWorkflow.clearEnvironment(buildWorkflowClearEnvironmentDTO);
+
+        // whatever happens, let's just say that it succeeded
+        managedExecutor.submit(() -> {
+            try {
+                // sleep for 5 seconds to make sure that Rex has processed the successful start
+                Thread.sleep(2000L);
+            } catch (InterruptedException e) {
+                Log.error(e);
+            }
+            try {
+                callbackEndpoint.rollbackOK(
+                        buildDriverAdapter.getRexTaskName(buildWorkflowClearEnvironmentDTO.getCorrelationId()),
+                        null,
+                        null);
+            } catch (Exception e) {
+                Log.error("Error happened in callback to rex", e);
+                callbackEndpoint.rollbackOK(
+                        buildDriverAdapter.getRexTaskName(buildWorkflowClearEnvironmentDTO.getCorrelationId()),
+                        null,
+                        null);
+            }
+        });
     }
 
     @Override
