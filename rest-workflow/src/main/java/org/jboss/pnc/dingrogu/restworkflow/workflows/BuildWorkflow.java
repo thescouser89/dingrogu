@@ -33,6 +33,7 @@ import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkflowClearEnvironmentDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
 import org.jboss.pnc.dingrogu.common.NotificationHelper;
+import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dingrogu.restadapter.adapter.BuildDriverAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.EnvironmentDriverCompleteAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.EnvironmentDriverCreateAdapter;
@@ -159,6 +160,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Request cleanBuildEnvOnFailure = Request.builder()
                     .uri(URI.create(this.ownUrl + WorkflowEndpoint.BUILD_CLEAR_ENVIRONMENT))
                     .method(Request.Method.POST)
+                    .headers(TaskHelper.getHTTPHeaders())
                     .attachment(buildWorkflowClearEnvironmentDTO)
                     .build();
 
