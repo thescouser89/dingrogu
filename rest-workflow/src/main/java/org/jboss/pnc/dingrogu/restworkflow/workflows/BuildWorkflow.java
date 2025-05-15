@@ -48,6 +48,7 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -287,10 +288,48 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 ProcessStageUtils
                         .logProcessStageBegin(ProcessStage.FINALIZING_BUILD.name(), "Submitting final result to Orch");
                 BuildResult buildResult = generateBuildResult(request, tasks, correlationId);
+                if (buildResult.hasFailed()) {
+                    cleanupEnvironmentIfNecessary(tasks, correlationId);
+                }
                 sendRexCallback(request, buildResult);
             }
         }
         return Response.ok().build();
+    }
+
+    /**
+     * In case of failure, see if we need to cleanup any remaining environment pod running
+     * 
+     * @param tasks
+     * @param correlationId
+     */
+    private void cleanupEnvironmentIfNecessary(Set<TaskDTO> tasks, String correlationId) {
+        Optional<TaskDTO> buildData = tasks.stream()
+                .filter(taskDTO -> taskDTO.getName().equals(buildDriverAdapter.getRexTaskName(correlationId)))
+                .findFirst();
+
+        if (buildData.isEmpty()) {
+            return;
+        }
+
+        TaskDTO buildTask = buildData.get();
+        // That's a good sign that the environment pod might still be running
+        if (buildTask.getState() == State.FAILED) {
+            try {
+                BuildWorkflowClearEnvironmentDTO dto = objectMapper.convertValue(
+                        buildTask.getRemoteRollback().getAttachment(),
+                        BuildWorkflowClearEnvironmentDTO.class);
+                Log.infof(
+                        "Trying to cleanup the environment for correlation: %s due to failed build driver step",
+                        correlationId);
+                clearEnvironment(dto);
+            } catch (Exception e) {
+                Log.errorf(
+                        "Tried to cleanup the environment due to failed build driver but an exception happened. Giving up. Correlation: %s",
+                        correlationId,
+                        e);
+            }
+        }
     }
 
     /**
