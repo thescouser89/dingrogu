@@ -9,6 +9,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 public class BuildDriverDTO {
     String buildDriverUrl;
+    String projectName;
     String buildCommand;
     boolean debugEnabled;
 }
