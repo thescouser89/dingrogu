@@ -42,6 +42,7 @@ public class BuildWorkDTO {
     AlignmentPreference alignmentPreference;
     @NotNull
     String buildContentId;
+    String buildConfigName;
     BuildType buildType;
     BuildCategory buildCategory;
     String defaultAlignmentParams;
@@ -127,6 +128,7 @@ public class BuildWorkDTO {
     public BuildDriverDTO toBuildDriverDTO() {
         return BuildDriverDTO.builder()
                 .buildDriverUrl(buildDriverUrl)
+                .projectName(buildConfigName)
                 .buildCommand(buildScript)
                 .debugEnabled(debugEnabled)
                 .build();
