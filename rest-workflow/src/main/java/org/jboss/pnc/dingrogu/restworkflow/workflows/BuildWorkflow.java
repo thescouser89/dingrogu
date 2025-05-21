@@ -60,6 +60,7 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
@@ -115,6 +116,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @ConfigProperty(name = "rexclient.build.queue_size")
     int rexQueueSize;
+
+    private static final Set<State> STATE_FAILED = Set.of(State.FAILED, State.START_FAILED, State.STOP_FAILED);
 
     @Override
     @Deprecated
@@ -314,7 +317,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         TaskDTO buildTask = buildData.get();
         // That's a good sign that the environment pod might still be running
-        if (buildTask.getState() == State.FAILED) {
+        if (STATE_FAILED.contains(buildTask.getState())) {
             try {
                 BuildWorkflowClearEnvironmentDTO dto = objectMapper.convertValue(
                         buildTask.getRemoteRollback().getAttachment(),
@@ -363,6 +366,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<RepourResult> repourResult = toRepourResult(reqourResult);
         CompletionStatus completionStatus = determineCompletionStatus(repoResult, buildCompleted, repourResult);
         BuildDriverResult buildDriverResult = getBuildDriverResult(buildCompleted);
+        Optional<EnvironmentDriverResult> environmentDriverResult = getEnvironmentDriverResult(tasks, correlationId);
         // BuildExecutionConfiguration needed for legacy reasons
         // PNC-Orch just extracts the reqour data in buildExecutionConfiguration
         BuildExecutionConfiguration buildExecutionConfiguration = getBuildExecutionConfiguration(reqourResult);
@@ -372,7 +376,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 Optional.ofNullable(buildExecutionConfiguration),
                 Optional.ofNullable(buildDriverResult),
                 repoResult,
-                Optional.empty(),
+                environmentDriverResult,
                 repourResult);
 
         Log.infof("Build result: %s", buildResult);
@@ -397,6 +401,28 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             };
         }
         return buildDriverResult;
+    }
+
+    private Optional<EnvironmentDriverResult> getEnvironmentDriverResult(Set<TaskDTO> tasks, String correlationId) {
+        Optional<TaskDTO> task = findTask(tasks, environmentDriverCreateAdapter.getRexTaskName(correlationId));
+
+        if (task.isEmpty()) {
+            Log.info("environment driver task is empty");
+            return Optional.empty();
+        }
+
+        TaskDTO environmentDriverTask = task.get();
+        if (environmentDriverTask.getState() == State.SUCCESSFUL) {
+            // everything is good!
+            return Optional.empty();
+        }
+        if (STATE_FAILED.contains(environmentDriverTask.getState())) {
+            // if we are here, the environment driver failed
+            return Optional.of(EnvironmentDriverResult.builder().completionStatus(CompletionStatus.FAILED).build());
+        }
+
+        // step didn't run at all
+        return Optional.empty();
     }
 
     private static BuildExecutionConfiguration getBuildExecutionConfiguration(Optional<AdjustResponse> reqourResult) {
@@ -526,16 +552,12 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     private Optional<BuildCompleted> getBuildCompleted(Set<TaskDTO> tasks, String correlationId) {
         Optional<TaskDTO> task = findTask(tasks, buildDriverAdapter.getRexTaskName(correlationId));
         if (task.isEmpty()) {
-            Log.infof("build driver task is supposed to be: %s", buildDriverAdapter.getRexTaskName(correlationId));
-            for (TaskDTO taskTemp : tasks) {
-                Log.infof("Present: task: %s", taskTemp.getName());
-            }
             Log.info("build driver task is empty");
             return Optional.empty();
         }
 
-        TaskDTO repoTask = task.get();
-        List<ServerResponseDTO> responses = repoTask.getServerResponses();
+        TaskDTO buildTask = task.get();
+        List<ServerResponseDTO> responses = buildTask.getServerResponses();
 
         if (responses.isEmpty()) {
             Log.info("build driver response task is empty");
@@ -545,9 +567,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
         BuildCompleted response = objectMapper.convertValue(finalResponse.getBody(), BuildCompleted.class);
 
-        if (response == null) {
-            Log.info("build completed response task is empty");
-            return Optional.empty();
+        if (response == null && STATE_FAILED.contains(buildTask.getState())) {
+            Log.info("build completed response task is empty and task failed");
+            response = BuildCompleted.builder().buildStatus(ResultStatus.FAILED).build();
         }
 
         return Optional.ofNullable(response);
