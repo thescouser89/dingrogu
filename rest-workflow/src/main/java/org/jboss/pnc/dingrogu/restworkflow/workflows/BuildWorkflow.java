@@ -307,28 +307,30 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
      * @param correlationId
      */
     private void cleanupEnvironmentIfNecessary(Set<TaskDTO> tasks, String correlationId) {
-        Optional<TaskDTO> buildData = tasks.stream()
-                .filter(taskDTO -> taskDTO.getName().equals(buildDriverAdapter.getRexTaskName(correlationId)))
-                .findFirst();
 
-        if (buildData.isEmpty()) {
+        Optional<TaskDTO> buildData = findTask(tasks, buildDriverAdapter.getRexTaskName(correlationId));
+        Optional<TaskDTO> environmentData = findTask(
+                tasks,
+                environmentDriverCreateAdapter.getRexTaskName(correlationId));
+
+        if (buildData.isEmpty() || environmentData.isEmpty()) {
             return;
         }
 
         TaskDTO buildTask = buildData.get();
         // That's a good sign that the environment pod might still be running
-        if (STATE_FAILED.contains(buildTask.getState())) {
+        if (STATE_FAILED.contains(buildTask.getState()) || STATE_FAILED.contains(environmentData.get().getState())) {
             try {
                 BuildWorkflowClearEnvironmentDTO dto = objectMapper.convertValue(
                         buildTask.getRemoteRollback().getAttachment(),
                         BuildWorkflowClearEnvironmentDTO.class);
                 Log.infof(
-                        "Trying to cleanup the environment for correlation: %s due to failed build driver step",
+                        "Trying to cleanup the environment for correlation: %s due to failed build or environment driver step",
                         correlationId);
                 clearEnvironment(dto);
             } catch (Exception e) {
                 Log.errorf(
-                        "Tried to cleanup the environment due to failed build driver but an exception happened. Giving up. Correlation: %s",
+                        "Tried to cleanup the environment due to failed build or environment driver but an exception happened. Giving up. Correlation: %s",
                         correlationId,
                         e);
             }
