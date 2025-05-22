@@ -112,13 +112,13 @@ public class WorkflowEndpointImpl implements WorkflowEndpoint {
             }
             try {
                 callbackEndpoint.rollbackOK(
-                        buildDriverAdapter.getRexTaskName(buildWorkflowClearEnvironmentDTO.getCorrelationId()),
+                        buildWorkflowClearEnvironmentDTO.getRexTaskName(),
                         null,
                         null);
             } catch (Exception e) {
                 Log.error("Error happened in callback to rex", e);
                 callbackEndpoint.rollbackOK(
-                        buildDriverAdapter.getRexTaskName(buildWorkflowClearEnvironmentDTO.getCorrelationId()),
+                        buildWorkflowClearEnvironmentDTO.getRexTaskName(),
                         null,
                         null);
             }
