@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,11 +64,14 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
         Object pastResult = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
         AdjustResponse reqourResponse = objectMapper.convertValue(pastResult, AdjustResponse.class);
 
-        List<String> repositoriesToCreate = reqourResponse.getManipulatorResult()
-                .getRemovedRepositories()
-                .stream()
-                .map(repo -> repo.getUrl().toString())
-                .toList();
+        List<String> repositoriesToCreate = Collections.emptyList();
+        if (reqourResponse.getManipulatorResult().getRemovedRepositories() != null) {
+            repositoriesToCreate = reqourResponse.getManipulatorResult()
+                    .getRemovedRepositories()
+                    .stream()
+                    .map(repo -> repo.getUrl().toString())
+                    .toList();
+        }
 
         RepositoryDriverSetupDTO repositorySetupDTO = objectMapper
                 .convertValue(startRequest.getPayload(), RepositoryDriverSetupDTO.class);
