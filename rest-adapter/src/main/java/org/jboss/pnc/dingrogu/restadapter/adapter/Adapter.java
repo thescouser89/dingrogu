@@ -105,6 +105,34 @@ public interface Adapter<T> {
      * @param correlationId
      * @param notificationAttachment
      * @param t data needed to generate the rex task
+     * @param rollbackRequest request to send when rollback happens
+     * @return Rex task
+     * @throws Exception if something went wrong
+     */
+    default CreateTaskDTO generateRexTaskRetryItself(
+            String adapterUrl,
+            String correlationId,
+            Object notificationAttachment,
+            T t,
+            Request rollbackRequest)
+            throws Exception {
+        return generateRexTask(
+                adapterUrl,
+                correlationId,
+                notificationAttachment,
+                t,
+                getRexTaskName(correlationId),
+                rollbackRequest);
+    }
+
+    /**
+     * Generate the Rex Task DTO. That Rex task should communicate to the adapter endpoint. The task retries itself in
+     * case of failure
+     *
+     * @param adapterUrl
+     * @param correlationId
+     * @param notificationAttachment
+     * @param t data needed to generate the rex task
      * @return Rex task
      * @throws Exception if something went wrong
      */
@@ -114,14 +142,7 @@ public interface Adapter<T> {
             Object notificationAttachment,
             T t)
             throws Exception {
-        return generateRexTask(
-                adapterUrl,
-                correlationId,
-                notificationAttachment,
-                t,
-                getRexTaskName(correlationId),
-                null);
-
+        return generateRexTaskRetryItself(adapterUrl, correlationId, notificationAttachment, t, null);
     }
 
     /**

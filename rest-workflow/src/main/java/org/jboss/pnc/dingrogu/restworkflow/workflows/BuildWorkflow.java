@@ -149,12 +149,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     startRequest,
                     buildWorkDTO.toRepositoryDriverSetupDTO());
 
-            CreateTaskDTO taskCreateEnv = environmentDriverCreateAdapter.generateRexTaskRetryItself(
-                    ownUrl,
-                    buildWorkDTO.getCorrelationId(),
-                    startRequest,
-                    buildWorkDTO.toEnvironmentDriverCreateDTO());
-
             BuildWorkflowClearEnvironmentDTO buildWorkflowClearEnvironmentDTO = BuildWorkflowClearEnvironmentDTO
                     .builder()
                     .environmentDriverUrl(buildWorkDTO.getEnvironmentDriverUrl())
@@ -167,6 +161,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .headers(TaskHelper.getHTTPHeaders())
                     .attachment(buildWorkflowClearEnvironmentDTO)
                     .build();
+
+            CreateTaskDTO taskCreateEnv = environmentDriverCreateAdapter.generateRexTaskRetryItself(
+                    ownUrl,
+                    buildWorkDTO.getCorrelationId(),
+                    startRequest,
+                    buildWorkDTO.toEnvironmentDriverCreateDTO(),
+                    cleanBuildEnvOnFailure);
 
             CreateTaskDTO taskBuild = buildDriverAdapter
                     .generateRexTask(
