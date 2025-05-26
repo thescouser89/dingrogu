@@ -81,7 +81,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 .tempBuild(repoPromoteDTO.isTempBuild())
                 .callback(callback)
                 .heartBeat(null)
-                .buildConfigurationId(repoPromoteDTO.getBuildContentId())
+                .buildConfigurationId(repoPromoteDTO.getBuildConfigurationId())
                 .build();
 
         repositoryDriverClient.promote(repoPromoteDTO.getRepositoryDriverUrl(), promoteRequest);
