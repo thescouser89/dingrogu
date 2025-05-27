@@ -114,7 +114,7 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
 
     @Override
     public void callback(String correlationId, Object object) {
-        ProcessStageUtils.logProcessStageEnd(ProcessStage.BUILD_ENV_SETTING_UP.name(), "Build container started");
+        ProcessStageUtils.logProcessStageEnd(ProcessStage.BUILD_ENV_SETTING_UP.name(), "Build environment prepared.");
         try {
             EnvironmentCreateResult response = objectMapper.convertValue(object, EnvironmentCreateResult.class);
             Log.infof("Environment create response: %s", response);

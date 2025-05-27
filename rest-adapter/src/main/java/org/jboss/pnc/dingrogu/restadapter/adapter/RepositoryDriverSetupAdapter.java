@@ -86,7 +86,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 .setup(repositorySetupDTO.getRepositoryDriverUrl(), createRequest);
         ProcessStageUtils.logProcessStageEnd(
                 ProcessStage.REPO_SETTING_UP.name(),
-                "Done setting up Repository driver repository");
+                "Repository setup complete");
         managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start

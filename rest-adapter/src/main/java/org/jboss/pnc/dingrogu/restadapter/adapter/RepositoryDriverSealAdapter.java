@@ -55,7 +55,9 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
 
         repositoryDriverClient.seal(repositorySealDTO.getRepositoryDriverUrl(), repositorySealDTO.getBuildContentId());
         ProcessStageUtils
-                .logProcessStageEnd(ProcessStage.SEALING_REPOSITORY_MANAGER_RESULTS.name(), "Done sealing repository");
+                .logProcessStageEnd(
+                        ProcessStage.SEALING_REPOSITORY_MANAGER_RESULTS.name(),
+                        "Repository manager results sealed.");
         managedExecutor.submit(() -> {
             try {
                 // sleep for 5 seconds to make sure that Rex has processed the successful start
