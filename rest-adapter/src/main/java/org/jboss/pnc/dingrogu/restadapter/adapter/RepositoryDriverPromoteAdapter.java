@@ -84,6 +84,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 .buildConfigurationId(repoPromoteDTO.getBuildConfigurationId())
                 .build();
 
+        Log.infof("DTO for repository promote request: %s", promoteRequest);
         repositoryDriverClient.promote(repoPromoteDTO.getRepositoryDriverUrl(), promoteRequest);
 
         return Optional.empty();
