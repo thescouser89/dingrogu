@@ -101,7 +101,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
             RepositoryPromoteResult response = objectMapper.convertValue(object, RepositoryPromoteResult.class);
             ProcessStageUtils.logProcessStageEnd(
                     ProcessStage.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER.name(),
-                    "Done collecting results from repository manager");
+                    "Collected results from repository manager.");
 
             try {
                 if (response == null || !response.getStatus().isSuccess()) {

@@ -114,7 +114,7 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
     @Override
     public void callback(String correlationId, Object object) {
-        ProcessStageUtils.logProcessStageEnd(ProcessStage.BUILD_SETTING_UP.name(), "Build part ended");
+        ProcessStageUtils.logProcessStageEnd(ProcessStage.BUILD_SETTING_UP.name(), "Build completed.");
         try {
             BuildCompleted response = objectMapper.convertValue(object, BuildCompleted.class);
             Log.infof("Build response: %s", response);
