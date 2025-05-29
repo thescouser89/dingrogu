@@ -88,9 +88,14 @@ public class OrchBuildPushResultAdapter implements Adapter<OrchBuildPushResultDT
         }
     }
 
+    /**
+     * Do nothing, we can't really cancel this?
+     * 
+     * @param correlationId
+     * @param stopRequest
+     */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

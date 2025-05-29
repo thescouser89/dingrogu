@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import jakarta.inject.Inject;
 
 import org.instancio.Instancio;
+import org.jboss.pnc.api.dto.HeartbeatConfig;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.reqour.dto.AdjustRequest;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
@@ -52,9 +53,10 @@ class ReqourAdjustAdapterTest {
         // Generate random DTO
         ReqourAdjustDTO dto = Instancio.create(ReqourAdjustDTO.class);
 
+        HeartbeatConfig heartbeatConfig = Instancio.create(HeartbeatConfig.class);
         // set a specific value for scm repo so that it generates expected values
         dto.setScmRepoURL(scmRepo);
-        StartRequest startRequest = StartRequest.builder().payload(dto).build();
+        StartRequest startRequest = StartRequest.builder().payload(dto).heartbeatConfig(heartbeatConfig).build();
 
         // send request
         reqourAdjustAdapter.start(correlationId, startRequest);
@@ -68,6 +70,7 @@ class ReqourAdjustAdapterTest {
         assertThat(generated.getRef()).isEqualTo(dto.getScmRevision());
         assertThat(generated.isTempBuild()).isEqualTo(dto.isTempBuild());
         assertThat(generated.getTaskId()).isEqualTo(dto.getId());
+        assertThat(generated.getHeartbeatConfig()).isEqualTo(heartbeatConfig);
 
         InternalGitRepositoryUrl internal = generated.getInternalUrl();
         assertThat(internal.getReadwriteUrl()).isEqualTo(dto.getScmRepoURL());

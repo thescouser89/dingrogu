@@ -103,7 +103,7 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
                 .environmentBaseUrl(environmentCreateResponse.getEnvironmentBaseUri().toString())
                 .debugEnabled(dto.isDebugEnabled())
                 .completionCallback(callback)
-                .heartbeatConfig(null) // TODO
+                .heartbeatConfig(startRequest.getHeartbeatConfig())
                 .build();
         Log.infof("Build request: %s", buildRequest);
 
@@ -172,6 +172,11 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
     @Override
     public boolean shouldGetResultsFromDependencies() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldUseHeartbeat() {
         return true;
     }
 }
