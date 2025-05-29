@@ -17,6 +17,7 @@ import org.jboss.pnc.api.builddriver.dto.BuildCancelRequest;
 import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.builddriver.dto.BuildRequest;
 import org.jboss.pnc.api.builddriver.dto.BuildResponse;
+import org.jboss.pnc.api.dto.HeartbeatConfig;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
@@ -97,7 +98,12 @@ class BuildDriverAdapterTest {
         Mockito.when(buildDriverProducer.getBuildDriver(any())).thenReturn(buildDriver);
 
         // generate start request
-        StartRequest startRequest = StartRequest.builder().payload(dto).taskResults(pastResults).build();
+        HeartbeatConfig heartbeatConfig = Instancio.create(HeartbeatConfig.class);
+        StartRequest startRequest = StartRequest.builder()
+                .payload(dto)
+                .heartbeatConfig(heartbeatConfig)
+                .taskResults(pastResults)
+                .build();
 
         // send start request
         buildDriverAdapter.start(correlationId, startRequest);
@@ -116,6 +122,7 @@ class BuildDriverAdapterTest {
         assertThat(generated.getWorkingDirectory()).isEqualTo(environmentCreateResult.getWorkingDirectory());
         assertThat(generated.getEnvironmentBaseUrl())
                 .isEqualTo(environmentCreateResult.getEnvironmentBaseUri().toString());
+        assertThat(generated.getHeartbeatConfig()).isEqualTo(heartbeatConfig);
     }
 
     @Test

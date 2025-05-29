@@ -9,6 +9,7 @@ import org.instancio.Instancio;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushRequest;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
 import org.jboss.pnc.api.causeway.rest.Causeway;
+import org.jboss.pnc.api.dto.HeartbeatConfig;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.dingrogu.api.client.CausewayProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BrewPushDTO;
@@ -57,7 +58,8 @@ class CausewayBuildPushAdapterTest {
 
         // generate random DTO
         BrewPushDTO dto = Instancio.create(BrewPushDTO.class);
-        StartRequest startRequest = StartRequest.builder().payload(dto).build();
+        HeartbeatConfig heartbeatConfig = Instancio.create(HeartbeatConfig.class);
+        StartRequest startRequest = StartRequest.builder().payload(dto).heartbeatConfig(heartbeatConfig).build();
 
         assertThat(causeway).isNotNull();
         Mockito.when(causewayProducer.getCauseway(any())).thenReturn(causeway);
@@ -73,6 +75,7 @@ class CausewayBuildPushAdapterTest {
         assertThat(generated.getTagPrefix()).isEqualTo(dto.getTagPrefix());
         assertThat(generated.getUsername()).isEqualTo(dto.getUsername());
         assertThat(generated.getCallback()).isNotNull();
+        assertThat(generated.getHeartbeat()).isEqualTo(heartbeatConfig);
     }
 
     @Test
