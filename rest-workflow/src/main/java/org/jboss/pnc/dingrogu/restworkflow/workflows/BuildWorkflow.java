@@ -549,7 +549,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         }
 
         if (repoManagerResult.isPresent() && repoManagerResult.get().getCompletionStatus().isFailed()) {
-            overallStatus.set(repoManagerResult.get().getCompletionStatus(), "Failed at repository-result step");
+            overallStatus.set(
+                    repoManagerResult.get().getCompletionStatus(),
+                    "Failed at repository-result step: " + repoManagerResult.get());
         }
 
         if (repoSealResponse.isPresent() && repoSealResponse.get().isFailed()) {
@@ -559,19 +561,22 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         if (buildCompleted.isPresent() && !buildCompleted.get().getBuildStatus().isSuccess()) {
             overallStatus.set(
                     CompletionStatus.valueOf(buildCompleted.get().getBuildStatus().name()),
-                    "Failed at build-driver step");
+                    "Failed at build-driver step: " + buildCompleted.get());
         }
 
         if (environmentDriverResult.isPresent() && environmentDriverResult.get().getCompletionStatus().isFailed()) {
-            overallStatus.set(environmentDriverResult.get().getCompletionStatus(), "Failed at environment-driver step");
+            overallStatus.set(
+                    environmentDriverResult.get().getCompletionStatus(),
+                    "Failed at environment-driver step: " + environmentDriverResult.get());
         }
 
         if (repoCreateResponse.isPresent() && repoCreateResponse.get().isFailed()) {
-            overallStatus.set(repoCreateResponse.get(), "Failed at repository-create step");
+            overallStatus
+                    .set(repoCreateResponse.get(), "Failed at repository-create step: " + repoCreateResponse.get());
         }
 
         if (repourResult.isPresent() && repourResult.get().getCompletionStatus().isFailed()) {
-            overallStatus.set(repourResult.get().getCompletionStatus(), "Failed at reqour step");
+            overallStatus.set(repourResult.get().getCompletionStatus(), "Failed at reqour step: " + repourResult.get());
         }
 
         return overallStatus;
