@@ -71,15 +71,6 @@ public interface Adapter<T> {
     }
 
     /**
-     * Indicate whether the adapter will use heartbeats or not. By default, it's false
-     * 
-     * @return false
-     */
-    default boolean shouldUseHeartbeat() {
-        return false;
-    }
-
-    /**
      * Get the rex task name that we'll submit to Rex. We prepend the correlation id to it to make the Rex task name
      * unique
      *

@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import jakarta.inject.Inject;
 
 import org.instancio.Instancio;
-import org.jboss.pnc.api.dto.HeartbeatConfig;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
 import org.jboss.pnc.dingrogu.api.dto.adapter.RepositoryDriverPromoteDTO;
 import org.jboss.pnc.dingrogu.restadapter.client.RepositoryDriverClient;
@@ -44,8 +43,7 @@ public class RepositoryDriverPromoteAdapterTest {
         String correlationId = "correlation-hahah";
         RepositoryDriverPromoteDTO dto = Instancio.create(RepositoryDriverPromoteDTO.class);
 
-        HeartbeatConfig heartbeatConfig = Instancio.create(HeartbeatConfig.class);
-        StartRequest startRequest = StartRequest.builder().payload(dto).heartbeatConfig(heartbeatConfig).build();
+        StartRequest startRequest = StartRequest.builder().payload(dto).build();
         // send request
         adapter.start(correlationId, startRequest);
 
@@ -60,6 +58,5 @@ public class RepositoryDriverPromoteAdapterTest {
         assertThat(generated.getBuildCategory()).isEqualTo(dto.getBuildCategory());
         assertThat(generated.isTempBuild()).isEqualTo(dto.isTempBuild());
         assertThat(generated.getBuildConfigurationId()).isEqualTo(dto.getBuildConfigurationId());
-        assertThat(generated.getHeartBeat()).isEqualTo(heartbeatConfig.getRequest());
     }
 }
