@@ -84,7 +84,6 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
             }
         }
 
-        // TODO: heartbeat
         AdjustRequest request = AdjustRequest.builder()
                 .internalUrl(internalUrl)
                 .ref(reqourAdjustDTO.getScmRevision())
@@ -98,6 +97,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
                 .buildType(reqourAdjustDTO.getBuildType())
                 .pncDefaultAlignmentParameters(reqourAdjustDTO.getDefaultAlignmentParams())
                 .brewPullActive(reqourAdjustDTO.isBrewPullActive())
+                .heartbeatConfig(startRequest.getHeartbeatConfig())
                 .build();
 
         // Send to Reqour
@@ -140,5 +140,10 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
     public void cancel(String correlationId, StopRequest stopRequest) {
         ReqourAdjustDTO reqourAdjustDTO = objectMapper.convertValue(stopRequest.getPayload(), ReqourAdjustDTO.class);
         reqourClient.cancel(reqourAdjustDTO.getReqourUrl(), reqourAdjustDTO.getId());
+    }
+
+    @Override
+    public boolean shouldUseHeartbeat() {
+        return true;
     }
 }

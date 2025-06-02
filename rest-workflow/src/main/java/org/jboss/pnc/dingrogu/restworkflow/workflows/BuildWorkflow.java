@@ -378,7 +378,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
         Optional<RepourResult> repourResult = toRepourResult(reqourResult);
 
-        // TODO repo setup
         Optional<CompletionStatus> repoCreateResponse = getRepositoryCreateResponse(tasks, correlationId);
 
         Optional<EnvironmentDriverResult> environmentDriverResult = getEnvironmentDriverResult(tasks, correlationId);
@@ -386,7 +385,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         Optional<BuildCompleted> buildCompleted = getBuildCompleted(tasks, correlationId);
         Optional<BuildDriverResult> buildDriverResult = getBuildDriverResult(buildCompleted);
 
-        // TODO repo seal
         Optional<CompletionStatus> repoSealResponse = getRepositorySealResponse(tasks, correlationId);
 
         Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
