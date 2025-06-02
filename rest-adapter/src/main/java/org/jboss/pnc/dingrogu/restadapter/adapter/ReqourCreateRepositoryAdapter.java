@@ -95,17 +95,13 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
     }
 
     /**
+     * There's nothing to cancel, this process is synchronous
      *
      * @param correlationId
      * @param stopRequest
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-
-        ReqourCreateRepositoryDTO reqourCreateDTO = objectMapper
-                .convertValue(stopRequest.getPayload(), ReqourCreateRepositoryDTO.class);
-
-        reqourClient.cancel(reqourCreateDTO.getReqourUrl(), getRexTaskName(correlationId));
     }
 
     @Override

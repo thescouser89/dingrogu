@@ -73,13 +73,14 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
         RepositoryDriverPromoteDTO repoPromoteDTO = objectMapper
                 .convertValue(startRequest.getPayload(), RepositoryDriverPromoteDTO.class);
 
+        // TODO: heartbeat
         RepositoryPromoteRequest promoteRequest = RepositoryPromoteRequest.builder()
                 .buildContentId(repoPromoteDTO.getBuildContentId())
                 .buildType(repoPromoteDTO.getBuildType())
                 .buildCategory(repoPromoteDTO.getBuildCategory())
                 .tempBuild(repoPromoteDTO.isTempBuild())
                 .callback(callback)
-                .heartBeat(startRequest.getHeartbeatConfig().getRequest())
+                .heartBeat(null)
                 .buildConfigurationId(repoPromoteDTO.getBuildConfigurationId())
                 .build();
 
@@ -135,10 +136,5 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
      */
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-    }
-
-    @Override
-    public boolean shouldUseHeartbeat() {
-        return true;
     }
 }

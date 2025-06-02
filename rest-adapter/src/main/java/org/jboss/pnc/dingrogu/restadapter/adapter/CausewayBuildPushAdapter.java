@@ -65,7 +65,7 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
                 .reimport(brewPushDTO.isReimport())
                 .username(brewPushDTO.getUsername())
                 .callback(callback)
-                .heartbeat(startRequest.getHeartbeatConfig())
+                .heartbeat(null)
                 .build();
 
         causewayProducer.getCauseway(brewPushDTO.getCausewayUrl()).importBuild(request);
@@ -92,15 +92,11 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getNotificationEndpoint(String adapterUrl) {
         return adapterUrl + WorkflowEndpoint.BREW_PUSH_REX_NOTIFY;
-    }
-
-    @Override
-    public boolean shouldUseHeartbeat() {
-        return true;
     }
 }

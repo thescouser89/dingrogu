@@ -11,7 +11,6 @@ import org.instancio.Instancio;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
-import org.jboss.pnc.api.dto.HeartbeatConfig;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
 import org.jboss.pnc.dingrogu.restadapter.client.DeliverablesAnalyzerClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
@@ -55,8 +54,7 @@ class DeliverablesAnalyzerAdapterTest {
 
         // generate random DTO
         DeliverablesAnalyzerDTO dto = Instancio.create(DeliverablesAnalyzerDTO.class);
-        HeartbeatConfig heartbeatConfig = Instancio.create(HeartbeatConfig.class);
-        StartRequest startRequest = StartRequest.builder().payload(dto).heartbeatConfig(heartbeatConfig).build();
+        StartRequest startRequest = StartRequest.builder().payload(dto).build();
 
         Mockito.when(client.analyze(any(), any())).thenReturn(null);
 
@@ -74,7 +72,6 @@ class DeliverablesAnalyzerAdapterTest {
         assertThat(payload.getCallback()).isNotNull();
         assertThat(payload.getUrls()).isEqualTo(dto.getUrls());
         assertThat(payload.getOperationId()).isEqualTo(dto.getOperationId());
-        assertThat(payload.getHeartbeat()).isEqualTo(heartbeatConfig);
     }
 
     @Test
