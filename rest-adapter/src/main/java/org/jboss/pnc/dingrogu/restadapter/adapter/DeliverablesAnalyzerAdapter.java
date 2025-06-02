@@ -62,13 +62,12 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
         String callbackUrl = AdapterEndpoint.getCallbackAdapterEndpoint(dingroguUrl, getAdapterName(), correlationId);
         Request callback = new Request(Request.Method.POST, URI.create(callbackUrl), List.of());
 
-        // TODO: heartbeat
         AnalyzePayload payload = new AnalyzePayload(
                 deliverablesAnalyzerDTO.getOperationId(),
                 deliverablesAnalyzerDTO.getUrls(),
                 deliverablesAnalyzerDTO.getConfig(),
                 callback,
-                null);
+                startRequest.getHeartbeatConfig());
 
         DelAAnalyzeResponse response = deliverablesAnalyzerClient
                 .analyze(deliverablesAnalyzerDTO.getDeliverablesAnalyzerUrl(), payload);
@@ -116,5 +115,10 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
 
         Log.infof("Sending cancel request for deliverables analyzer analyze: correlation id: %s", correlationId);
         genericClient.send(response.getCancelRequest());
+    }
+
+    @Override
+    public boolean shouldUseHeartbeat() {
+        return true;
     }
 }
