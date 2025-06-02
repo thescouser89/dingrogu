@@ -239,6 +239,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
             ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
                     .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
+                    .heartbeatEnable(true)
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     buildWorkDTO.getCorrelationId(),
