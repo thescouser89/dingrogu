@@ -98,8 +98,10 @@ public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneReposito
 
     @Override
     public void cancel(String correlationId, StopRequest stopRequest) {
-        // TODO
-        throw new UnsupportedOperationException();
+
+        ReqourCloneRepositoryDTO dto = objectMapper
+                .convertValue(stopRequest.getPayload(), ReqourCloneRepositoryDTO.class);
+        reqourClient.cancel(dto.getReqourUrl(), getRexTaskName(correlationId));
     }
 
     @Override
