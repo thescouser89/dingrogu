@@ -1,6 +1,7 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -239,7 +240,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
             ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
                     .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
-                    .heartbeatEnable(true)
+                    // set default value for heartbeat delay and interval to all the tasks
+                    .heartbeatInitialDelay(Duration.ofMinutes(2))
+                    .heartbeatInterval(Duration.ofSeconds(30))
                     .build();
             CreateGraphRequest graphRequest = new CreateGraphRequest(
                     buildWorkDTO.getCorrelationId(),
