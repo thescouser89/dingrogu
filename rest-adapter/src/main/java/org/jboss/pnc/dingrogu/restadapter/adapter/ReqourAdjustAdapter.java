@@ -101,6 +101,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
                 .build();
 
         // Send to Reqour
+        Log.info("Request to reqour: " + request);
         reqourClient.adjust(reqourAdjustDTO.getReqourUrl(), request);
 
         return Optional.empty();
