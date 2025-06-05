@@ -203,6 +203,7 @@ public interface Adapter<T> {
                 .configuration(
                         ConfigurationDTO.builder()
                                 .passResultsOfDependencies(shouldGetResultsFromDependencies())
+                                .heartbeatEnable(shouldUseHeartbeat())
                                 .build())
                 .build();
     }
