@@ -3,13 +3,11 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,10 +16,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.ArtifactQuality;
-import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.enums.ResultStatus;
-import org.jboss.pnc.api.repositorydriver.dto.RepositoryArtifact;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.api.reqour.dto.ReqourCallback;
@@ -43,12 +38,14 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
+import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.ConverterHelper;
+import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.OverallStatus;
+import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.TaskResponse;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
+import org.jboss.pnc.rex.common.enums.Origin;
 import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -61,7 +58,6 @@ import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
-import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -119,7 +115,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     @ConfigProperty(name = "rexclient.build.queue_size")
     int rexQueueSize;
 
-    private static final Set<State> STATE_FAILED = Set.of(State.FAILED, State.START_FAILED, State.STOP_FAILED);
+    private static final Set<State> STATE_FAILED = Set
+            .of(State.FAILED, State.START_FAILED, State.STOP_FAILED, State.ROLLBACK_FAILED);
 
     @Override
     @Deprecated
@@ -318,7 +315,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     /**
      * In case of failure, see if we need to cleanup any remaining environment pod running
-     * 
+     *
      * @param tasks
      * @param correlationId
      */
@@ -379,19 +376,21 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private BuildResult generateBuildResult(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
 
-        Optional<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
-        Optional<RepourResult> repourResult = toRepourResult(reqourResult);
+        TaskResponse<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
+        TaskResponse<RepourResult> repourResult = toRepourResult(reqourResult);
 
-        Optional<CompletionStatus> repoCreateResponse = getRepositoryCreateResponse(tasks, correlationId);
+        TaskResponse<CompletionStatus> repoCreateResponse = getRepositoryCreateResponse(tasks, correlationId);
 
-        Optional<EnvironmentDriverResult> environmentDriverResult = getEnvironmentDriverResult(tasks, correlationId);
+        TaskResponse<EnvironmentDriverResult> environmentDriverResult = getEnvironmentDriverResult(
+                tasks,
+                correlationId);
 
-        Optional<BuildCompleted> buildCompleted = getBuildCompleted(tasks, correlationId);
-        Optional<BuildDriverResult> buildDriverResult = getBuildDriverResult(buildCompleted);
+        TaskResponse<BuildCompleted> buildCompleted = getBuildCompleted(tasks, correlationId);
+        TaskResponse<BuildDriverResult> buildDriverResult = getBuildDriverResult(buildCompleted);
 
-        Optional<CompletionStatus> repoSealResponse = getRepositorySealResponse(tasks, correlationId);
+        TaskResponse<CompletionStatus> repoSealResponse = getRepositorySealResponse(tasks, correlationId);
 
-        Optional<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
+        TaskResponse<RepositoryManagerResult> repoResult = getRepositoryManagerResult(tasks, correlationId);
 
         OverallStatus overallStatus = determineCompletionStatus(
                 repoResult,
@@ -408,89 +407,21 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 overallStatus.completionStatus,
                 overallStatus.processException,
                 Optional.ofNullable(buildExecutionConfiguration),
-                buildDriverResult,
-                repoResult,
-                environmentDriverResult,
-                repourResult);
+                buildDriverResult.getDTO(),
+                repoResult.getDTO(),
+                environmentDriverResult.getDTO(),
+                repourResult.getDTO());
 
         Log.infof("Build result: %s", buildResult);
 
         return buildResult;
     }
 
-    private Optional<CompletionStatus> getRepositoryCreateResponse(Set<TaskDTO> tasks, String correlationId) {
-        return getCompletionResponse(tasks, repositoryDriverSetupAdapter.getRexTaskName(correlationId));
-    }
-
-    private Optional<CompletionStatus> getRepositorySealResponse(Set<TaskDTO> tasks, String correlationId) {
-        return getCompletionResponse(tasks, repositoryDriverSealAdapter.getRexTaskName(correlationId));
-    }
-
-    private Optional<CompletionStatus> getCompletionResponse(Set<TaskDTO> tasks, String taskName) {
-        Optional<TaskDTO> task = findTask(tasks, taskName);
-        if (task.isEmpty()) {
-            Log.info(taskName + " is empty");
-            return Optional.empty();
-        }
-
-        TaskDTO driverTask = task.get();
-        if (driverTask.getState() == State.SUCCESSFUL) {
-            // everything is good!
-            return Optional.of(CompletionStatus.SUCCESS);
-        }
-        if (STATE_FAILED.contains(driverTask.getState())) {
-            return Optional.of(CompletionStatus.SYSTEM_ERROR);
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<BuildDriverResult> getBuildDriverResult(Optional<BuildCompleted> buildCompleted) {
-        BuildDriverResult buildDriverResult = null;
-
-        if (buildCompleted.isPresent()) {
-            buildDriverResult = new BuildDriverResult() {
-                @Override
-                public BuildStatus getBuildStatus() {
-                    return BuildStatus.valueOf(buildCompleted.get().getBuildStatus().name());
-                }
-
-                @Override
-                public Optional<String> getOutputChecksum() {
-                    return Optional.empty();
-                }
-            };
-        }
-        return Optional.ofNullable(buildDriverResult);
-    }
-
-    private Optional<EnvironmentDriverResult> getEnvironmentDriverResult(Set<TaskDTO> tasks, String correlationId) {
-        Optional<TaskDTO> task = findTask(tasks, environmentDriverCreateAdapter.getRexTaskName(correlationId));
-
-        if (task.isEmpty()) {
-            Log.info("environment driver task is empty");
-            return Optional.empty();
-        }
-
-        TaskDTO environmentDriverTask = task.get();
-        if (environmentDriverTask.getState() == State.SUCCESSFUL) {
-            // everything is good!
-            return Optional.empty();
-        }
-        if (STATE_FAILED.contains(environmentDriverTask.getState())) {
-            // if we are here, the environment driver failed
-            return Optional
-                    .of(EnvironmentDriverResult.builder().completionStatus(CompletionStatus.SYSTEM_ERROR).build());
-        }
-
-        // step didn't run at all
-        return Optional.empty();
-    }
-
-    private static BuildExecutionConfiguration getBuildExecutionConfiguration(Optional<AdjustResponse> reqourResult) {
+    private static BuildExecutionConfiguration getBuildExecutionConfiguration(
+            TaskResponse<AdjustResponse> reqourResult) {
         BuildExecutionConfiguration buildExecutionConfiguration = null;
-        if (reqourResult.isPresent()) {
-            AdjustResponse reqourResultGet = reqourResult.get();
+        if (reqourResult.getDTO().isPresent()) {
+            AdjustResponse reqourResultGet = reqourResult.getDTO().get();
             if (reqourResultGet.getInternalUrl() != null) {
                 buildExecutionConfiguration = new BuildExecutionConfigurationSimplifiedDTO(
                         reqourResultGet.getInternalUrl().getReadonlyUrl(),
@@ -505,30 +436,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         return buildExecutionConfiguration;
     }
 
-    private static class OverallStatus {
-        CompletionStatus completionStatus;
-        Optional<ProcessException> processException = Optional.empty();
-
-        void set(CompletionStatus completionStatus, String systemErrorMessage) {
-            this.completionStatus = completionStatus;
-            if (completionStatus.isFailed()) {
-                this.processException = Optional.of(new ProcessException(systemErrorMessage));
-            }
-        }
-
-        void set(CompletionStatus completionStatus) {
-            this.completionStatus = completionStatus;
-            this.processException = Optional.empty();
-        }
-    }
-
     private OverallStatus determineCompletionStatus(
-            Optional<RepositoryManagerResult> repoManagerResult,
-            Optional<BuildCompleted> buildCompleted,
-            Optional<RepourResult> repourResult,
-            Optional<EnvironmentDriverResult> environmentDriverResult,
-            Optional<CompletionStatus> repoCreateResponse,
-            Optional<CompletionStatus> repoSealResponse) {
+            TaskResponse<RepositoryManagerResult> repoManagerResult,
+            TaskResponse<BuildCompleted> buildCompleted,
+            TaskResponse<RepourResult> repourResult,
+            TaskResponse<EnvironmentDriverResult> environmentDriverResult,
+            TaskResponse<CompletionStatus> repoCreateResponse,
+            TaskResponse<CompletionStatus> repoSealResponse) {
 
         OverallStatus overallStatus = new OverallStatus();
 
@@ -536,49 +450,60 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         overallStatus.set(CompletionStatus.SUCCESS);
 
         // debug
-        if (repoManagerResult.isEmpty()) {
+        if (repoManagerResult.getDTO().isEmpty()) {
             Log.warn("repository result is empty");
         }
-        if (buildCompleted.isEmpty()) {
+        if (buildCompleted.getDTO().isEmpty()) {
             Log.warn("build result is empty");
         }
-        if (repourResult.isEmpty()) {
+        if (repourResult.getDTO().isEmpty()) {
             Log.warn("repour result is empty");
         }
 
-        if (repoManagerResult.isEmpty() || repourResult.isEmpty() || buildCompleted.isEmpty()) {
+        if (repoManagerResult.getDTO().isEmpty() || repourResult.getDTO().isEmpty()
+                || buildCompleted.getDTO().isEmpty()) {
             overallStatus.set(CompletionStatus.FAILED);
         }
 
-        if (repoManagerResult.isPresent() && repoManagerResult.get().getCompletionStatus().isFailed()) {
+        if (repoManagerResult.getDTO().isPresent()
+                && repoManagerResult.getDTO().get().getCompletionStatus().isFailed()) {
+
             overallStatus.set(
-                    repoManagerResult.get().getCompletionStatus(),
-                    "Failed at repository-result step: " + repoManagerResult.get());
+                    repoManagerResult.getDTO().get().getCompletionStatus(),
+                    repoManagerResult.addToErrorMessage("Failed at repository-result step"));
         }
 
-        if (repoSealResponse.isPresent() && repoSealResponse.get().isFailed()) {
-            overallStatus.set(repoSealResponse.get(), "Failed at repository-seal step");
-        }
-
-        if (buildCompleted.isPresent() && !buildCompleted.get().getBuildStatus().isSuccess()) {
+        if (repoSealResponse.getDTO().isPresent() && repoSealResponse.getDTO().get().isFailed()) {
             overallStatus.set(
-                    CompletionStatus.valueOf(buildCompleted.get().getBuildStatus().name()),
-                    "Failed at build-driver step: " + buildCompleted.get());
+                    repoSealResponse.getDTO().get(),
+                    repoSealResponse.addToErrorMessage("Failed at repository-seal step"));
         }
 
-        if (environmentDriverResult.isPresent() && environmentDriverResult.get().getCompletionStatus().isFailed()) {
+        if (buildCompleted.getDTO().isPresent() && !buildCompleted.getDTO().get().getBuildStatus().isSuccess()) {
             overallStatus.set(
-                    environmentDriverResult.get().getCompletionStatus(),
-                    "Failed at environment-driver step: " + environmentDriverResult.get());
+                    CompletionStatus.valueOf(buildCompleted.getDTO().get().getBuildStatus().name()),
+                    buildCompleted.addToErrorMessage("Failed at build-driver step"));
         }
 
-        if (repoCreateResponse.isPresent() && repoCreateResponse.get().isFailed()) {
+        if (environmentDriverResult.getDTO().isPresent()
+                && environmentDriverResult.getDTO().get().getCompletionStatus() != null
+                && environmentDriverResult.getDTO().get().getCompletionStatus().isFailed()) {
+            overallStatus.set(
+                    environmentDriverResult.getDTO().get().getCompletionStatus(),
+                    environmentDriverResult.addToErrorMessage("Failed at environment-driver step"));
+        }
+
+        if (repoCreateResponse.getDTO().isPresent() && repoCreateResponse.getDTO().get().isFailed()) {
             overallStatus
-                    .set(repoCreateResponse.get(), "Failed at repository-create step: " + repoCreateResponse.get());
+                    .set(
+                            repoCreateResponse.getDTO().get(),
+                            repoCreateResponse.addToErrorMessage("Failed at repository-create step"));
         }
 
-        if (repourResult.isPresent() && repourResult.get().getCompletionStatus().isFailed()) {
-            overallStatus.set(repourResult.get().getCompletionStatus(), "Failed at reqour step: " + repourResult.get());
+        if (repourResult.getDTO().isPresent() && repourResult.getDTO().get().getCompletionStatus().isFailed()) {
+            overallStatus.set(
+                    repourResult.getDTO().get().getCompletionStatus(),
+                    repourResult.addToErrorMessage("Failed at reqour step"));
         }
 
         return overallStatus;
@@ -602,12 +527,77 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         genericClient.send(toSend);
     }
 
-    private Optional<RepourResult> toRepourResult(Optional<AdjustResponse> response) {
+    private TaskResponse<CompletionStatus> getRepositoryCreateResponse(Set<TaskDTO> tasks, String correlationId) {
+        return getCompletionResponse(tasks, repositoryDriverSetupAdapter.getRexTaskName(correlationId));
+    }
 
-        if (response.isEmpty()) {
-            return Optional.empty();
+    private TaskResponse<CompletionStatus> getRepositorySealResponse(Set<TaskDTO> tasks, String correlationId) {
+        return getCompletionResponse(tasks, repositoryDriverSealAdapter.getRexTaskName(correlationId));
+    }
+
+    private TaskResponse<CompletionStatus> getCompletionResponse(Set<TaskDTO> tasks, String taskName) {
+
+        Optional<TaskDTO> optionalTask = findTask(tasks, taskName);
+
+        if (optionalTask.isEmpty()) {
+            String errorMessage = taskName + " is empty";
+            Log.error(errorMessage);
+            return new TaskResponse<>(CompletionStatus.SYSTEM_ERROR, errorMessage);
         }
-        AdjustResponse adjustResponse = response.get();
+
+        TaskDTO task = optionalTask.get();
+        if (task.getState() == State.SUCCESSFUL) {
+            // everything is good!
+            return new TaskResponse<>(CompletionStatus.SUCCESS);
+        }
+        if (STATE_FAILED.contains(task.getState())) {
+            return new TaskResponse<>(
+                    CompletionStatus.SYSTEM_ERROR,
+                    taskName + " failed with status: " + task.getState());
+        } else {
+            return new TaskResponse<>(null, null);
+        }
+    }
+
+    private TaskResponse<BuildDriverResult> getBuildDriverResult(TaskResponse<BuildCompleted> buildCompleted) {
+
+        BuildDriverResult buildDriverResult = null;
+
+        if (buildCompleted.getDTO().isPresent()) {
+            buildDriverResult = new BuildDriverResult() {
+                @Override
+                public BuildStatus getBuildStatus() {
+                    return BuildStatus.valueOf(buildCompleted.getDTO().get().getBuildStatus().name());
+                }
+
+                @Override
+                public Optional<String> getOutputChecksum() {
+                    return Optional.empty();
+                }
+            };
+        }
+        return new TaskResponse<>(buildDriverResult);
+    }
+
+    private TaskResponse<EnvironmentDriverResult> getEnvironmentDriverResult(Set<TaskDTO> tasks, String correlationId) {
+
+        EnvironmentDriverResult failedResponse = EnvironmentDriverResult.builder()
+                .completionStatus(CompletionStatus.SYSTEM_ERROR)
+                .build();
+        return getTaskResult(
+                tasks,
+                environmentDriverCreateAdapter.getRexTaskName(correlationId),
+                failedResponse,
+                EnvironmentDriverResult.class);
+    }
+
+    private TaskResponse<RepourResult> toRepourResult(TaskResponse<AdjustResponse> response) {
+
+        if (response.getDTO().isEmpty()) {
+            return new TaskResponse<>(null, response.errorMessage);
+        }
+
+        AdjustResponse adjustResponse = response.getDTO().get();
 
         RepourResult repourResult;
         if (adjustResponse.getCallback().getStatus().isSuccess()) {
@@ -624,180 +614,141 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     .build();
         }
 
-        return Optional.of(repourResult);
-
+        return new TaskResponse<>(repourResult, response.errorMessage);
     }
 
-    private Optional<AdjustResponse> getReqourResult(Set<TaskDTO> tasks, String correlationId) {
-        Optional<TaskDTO> task = findTask(tasks, reqourAdjustAdapter.getRexTaskName(correlationId));
+    private TaskResponse<AdjustResponse> getReqourResult(Set<TaskDTO> tasks, String correlationId) {
 
-        if (task.isEmpty()) {
-            Log.info("reqour task is empty");
-            return Optional.empty();
-        }
+        ReqourCallback failedCallback = ReqourCallback.builder()
+                .status(ResultStatus.FAILED)
+                .build();
 
-        TaskDTO reqourTask = task.get();
-        List<ServerResponseDTO> responses = reqourTask.getServerResponses();
+        AdjustResponse failedResponse = AdjustResponse.builder()
+                .callback(failedCallback)
+                .build();
 
-        if (responses.isEmpty()) {
-            Log.info("repour response task is empty");
-            return Optional.empty();
-        }
-
-        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
-        AdjustResponse response = objectMapper.convertValue(finalResponse.getBody(), AdjustResponse.class);
-
-        if (response == null) {
-            ReqourCallback callback = ReqourCallback.builder()
-                    .status(ResultStatus.FAILED)
-                    .build();
-            response = AdjustResponse.builder()
-                    .callback(callback)
-                    .build();
-        }
-
-        return Optional.ofNullable(response);
+        return getTaskResult(
+                tasks,
+                reqourAdjustAdapter.getRexTaskName(correlationId),
+                failedResponse,
+                AdjustResponse.class);
     }
 
-    private Optional<BuildCompleted> getBuildCompleted(Set<TaskDTO> tasks, String correlationId) {
-        Optional<TaskDTO> task = findTask(tasks, buildDriverAdapter.getRexTaskName(correlationId));
-        if (task.isEmpty()) {
-            Log.info("build driver task is empty");
-            return Optional.empty();
-        }
-
-        TaskDTO buildTask = task.get();
-        List<ServerResponseDTO> responses = buildTask.getServerResponses();
-
-        if (responses.isEmpty()) {
-            Log.info("build driver response task is empty");
-            return Optional.empty();
-        }
-
-        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
-        BuildCompleted response = objectMapper.convertValue(finalResponse.getBody(), BuildCompleted.class);
-
-        if (response == null && STATE_FAILED.contains(buildTask.getState())) {
-            Log.info("build completed response task is empty and task failed");
-            response = BuildCompleted.builder().buildStatus(ResultStatus.FAILED).build();
-        }
-
-        return Optional.ofNullable(response);
+    private TaskResponse<BuildCompleted> getBuildCompleted(Set<TaskDTO> tasks, String correlationId) {
+        BuildCompleted failedResponse = BuildCompleted.builder().buildStatus(ResultStatus.FAILED).build();
+        return getTaskResult(
+                tasks,
+                buildDriverAdapter.getRexTaskName(correlationId),
+                failedResponse,
+                BuildCompleted.class);
     }
 
-    private Optional<RepositoryManagerResult> getRepositoryManagerResult(Set<TaskDTO> tasks, String correlationId) {
+    private TaskResponse<RepositoryManagerResult> getRepositoryManagerResult(Set<TaskDTO> tasks, String correlationId) {
 
-        Optional<TaskDTO> task = findTask(tasks, repositoryDriverPromoteAdapter.getRexTaskName(correlationId));
+        RepositoryPromoteResult failedResponse = RepositoryPromoteResult.builder()
+                .buildContentId("")
+                .builtArtifacts(Collections.emptyList())
+                .dependencies(Collections.emptyList())
+                .status(ResultStatus.SYSTEM_ERROR)
+                .build();
 
-        if (task.isEmpty()) {
-            Log.infof(
-                    "Repo promote task is supposed to be: %s",
-                    repositoryDriverPromoteAdapter.getRexTaskName(correlationId));
-            for (TaskDTO taskTemp : tasks) {
-                Log.infof("Present: task: %s", taskTemp.getName());
-            }
-            Log.info("repository manager task is empty");
-            return Optional.empty();
-        }
+        TaskResponse<RepositoryPromoteResult> response = getTaskResult(
+                tasks,
+                repositoryDriverPromoteAdapter.getRexTaskName(correlationId),
+                failedResponse,
+                RepositoryPromoteResult.class);
 
-        TaskDTO repoTask = task.get();
-        List<ServerResponseDTO> responses = repoTask.getServerResponses();
-
-        if (responses.isEmpty()) {
-            Log.info("repository manager response task is empty");
-            return Optional.empty();
-        }
-
-        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
-        RepositoryPromoteResult response = objectMapper
-                .convertValue(finalResponse.getBody(), RepositoryPromoteResult.class);
-
-        if (response == null) {
-            Log.info("repository manager server response task is empty");
-            return Optional.empty();
-        }
+        // PNC-Orch wants RepositoryManagerResult, not RepositoryPromoteResult. We need to convert
         RepositoryManagerResult result = new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {
-                return convertFromRepositoryArtifacts(response.getBuiltArtifacts());
+                return ConverterHelper.convertFromRepositoryArtifacts(response.getDTO().get().getBuiltArtifacts());
             }
 
             @Override
             public List<Artifact> getDependencies() {
-                return convertFromRepositoryArtifacts(response.getDependencies());
+                return ConverterHelper.convertFromRepositoryArtifacts(response.getDTO().get().getDependencies());
             }
 
             @Override
             public String getBuildContentId() {
-                return response.getBuildContentId();
+                return response.getDTO().get().getBuildContentId();
             }
 
             @Override
             public CompletionStatus getCompletionStatus() {
-                return CompletionStatus.valueOf(response.getStatus().name());
+                return CompletionStatus.valueOf(response.getDTO().get().getStatus().name());
             }
         };
 
-        return Optional.of(result);
-
+        return new TaskResponse<>(result, response.errorMessage);
     }
 
+    /**
+     * Helper method to return a task response and set an appropriate error message on failure
+     * 
+     * @param tasks
+     * @param rexTaskName
+     * @param failedResponse
+     * @param clazz
+     * @return
+     * @param <T>
+     */
+    private <T> TaskResponse<T> getTaskResult(
+            Set<TaskDTO> tasks,
+            String rexTaskName,
+            T failedResponse,
+            Class<T> clazz) {
+
+        Optional<TaskDTO> optionalTask = findTask(tasks, rexTaskName);
+
+        if (optionalTask.isEmpty()) {
+            return new TaskResponse<>(failedResponse, rexTaskName + " task is not present");
+        }
+
+        TaskDTO task = optionalTask.get();
+
+        // get responses from the caller only
+        List<ServerResponseDTO> responses = task.getServerResponses()
+                .stream()
+                .filter(response -> response.getOrigin().equals(Origin.REMOTE_ENTITY))
+                .toList();
+
+        if (responses.isEmpty()) {
+            if (STATE_FAILED.contains(task.getState())) {
+                String errorMessage = rexTaskName + " response task is empty";
+                Log.error(errorMessage);
+                return new TaskResponse<>(failedResponse, errorMessage);
+            } else {
+                return new TaskResponse<>(null, null);
+            }
+        }
+
+        ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
+        try {
+            T response = objectMapper.convertValue(finalResponse.getBody(), clazz);
+            if (response == null && STATE_FAILED.contains(task.getState())) {
+                return new TaskResponse<>(
+                        failedResponse,
+                        rexTaskName + " didn't start properly: " + task.getState() + " :: " + finalResponse);
+            }
+            return new TaskResponse<>(response);
+        } catch (IllegalArgumentException e) {
+            return new TaskResponse<>(
+                    failedResponse,
+                    rexTaskName + " response task cannot be parsed to " + clazz.getName() + ": "
+                            + finalResponse.getBody());
+        }
+    }
+
+    /**
+     * Helper method to find the right task
+     * 
+     * @param tasks
+     * @param name
+     * @return
+     */
     private Optional<TaskDTO> findTask(Set<TaskDTO> tasks, String name) {
         return tasks.stream().filter(task -> task.getName().equals(name)).findFirst();
-    }
-
-    private List<Artifact> convertFromRepositoryArtifacts(List<RepositoryArtifact> artifacts) {
-        if (artifacts == null) {
-            return Collections.emptyList();
-        }
-        return artifacts.stream()
-                .map(
-                        ra -> Artifact.builder()
-                                .identifier(ra.getIdentifier())
-                                .purl(ra.getPurl())
-                                .artifactQuality(convertArtifactQuality(ra.getArtifactQuality()))
-                                .buildCategory(convertBuildCategory(ra.getBuildCategory()))
-                                .md5(ra.getMd5())
-                                .sha1(ra.getSha1())
-                                .sha256(ra.getSha256())
-                                .filename(ra.getFilename())
-                                .deployPath(ra.getDeployPath())
-                                .importDate(ra.getImportDate() == null ? null : Date.from(ra.getImportDate()))
-                                .originUrl(ra.getOriginUrl())
-                                .size(ra.getSize())
-                                .targetRepository(convertTargetRepository(ra.getTargetRepository()))
-                                .build())
-                .collect(Collectors.toList());
-    }
-
-    private org.jboss.pnc.enums.ArtifactQuality convertArtifactQuality(ArtifactQuality quality) {
-        return quality == null ? null : org.jboss.pnc.enums.ArtifactQuality.valueOf(quality.name());
-    }
-
-    private TargetRepository convertTargetRepository(
-            org.jboss.pnc.api.repositorydriver.dto.TargetRepository targetRepository) {
-        if (targetRepository == null) {
-            return null;
-        }
-        return TargetRepository.newBuilder()
-                .temporaryRepo(targetRepository.getTemporaryRepo())
-                .identifier(targetRepository.getIdentifier())
-                .repositoryType(convertRepositoryType(targetRepository.getRepositoryType()))
-                .repositoryPath(targetRepository.getRepositoryPath())
-                .build();
-    }
-
-    private RepositoryType convertRepositoryType(org.jboss.pnc.api.enums.RepositoryType repositoryType) {
-        if (repositoryType == null) {
-            return null;
-        }
-        return RepositoryType.valueOf(repositoryType.name());
-    }
-
-    private org.jboss.pnc.enums.BuildCategory convertBuildCategory(BuildCategory buildCategory) {
-        if (buildCategory == null) {
-            return null;
-        }
-        return org.jboss.pnc.enums.BuildCategory.valueOf(buildCategory.name());
     }
 }
