@@ -63,6 +63,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
@@ -412,7 +413,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 environmentDriverResult.getDTO(),
                 repourResult.getDTO());
 
-        Log.infof("Build result: %s", buildResult);
+        try {
+            Log.infof("Build result: %s", objectMapper.writeValueAsString(buildResult));
+        } catch (JsonProcessingException e) {
+            // do nothing
+        }
 
         return buildResult;
     }
