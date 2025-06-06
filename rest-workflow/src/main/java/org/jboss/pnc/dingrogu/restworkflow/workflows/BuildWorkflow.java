@@ -711,7 +711,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         // get responses from the caller only
         List<ServerResponseDTO> responses = task.getServerResponses()
                 .stream()
-                .filter(response -> response.getOrigin().equals(Origin.REMOTE_ENTITY))
+                .filter(
+                        response -> response.getOrigin().equals(Origin.REMOTE_ENTITY)
+                                && response.getState().equals(State.UP))
                 .toList();
 
         if (responses.isEmpty()) {
