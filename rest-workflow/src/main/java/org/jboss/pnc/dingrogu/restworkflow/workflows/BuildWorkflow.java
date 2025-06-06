@@ -576,7 +576,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 }
             };
         }
-        return new TaskResponse<>(buildDriverResult);
+        return new TaskResponse<>(buildDriverResult, buildCompleted.errorMessage);
     }
 
     private TaskResponse<EnvironmentDriverResult> getEnvironmentDriverResult(Set<TaskDTO> tasks, String correlationId) {
@@ -659,27 +659,31 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 RepositoryPromoteResult.class);
 
         // PNC-Orch wants RepositoryManagerResult, not RepositoryPromoteResult. We need to convert
-        RepositoryManagerResult result = new RepositoryManagerResult() {
-            @Override
-            public List<Artifact> getBuiltArtifacts() {
-                return ConverterHelper.convertFromRepositoryArtifacts(response.getDTO().get().getBuiltArtifacts());
-            }
+        RepositoryManagerResult result = null;
 
-            @Override
-            public List<Artifact> getDependencies() {
-                return ConverterHelper.convertFromRepositoryArtifacts(response.getDTO().get().getDependencies());
-            }
+        if (response.getDTO().isPresent()) {
+            result = new RepositoryManagerResult() {
+                @Override
+                public List<Artifact> getBuiltArtifacts() {
+                    return ConverterHelper.convertFromRepositoryArtifacts(response.getDTO().get().getBuiltArtifacts());
+                }
 
-            @Override
-            public String getBuildContentId() {
-                return response.getDTO().get().getBuildContentId();
-            }
+                @Override
+                public List<Artifact> getDependencies() {
+                    return ConverterHelper.convertFromRepositoryArtifacts(response.getDTO().get().getDependencies());
+                }
 
-            @Override
-            public CompletionStatus getCompletionStatus() {
-                return CompletionStatus.valueOf(response.getDTO().get().getStatus().name());
-            }
-        };
+                @Override
+                public String getBuildContentId() {
+                    return response.getDTO().get().getBuildContentId();
+                }
+
+                @Override
+                public CompletionStatus getCompletionStatus() {
+                    return CompletionStatus.valueOf(response.getDTO().get().getStatus().name());
+                }
+            };
+        }
 
         return new TaskResponse<>(result, response.errorMessage);
     }
