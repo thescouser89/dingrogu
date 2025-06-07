@@ -650,7 +650,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     }
 
     private TaskResponse<BuildCompleted> getBuildCompleted(Set<TaskDTO> tasks, String correlationId) {
-        BuildCompleted failedResponse = BuildCompleted.builder().buildStatus(ResultStatus.FAILED).build();
+        BuildCompleted failedResponse = BuildCompleted.builder().buildStatus(ResultStatus.SYSTEM_ERROR).build();
         return getTaskResult(
                 tasks,
                 buildDriverAdapter.getRexTaskName(correlationId),
@@ -735,9 +735,15 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                                 && response.getState().equals(State.UP))
                 .toList();
 
+        int rollbackCounter = 0;
+        List<ServerResponseDTO> allResponses = task.getServerResponses();
+        if (allResponses != null && !allResponses.isEmpty()) {
+            rollbackCounter = allResponses.get(allResponses.size() - 1).rollbackCounter.intValue();
+        }
+
         if (responses.isEmpty()) {
             if (STATE_FAILED.contains(task.getState())) {
-                String errorMessage = rexTaskName + " response task is empty";
+                String errorMessage = rexTaskName + " response task is empty:: rollbackCounter=" + rollbackCounter;
                 Log.error(errorMessage);
                 return new TaskResponse<>(failedResponse, errorMessage);
             } else {
