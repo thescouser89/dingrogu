@@ -294,7 +294,14 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         if (NotificationHelper.areAllRexTasksInFinalState(tasks)) {
 
             Log.infof("Right now I should be sending a notification to the caller");
-            tasks.forEach(taskDTO -> Log.infof("Task: %s, state: %s", taskDTO.getName(), taskDTO.getState()));
+            tasks.forEach(taskDTO -> {
+                Log.infof("Task: %s, state: %s", taskDTO.getName(), taskDTO.getState());
+                try {
+                    Log.infof(objectMapper.writeValueAsString(taskDTO));
+                } catch (JsonProcessingException e) {
+                    // do nothing
+                }
+            });
 
             // we set the notification attachment to be the StartRequest in submitWorkflow method
             StartRequest request = objectMapper.convertValue(notificationRequest.getAttachment(), StartRequest.class);
