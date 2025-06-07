@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
@@ -62,6 +63,7 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
+import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -293,7 +295,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         if (NotificationHelper.areAllRexTasksInFinalState(tasks)) {
 
-            Log.infof("Right now I should be sending a notification to the caller");
+            String buildId = MDC.get(MDCHeaderKeys.BUILD_ID.getMdcKey());
+            Log.infof("Right now I should be sending a notification to the caller for buildid: %s", buildId);
             tasks.forEach(taskDTO -> {
                 Log.infof("Task: %s, state: %s", taskDTO.getName(), taskDTO.getState());
                 try {
