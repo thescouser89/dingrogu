@@ -179,4 +179,14 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
     public boolean shouldUseHeartbeat() {
         return true;
     }
+
+    /**
+     * Increase the heartbeat tolerance for build driver to give more time for the build agent to send heartbeats
+     *
+     * @return increased tolerance
+     */
+    @Override
+    public int heartbeatTolerance() {
+        return 10;
+    }
 }

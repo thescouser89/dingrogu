@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.rex.common.ConfigurationDefaults;
 import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.model.requests.StartRequest;
@@ -77,6 +78,16 @@ public interface Adapter<T> {
      */
     default boolean shouldUseHeartbeat() {
         return false;
+    }
+
+    /**
+     * Indicate the tolerance for missing heartbeats. It is set to the Rex default value, but any adapters can
+     * override this default value to something else
+     * 
+     * @return number of tolerated missed heartbeats
+     */
+    default int heartbeatTolerance() {
+        return ConfigurationDefaults.heartbeatToleranceThreshold;
     }
 
     /**
@@ -204,6 +215,7 @@ public interface Adapter<T> {
                         ConfigurationDTO.builder()
                                 .passResultsOfDependencies(shouldGetResultsFromDependencies())
                                 .heartbeatEnable(shouldUseHeartbeat())
+                                .heartbeatToleranceThreshold(heartbeatTolerance())
                                 .build())
                 .build();
     }
