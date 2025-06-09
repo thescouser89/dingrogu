@@ -299,10 +299,12 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Log.infof("Right now I should be sending a notification to the caller for buildid: %s", buildId);
             tasks.forEach(taskDTO -> {
                 Log.infof("Task: %s, state: %s", taskDTO.getName(), taskDTO.getState());
-                try {
-                    Log.infof(objectMapper.writeValueAsString(taskDTO));
-                } catch (JsonProcessingException e) {
-                    // do nothing
+                if (STATE_FAILED.contains(taskDTO.getState())) {
+                    try {
+                        Log.infof(objectMapper.writeValueAsString(taskDTO));
+                    } catch (JsonProcessingException e) {
+                        // do nothing
+                    }
                 }
             });
 
