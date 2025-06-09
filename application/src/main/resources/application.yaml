@@ -47,6 +47,7 @@ quarkus:
   oidc-client:
     enabled: true
     auth-server-url: http://localhost:8180/auth/realms/quarkus
+    refresh-token-time-skew: 2M
     client-id: dustin
     credentials:
       secret: 1234
