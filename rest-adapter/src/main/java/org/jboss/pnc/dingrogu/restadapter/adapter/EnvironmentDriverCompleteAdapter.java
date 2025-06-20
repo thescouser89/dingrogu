@@ -100,11 +100,17 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
                 .build();
         Log.infof("Environment complete request: %s", environmentCompleteRequest);
 
-        EnvironmentCompleteResponse environmentCompleteResponse = environmentDriver.complete(environmentCompleteRequest)
-                .toCompletableFuture()
-                .join();
-        Log.infof("Initial environment complete response: %s", environmentCompleteResponse);
-        return environmentCompleteResponse;
+        if (isDebugEnabled) {
+            // don't try to delete the environment since debug is enabled
+            return null;
+        } else {
+            EnvironmentCompleteResponse environmentCompleteResponse = environmentDriver
+                    .complete(environmentCompleteRequest)
+                    .toCompletableFuture()
+                    .join();
+            Log.infof("Initial environment complete response: %s", environmentCompleteResponse);
+            return environmentCompleteResponse;
+        }
     }
 
     private void sendDelayedSuccessfulCallbackToRex(String correlationId) {

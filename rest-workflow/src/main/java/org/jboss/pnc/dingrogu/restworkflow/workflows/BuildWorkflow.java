@@ -24,6 +24,7 @@ import org.jboss.pnc.api.reqour.dto.ReqourCallback;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.log.ProcessStageUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
+import org.jboss.pnc.dingrogu.api.dto.adapter.EnvironmentDriverCreateDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ProcessStage;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildExecutionConfigurationSimplifiedDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.BuildWorkDTO;
@@ -346,6 +347,10 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         TaskDTO buildTask = buildData.get();
         // That's a good sign that the environment pod might still be running
         if (STATE_FAILED.contains(buildTask.getState()) || STATE_FAILED.contains(environmentData.get().getState())) {
+            if (isDebugEnabled(environmentData.get())) {
+                Log.infof("Debug enabled for the pod. Not deleting it");
+                return;
+            }
             try {
                 BuildWorkflowClearEnvironmentDTO dto = objectMapper.convertValue(
                         buildTask.getRemoteRollback().getAttachment(),
@@ -779,5 +784,16 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
      */
     private Optional<TaskDTO> findTask(Set<TaskDTO> tasks, String name) {
         return tasks.stream().filter(task -> task.getName().equals(name)).findFirst();
+    }
+
+    private boolean isDebugEnabled(TaskDTO taskDTO) {
+        try {
+            EnvironmentDriverCreateDTO request = objectMapper
+                    .convertValue(taskDTO.getRemoteStart().getAttachment(), EnvironmentDriverCreateDTO.class);
+            return request.isDebugEnabled();
+        } catch (IllegalArgumentException e) {
+            Log.error(e.getMessage());
+            return false;
+        }
     }
 }
