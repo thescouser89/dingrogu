@@ -2,6 +2,7 @@ package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -68,6 +69,9 @@ class EnvironmentDriverCompleteAdapterTest {
         String correlationId = "123";
         EnvironmentDriverCompleteDTO dto = Instancio.create(EnvironmentDriverCompleteDTO.class);
 
+        // make sure it is false for request to be sent
+        dto.setDebugEnabled(false);
+
         // when task endpoint gets request, return a response
         EnvironmentCreateResponse environmentCreateResponse = EnvironmentCreateResponse.builder()
                 .environmentId("foo")
@@ -100,5 +104,42 @@ class EnvironmentDriverCompleteAdapterTest {
         // verify that the environment complete request sent to environment driver is generated properly
         assertThat(generated.isEnableDebug()).isEqualTo(dto.isDebugEnabled());
         assertThat(generated.getEnvironmentId()).isEqualTo(environmentCreateResponse.getEnvironmentId());
+    }
+
+    @Test
+    void dontCallEnvironmentDriverIfDebugTrue() {
+        // generate random DTO
+        String correlationId = "123";
+        EnvironmentDriverCompleteDTO dto = Instancio.create(EnvironmentDriverCompleteDTO.class);
+
+        // make sure it is true for request to not be sent
+        dto.setDebugEnabled(true);
+
+        // when task endpoint gets request, return a response
+        EnvironmentCreateResponse environmentCreateResponse = EnvironmentCreateResponse.builder()
+                .environmentId("foo")
+                .build();
+        ServerResponseDTO serverResponse = ServerResponseDTO.builder()
+                .body(environmentCreateResponse)
+                .state(State.STARTING)
+                .build();
+        TaskDTO task = TaskDTO.builder().serverResponses(Collections.singletonList(serverResponse)).build();
+        Mockito.when(taskEndpoint.getSpecific(environmentDriverCreateAdapter.getRexTaskName(correlationId)))
+                .thenReturn(task);
+
+        // when environment driver gets request, return a response
+        CompletionStage<EnvironmentCompleteResponse> environmentCompleteResponse = CompletableFuture
+                .supplyAsync(() -> Instancio.create(EnvironmentCompleteResponse.class));
+        Mockito.when(environmentDriver.complete(any())).thenReturn(environmentCompleteResponse);
+        Mockito.when(environmentDriverProducer.getEnvironmentDriver(any())).thenReturn(environmentDriver);
+
+        // generate start request
+        StartRequest startRequest = StartRequest.builder().payload(dto).build();
+
+        // send start request
+        environmentDriverCompleteAdapter.start(correlationId, startRequest);
+
+        // capture the parameters sent to environment driver
+        Mockito.verify(environmentDriver, never()).complete(any());
     }
 }
