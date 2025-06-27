@@ -662,7 +662,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 tasks,
                 buildDriverAdapter.getRexTaskName(correlationId),
                 failedResponse,
-                BuildCompleted.class);
+                BuildCompleted.class,
+                "Build Agent has gone away.\nBuild failed with status: DIED.");
     }
 
     private TaskResponse<RepositoryManagerResult> getRepositoryManagerResult(Set<TaskDTO> tasks, String correlationId) {
@@ -712,7 +713,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     /**
      * Helper method to return a task response and set an appropriate error message on failure
-     * 
+     *
      * @param tasks
      * @param rexTaskName
      * @param failedResponse
@@ -725,6 +726,27 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             String rexTaskName,
             T failedResponse,
             Class<T> clazz) {
+        return getTaskResult(tasks, rexTaskName, failedResponse, clazz, "Task retried multiple times.");
+    }
+
+    /**
+     * Helper method to return a task response and set an appropriate error message on failure. You can specify a custom
+     * error message when the task has been retried multiple times and still failed.
+     * 
+     * @param tasks
+     * @param rexTaskName
+     * @param failedResponse
+     * @param clazz
+     * @param multipleRollbackErrorMessage
+     * @return
+     * @param <T>
+     */
+    private <T> TaskResponse<T> getTaskResult(
+            Set<TaskDTO> tasks,
+            String rexTaskName,
+            T failedResponse,
+            Class<T> clazz,
+            String multipleRollbackErrorMessage) {
 
         Optional<TaskDTO> optionalTask = findTask(tasks, rexTaskName);
 
@@ -751,6 +773,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         if (responses.isEmpty()) {
             if (STATE_FAILED.contains(task.getState())) {
                 String errorMessage = rexTaskName + " response task is empty:: rollbackCounter=" + rollbackCounter;
+                if (rollbackCounter > 1) {
+                    multipleRollbackErrorMessage = multipleRollbackErrorMessage == null ? " Retried multiple times"
+                            : multipleRollbackErrorMessage;
+                    errorMessage += "\n" + multipleRollbackErrorMessage;
+                }
                 Log.error(errorMessage);
                 return new TaskResponse<>(failedResponse, errorMessage);
             } else {
