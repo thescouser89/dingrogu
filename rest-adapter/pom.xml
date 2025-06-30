@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>rest-adapter</artifactId>
+    <name>REST Adapter</name>
     <dependencies>
         <dependency>
             <groupId>org.jboss.pnc.dingrogu</groupId>
