@@ -663,7 +663,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 buildDriverAdapter.getRexTaskName(correlationId),
                 failedResponse,
                 BuildCompleted.class,
-                "Build Agent has gone away.\nBuild failed with status: DIED.");
+                "Builder pod has failed to start multiple times.");
     }
 
     private TaskResponse<RepositoryManagerResult> getRepositoryManagerResult(Set<TaskDTO> tasks, String correlationId) {
