@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>rest-workflow</artifactId>
+  <name>Rest Workflow</name>
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc.dingrogu</groupId>

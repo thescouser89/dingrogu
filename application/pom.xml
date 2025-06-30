@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>application</artifactId>
+    <name>Application stuff</name>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
