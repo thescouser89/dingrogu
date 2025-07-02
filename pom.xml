@@ -261,13 +261,6 @@
         </repository>
     </repositories>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>central-publisher</id>
-            <url>https://central.sonatype.com/repository/maven-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <build>
         <pluginManagement>
             <plugins>
@@ -319,7 +312,6 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
                     <releaseProfiles>release</releaseProfiles>
-                    <stagingRepository>https://central.sonatype.com/repository/maven-snapshots</stagingRepository>
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
@@ -330,7 +322,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central-publisher</publishingServerId>
-                    <autoPublish>false</autoPublish>
                 </configuration>
             </plugin>
             <plugin>
