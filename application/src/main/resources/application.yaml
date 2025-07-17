@@ -21,6 +21,14 @@ quarkus:
   http:
     limits:
       max-body-size: 100M
+  # graceful shutdown in case Quarkus is still processing requests
+  shutdown:
+    timeout: 30
+  # Add CORS
+  http:
+    cors:
+      ~: true
+      origins: "/.*/"
   arc:
     # Do not remove the adapter implementations since we'll dynamically use them in the adapter endpoint
     unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
