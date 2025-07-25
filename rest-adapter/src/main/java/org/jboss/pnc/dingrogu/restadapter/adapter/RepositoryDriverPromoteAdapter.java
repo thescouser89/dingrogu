@@ -137,8 +137,8 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     public void cancel(String correlationId, StopRequest stopRequest) {
     }
 
-    @Override
-    public boolean shouldUseHeartbeat() {
-        return true;
-    }
+    // @Override
+    // public boolean shouldUseHeartbeat() {
+    //     return true;
+    // }
 }
