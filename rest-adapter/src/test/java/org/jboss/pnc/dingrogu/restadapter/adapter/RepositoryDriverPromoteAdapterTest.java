@@ -60,6 +60,6 @@ public class RepositoryDriverPromoteAdapterTest {
         assertThat(generated.getBuildCategory()).isEqualTo(dto.getBuildCategory());
         assertThat(generated.isTempBuild()).isEqualTo(dto.isTempBuild());
         assertThat(generated.getBuildConfigurationId()).isEqualTo(dto.getBuildConfigurationId());
-//        assertThat(generated.getHeartBeat()).isEqualTo(heartbeatConfig.getRequest());
+        //        assertThat(generated.getHeartBeat()).isEqualTo(heartbeatConfig.getRequest());
     }
 }
