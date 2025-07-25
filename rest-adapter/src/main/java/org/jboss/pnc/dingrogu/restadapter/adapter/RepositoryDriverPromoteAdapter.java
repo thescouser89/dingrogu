@@ -79,7 +79,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 .buildCategory(repoPromoteDTO.getBuildCategory())
                 .tempBuild(repoPromoteDTO.isTempBuild())
                 .callback(callback)
-                .heartBeat(startRequest.getHeartbeatConfig().getRequest())
+                // .heartBeat(startRequest.getHeartbeatConfig().getRequest())
                 .buildConfigurationId(repoPromoteDTO.getBuildConfigurationId())
                 .build();
 
