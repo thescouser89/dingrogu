@@ -29,6 +29,7 @@ public class OrchClient {
     public void submitBuildPushResult(String orchUrl, String buildId, BuildPushCompleted result) {
         String orchUrlWithoutPath = URI.create(orchUrl).resolve("/").toString();
 
+        Log.infof("BuildPushResult for buildid: %s is: %s", buildId, result);
         HttpResponse<JsonNode> response = Unirest
                 .post(orchUrlWithoutPath + "pnc-rest/v2/builds/" + buildId + "/brew-push/complete")
                 .contentType(ContentType.APPLICATION_JSON)
@@ -48,6 +49,7 @@ public class OrchClient {
     public void submitDelAResult(String orchUrl, AnalysisResult result) {
         String orchUrlWithoutPath = URI.create(orchUrl).resolve("/").toString();
 
+        Log.infof("Submit dela request: %s", result);
         HttpResponse<JsonNode> response = Unirest.post(orchUrlWithoutPath + "pnc-rest/v2/deliverable-analyses/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)

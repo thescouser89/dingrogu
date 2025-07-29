@@ -13,6 +13,7 @@ import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 
+import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
@@ -28,6 +29,7 @@ public class ReqourClient {
     @Retry
     public void adjust(String reqourUrl, AdjustRequest request) {
 
+        Log.info("Request to reqour: " + request);
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/adjust")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
@@ -64,6 +66,7 @@ public class ReqourClient {
     @Retry
     public void cloneRequest(String reqourUrl, RepositoryCloneRequest request) {
 
+        Log.infof("Requor clone request: %s", request);
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/clone")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
@@ -79,6 +82,7 @@ public class ReqourClient {
     @Retry
     public void createRepository(String reqourUrl, InternalSCMCreationRequest request) {
 
+        Log.infof("Reqour create repository request: %s", request);
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/internal-scm")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)

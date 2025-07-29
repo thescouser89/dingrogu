@@ -8,6 +8,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DelAAnalyzeResponse;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 
+import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
@@ -22,6 +23,7 @@ public class DeliverablesAnalyzerClient {
     @Retry
     public DelAAnalyzeResponse analyze(String deliverablesAnalyzerUrl, AnalyzePayload request) {
 
+        Log.infof("DeliverablesAnalyzer analyse request: %s", request);
         HttpResponse<DelAAnalyzeResponse> response = Unirest.post(deliverablesAnalyzerUrl + "/api/analyze")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)

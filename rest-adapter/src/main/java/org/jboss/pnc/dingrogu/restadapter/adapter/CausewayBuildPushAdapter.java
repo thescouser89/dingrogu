@@ -68,6 +68,7 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
                 .heartbeat(startRequest.getHeartbeatConfig())
                 .build();
 
+        Log.infof("Causeway request: %s", request);
         causewayProducer.getCauseway(brewPushDTO.getCausewayUrl()).importBuild(request);
         return Optional.empty();
     }
