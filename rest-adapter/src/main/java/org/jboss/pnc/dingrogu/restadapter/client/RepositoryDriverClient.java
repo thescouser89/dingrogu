@@ -24,6 +24,7 @@ public class RepositoryDriverClient {
 
     @Retry
     public RepositoryCreateResponse setup(String repositoryDriverUrl, RepositoryCreateRequest request) {
+        Log.infof("Repository create request: %s", request);
         HttpResponse<RepositoryCreateResponse> response = Unirest.post(repositoryDriverUrl + "/create")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
@@ -41,6 +42,7 @@ public class RepositoryDriverClient {
 
     @Retry
     public void seal(String repositoryDriverUrl, String buildContentId) {
+        Log.infof("Repository seal request for: %s", buildContentId);
         HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/seal")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
@@ -57,6 +59,7 @@ public class RepositoryDriverClient {
 
     @Retry
     public void promote(String repositoryDriverUrl, RepositoryPromoteRequest request) {
+        Log.infof("Repository promote request for: %s", request);
         HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/promote")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
