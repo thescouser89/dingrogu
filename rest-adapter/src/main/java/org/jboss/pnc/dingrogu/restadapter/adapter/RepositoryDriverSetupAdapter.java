@@ -1,6 +1,6 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -8,7 +8,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.microprofile.context.ManagedExecutor;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.api.enums.BuildType;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
@@ -64,17 +66,30 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
         Object pastResult = pastResults.get(reqourAdjustAdapter.getRexTaskName(correlationId));
         AdjustResponse reqourResponse = objectMapper.convertValue(pastResult, AdjustResponse.class);
 
-        List<String> repositoriesToCreate = Collections.emptyList();
-        if (reqourResponse.getManipulatorResult().getRemovedRepositories() != null) {
-            repositoriesToCreate = reqourResponse.getManipulatorResult()
-                    .getRemovedRepositories()
-                    .stream()
-                    .map(repo -> repo.getUrl().toString())
-                    .toList();
-        }
-
         RepositoryDriverSetupDTO repositorySetupDTO = objectMapper
                 .convertValue(startRequest.getPayload(), RepositoryDriverSetupDTO.class);
+
+        List<String> repositoriesToCreate = new ArrayList<>();
+        // first add extra repositories defined in BC if any
+        String paramName = BuildConfigurationParameterKeys.EXTRA_REPOSITORIES.name();
+        if (repositorySetupDTO.getGenericParameters().containsKey(paramName)) {
+            String extraRepos = repositorySetupDTO.getGenericParameters().get(paramName);
+            extraRepos.lines().forEach(line -> {
+                if (StringUtils.isNotEmpty(line)) {
+                    repositoriesToCreate.add(line.trim());
+                }
+            });
+        }
+        // then add repositories removed by manipulator
+        if (reqourResponse.getManipulatorResult().getRemovedRepositories() != null) {
+            repositoriesToCreate.addAll(
+                    reqourResponse.getManipulatorResult()
+                            .getRemovedRepositories()
+                            .stream()
+                            .map(repo -> repo.getUrl().toString())
+                            .toList());
+        }
+
         RepositoryCreateRequest createRequest = new RepositoryCreateRequest(
                 repositorySetupDTO.getBuildContentId(),
                 BuildType.valueOf(repositorySetupDTO.getBuildType()),
@@ -117,7 +132,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
     /**
      * We cannot cancel this operation since it is a synchronous one
-     * 
+     *
      * @param correlationId
      * @param stopRequest
      */
@@ -132,7 +147,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
 
     /**
      * We read past results to build final request
-     * 
+     *
      * @return true
      */
     @Override

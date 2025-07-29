@@ -110,6 +110,7 @@ public class BuildWorkDTO {
                 .buildType(buildTypeName)
                 .tempBuild(tempBuild)
                 .brewPullActive(brewPullActive)
+                .genericParameters(genericParameters)
                 .build();
     }
 
