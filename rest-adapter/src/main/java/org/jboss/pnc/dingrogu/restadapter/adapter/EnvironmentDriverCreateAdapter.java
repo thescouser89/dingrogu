@@ -120,16 +120,16 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
             Log.infof("Environment create response: %s", response);
             try {
                 if (response == null || !response.getStatus().isSuccess()) {
-                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
                 } else {
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
             }
         } catch (IllegalArgumentException e) {
             try {
-                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
             } catch (Exception ex) {
                 Log.error("Error happened in callback adapter", ex);
             }

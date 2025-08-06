@@ -69,6 +69,7 @@ class RepositoryDriverSealAdapterTest {
             throw new RuntimeException(e);
         }
 
-        Mockito.verify(callbackEndpoint).succeed(repositoryDriverSealAdapter.getRexTaskName(correlationId), null, null);
+        Mockito.verify(callbackEndpoint)
+                .succeed(repositoryDriverSealAdapter.getRexTaskName(correlationId), null, null, null);
     }
 }

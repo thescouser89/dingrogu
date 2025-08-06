@@ -122,7 +122,7 @@ public class EnvironmentDriverCompleteAdapter implements Adapter<EnvironmentDriv
                 Log.error(e);
             }
             try {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), null, null);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), null, null, null);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for environment driver complete", e);
             }

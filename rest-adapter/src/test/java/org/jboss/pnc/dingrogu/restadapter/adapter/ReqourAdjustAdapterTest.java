@@ -95,7 +95,7 @@ class ReqourAdjustAdapterTest {
 
         // verify that the successful callback is called
         Mockito.verify(callbackEndpoint)
-                .succeed(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null);
+                .succeed(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null, null);
     }
 
     @Test
@@ -112,7 +112,8 @@ class ReqourAdjustAdapterTest {
         reqourAdjustAdapter.callback(correlationId, adjustResponse);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null, null);
     }
 
     @Test
@@ -125,7 +126,8 @@ class ReqourAdjustAdapterTest {
         reqourAdjustAdapter.callback(correlationId, adjustResponse);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null, null);
     }
 
     @Test
@@ -138,6 +140,7 @@ class ReqourAdjustAdapterTest {
         reqourAdjustAdapter.callback(correlationId, adjustResponse);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null, null);
     }
 }

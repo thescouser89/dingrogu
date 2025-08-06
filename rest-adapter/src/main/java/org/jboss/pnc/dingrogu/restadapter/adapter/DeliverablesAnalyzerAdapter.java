@@ -79,13 +79,13 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
         try {
             AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
             if (report != null && report.isSuccess()) {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), report, null);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), report, null, null);
             } else {
-                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
             }
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
-            callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+            callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
         }
     }
 

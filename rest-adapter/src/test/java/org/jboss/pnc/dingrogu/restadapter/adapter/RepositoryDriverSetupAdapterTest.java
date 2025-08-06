@@ -92,6 +92,6 @@ public class RepositoryDriverSetupAdapterTest {
             throw new RuntimeException(e);
         }
 
-        Mockito.verify(callbackEndpoint).succeed(adapter.getRexTaskName(correlationId), response, null);
+        Mockito.verify(callbackEndpoint).succeed(adapter.getRexTaskName(correlationId), response, null, null);
     }
 }

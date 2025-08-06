@@ -66,10 +66,10 @@ public class RepositoryDriverSealAdapter implements Adapter<RepositoryDriverSeal
                 Log.error(e);
             }
             try {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), null, null);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), null, null, null);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for repository driver seal", e);
-                callbackEndpoint.fail(getRexTaskName(correlationId), e.toString(), null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), e.toString(), null, null);
             }
         });
 

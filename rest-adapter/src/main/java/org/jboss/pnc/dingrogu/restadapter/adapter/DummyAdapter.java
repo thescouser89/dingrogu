@@ -63,7 +63,7 @@ public class DummyAdapter implements Adapter<DummyDTO> {
         DummyServiceResponseDTO response = objectMapper.convertValue(object, DummyServiceResponseDTO.class);
         Log.infof("DummyService replied with: %s", response.status);
         try {
-            callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

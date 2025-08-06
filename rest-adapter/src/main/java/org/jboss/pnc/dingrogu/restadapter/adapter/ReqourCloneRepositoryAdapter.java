@@ -85,7 +85,7 @@ public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneReposito
     public void callback(String correlationId, Object object) {
 
         try {
-            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
+            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
         } catch (Exception e) {
             Log.error("Error happened in callback adapter", e);
         }

@@ -110,7 +110,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
                 Log.error(e);
             }
             try {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for repository driver create", e);
             }

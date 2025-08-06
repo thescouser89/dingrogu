@@ -1,11 +1,13 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -134,7 +136,8 @@ class BuildDriverAdapterTest {
         buildDriverAdapter.callback(correlationId, response);
 
         // verify that the successful callback is called
-        Mockito.verify(callbackEndpoint).succeed(buildDriverAdapter.getRexTaskName(correlationId), response, null);
+        Mockito.verify(callbackEndpoint)
+                .succeed(buildDriverAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
@@ -146,7 +149,7 @@ class BuildDriverAdapterTest {
         buildDriverAdapter.callback(correlationId, response);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null);
+        Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
@@ -158,7 +161,7 @@ class BuildDriverAdapterTest {
         buildDriverAdapter.callback(correlationId, response);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null);
+        Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
@@ -170,7 +173,7 @@ class BuildDriverAdapterTest {
         buildDriverAdapter.callback(correlationId, response);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null);
+        Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test

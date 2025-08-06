@@ -76,10 +76,10 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
             try {
                 if (response == null || response.getStatus() == InternalSCMCreationStatus.FAILED
                         || !response.getCallback().getStatus().isSuccess()) {
-                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
                 } else {
                     Log.infof("Repo creation response: %s", response.toString());
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in rex client callback to Rex server for repository creation", e);
@@ -87,7 +87,7 @@ public class ReqourCreateRepositoryAdapter implements Adapter<ReqourCreateReposi
         } catch (IllegalArgumentException e) {
             // if we cannot cast object to InternalSCMCreationResponse, it's probably a failure
             try {
-                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
             } catch (Exception ex) {
                 Log.error("Error happened in callback adapter", ex);
             }

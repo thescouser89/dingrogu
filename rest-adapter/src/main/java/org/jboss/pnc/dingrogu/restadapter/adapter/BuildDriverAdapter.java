@@ -120,16 +120,16 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
             Log.infof("Build response: %s", response);
             try {
                 if (response == null || !response.getBuildStatus().isSuccess()) {
-                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
                 } else {
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null);
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
             }
         } catch (IllegalArgumentException e) {
             try {
-                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
             } catch (Exception ex) {
                 Log.error("Error happened in callback adapter", ex);
             }

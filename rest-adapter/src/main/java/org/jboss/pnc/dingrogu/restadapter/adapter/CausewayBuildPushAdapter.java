@@ -81,13 +81,13 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
 
             if (pushResult != null && pushResult.getResult() != null
                     && pushResult.getResult() == ResultStatus.SUCCESS) {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), pushResult, null);
+                callbackEndpoint.succeed(getRexTaskName(correlationId), pushResult, null, null);
             } else {
-                callbackEndpoint.fail(getRexTaskName(correlationId), pushResult, null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), pushResult, null, null);
             }
         } catch (Exception e) {
             Log.error("Error while receiving callback", e);
-            callbackEndpoint.fail(getRexTaskName(correlationId), o, null);
+            callbackEndpoint.fail(getRexTaskName(correlationId), o, null, null);
         }
     }
 

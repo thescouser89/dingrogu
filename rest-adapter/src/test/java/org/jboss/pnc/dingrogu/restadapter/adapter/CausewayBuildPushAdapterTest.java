@@ -92,7 +92,7 @@ class CausewayBuildPushAdapterTest {
         causewayBuildPushAdapter.callback(correlationId, pushResult);
         // verify that the successful callback is called
         Mockito.verify(callbackEndpoint)
-                .succeed(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null);
+                .succeed(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null, null);
     }
 
     @Test
@@ -110,7 +110,8 @@ class CausewayBuildPushAdapterTest {
         causewayBuildPushAdapter.callback(correlationId, pushResult);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null, null);
     }
 
     @Test
@@ -123,7 +124,8 @@ class CausewayBuildPushAdapterTest {
         causewayBuildPushAdapter.callback(correlationId, pushResult);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null, null);
     }
 
     @Test
@@ -136,6 +138,7 @@ class CausewayBuildPushAdapterTest {
         causewayBuildPushAdapter.callback(correlationId, pushResult);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null, null);
     }
 }

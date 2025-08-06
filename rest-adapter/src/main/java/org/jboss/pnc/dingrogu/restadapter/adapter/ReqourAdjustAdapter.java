@@ -113,10 +113,10 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
             AdjustResponse response = objectMapper.convertValue(object, AdjustResponse.class);
             try {
                 if (response == null || !response.getCallback().getStatus().isSuccess()) {
-                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
                 } else {
                     Log.infof("Adjust response: %s", response.toString());
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null);
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
@@ -124,7 +124,7 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
         } catch (IllegalArgumentException e) {
             // if we cannot cast object to AdjustResponse, it's probably a failure
             try {
-                callbackEndpoint.fail(getRexTaskName(correlationId), object, null);
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
             } catch (Exception ex) {
                 Log.error("Error happened in callback adapter", ex);
             }

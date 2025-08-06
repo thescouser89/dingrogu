@@ -88,7 +88,7 @@ class DeliverablesAnalyzerAdapterTest {
         String correlationId = "correlation-12345";
         deliverablesAnalyzerAdapter.callback(correlationId, report);
         Mockito.verify(callbackEndpoint)
-                .succeed(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null);
+                .succeed(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null, null);
     }
 
     @Test
@@ -103,7 +103,8 @@ class DeliverablesAnalyzerAdapterTest {
         String correlationId = "correlation-12345";
         deliverablesAnalyzerAdapter.callback(correlationId, report);
         // verify that the successful callback is called
-        Mockito.verify(callbackEndpoint).fail(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null, null);
     }
 
     @Test
@@ -115,7 +116,8 @@ class DeliverablesAnalyzerAdapterTest {
         String correlationId = "correlation-12345";
         deliverablesAnalyzerAdapter.callback(correlationId, report);
         // verify that the successful callback is called
-        Mockito.verify(callbackEndpoint).fail(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null, null);
     }
 
     @Test
@@ -128,7 +130,8 @@ class DeliverablesAnalyzerAdapterTest {
         deliverablesAnalyzerAdapter.callback(correlationId, report);
 
         // verify that the fail callback is called
-        Mockito.verify(callbackEndpoint).fail(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null);
+        Mockito.verify(callbackEndpoint)
+                .fail(deliverablesAnalyzerAdapter.getRexTaskName(correlationId), report, null, null);
     }
 
 }

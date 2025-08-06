@@ -124,7 +124,7 @@ class EnvironmentDriverCreateAdapterTest {
 
         // verify that the successful callback is called
         Mockito.verify(callbackEndpoint)
-                .succeed(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null);
+                .succeed(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
@@ -137,7 +137,7 @@ class EnvironmentDriverCreateAdapterTest {
 
         // verify that the fail callback is called
         Mockito.verify(callbackEndpoint)
-                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null);
+                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
@@ -150,7 +150,7 @@ class EnvironmentDriverCreateAdapterTest {
 
         // verify that the fail callback is called
         Mockito.verify(callbackEndpoint)
-                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null);
+                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
@@ -164,7 +164,7 @@ class EnvironmentDriverCreateAdapterTest {
 
         // verify that the fail callback is called
         Mockito.verify(callbackEndpoint)
-                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null);
+                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null, null);
     }
 
     @Test
