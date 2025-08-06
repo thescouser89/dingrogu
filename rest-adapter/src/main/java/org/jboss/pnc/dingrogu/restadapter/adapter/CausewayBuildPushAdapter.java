@@ -1,7 +1,10 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
+
 import java.net.URI;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,7 +13,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushRequest;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.dingrogu.api.client.AuthorizationClientHttpFactory;
 import org.jboss.pnc.dingrogu.api.client.CausewayProducer;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BrewPushDTO;
@@ -79,11 +81,20 @@ public class CausewayBuildPushAdapter implements Adapter<BrewPushDTO> {
 
             PushResult pushResult = objectMapper.convertValue(o, PushResult.class);
 
-            if (pushResult != null && pushResult.getResult() != null
-                    && pushResult.getResult() == ResultStatus.SUCCESS) {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), pushResult, null, null);
-            } else {
+            if (pushResult == null || pushResult.getResult() == null) {
+                Log.error("Build Push response or status is null: " + pushResult);
                 callbackEndpoint.fail(getRexTaskName(correlationId), pushResult, null, null);
+                return;
+            }
+
+            switch (pushResult.getResult()) {
+                case SUCCESS -> callbackEndpoint.succeed(getRexTaskName(correlationId), pushResult, null, null);
+                // no rollback
+                case FAILED ->
+                    callbackEndpoint.fail(getRexTaskName(correlationId), pushResult, null, Set.of(SKIP_ROLLBACK));
+                // with rollback (if configured)
+                case TIMED_OUT, CANCELLED, SYSTEM_ERROR ->
+                    callbackEndpoint.fail(getRexTaskName(correlationId), pushResult, null, null);
             }
         } catch (Exception e) {
             Log.error("Error while receiving callback", e);

@@ -148,6 +148,19 @@ class BuildDriverAdapterTest {
         String correlationId = "123";
         buildDriverAdapter.callback(correlationId, response);
 
+        // verify that the fail callback is called and rollback is skipped
+        Mockito.verify(callbackEndpoint)
+                .fail(buildDriverAdapter.getRexTaskName(correlationId), response, null, Set.of(SKIP_ROLLBACK));
+    }
+
+    @Test
+    void systemErrorCallback() {
+        // given a bad response from build driver
+        BuildCompleted response = BuildCompleted.builder().buildStatus(ResultStatus.SYSTEM_ERROR).build();
+
+        String correlationId = "123";
+        buildDriverAdapter.callback(correlationId, response);
+
         // verify that the fail callback is called
         Mockito.verify(callbackEndpoint).fail(buildDriverAdapter.getRexTaskName(correlationId), response, null, null);
     }

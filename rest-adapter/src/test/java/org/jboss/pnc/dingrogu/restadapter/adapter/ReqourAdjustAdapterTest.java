@@ -1,7 +1,10 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
 import static org.mockito.ArgumentMatchers.eq;
+
+import java.util.Set;
 
 import jakarta.inject.Inject;
 
@@ -100,6 +103,24 @@ class ReqourAdjustAdapterTest {
 
     @Test
     void failCallback() {
+
+        // given a bad response from reqour
+        AdjustResponse adjustResponse = AdjustResponse.builder()
+                .callback(ReqourCallback.builder().status(ResultStatus.FAILED).build())
+                .tag("tag-1234")
+                .upstreamCommit("upstream-commit")
+                .build();
+
+        String correlationId = "correlationid-1234";
+        reqourAdjustAdapter.callback(correlationId, adjustResponse);
+
+        // verify that the fail callback is called
+        Mockito.verify(callbackEndpoint)
+                .fail(reqourAdjustAdapter.getRexTaskName(correlationId), adjustResponse, null, Set.of(SKIP_ROLLBACK));
+    }
+
+    @Test
+    void systemErrorCallback() {
 
         // given a bad response from reqour
         AdjustResponse adjustResponse = AdjustResponse.builder()

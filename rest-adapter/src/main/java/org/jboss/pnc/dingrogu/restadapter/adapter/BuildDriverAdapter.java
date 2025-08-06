@@ -1,10 +1,13 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -119,10 +122,19 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
             BuildCompleted response = objectMapper.convertValue(object, BuildCompleted.class);
             Log.infof("Build response: %s", response);
             try {
-                if (response == null || !response.getBuildStatus().isSuccess()) {
+                if (response == null || response.getBuildStatus() == null) {
+                    Log.error("Build response or status is null: " + response);
                     callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
-                } else {
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
+                    return;
+                }
+                switch (response.getBuildStatus()) {
+                    case SUCCESS -> callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
+                    // no rollback
+                    case FAILED ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), response, null, Set.of(SKIP_ROLLBACK));
+                    // with rollback (if configured)
+                    case TIMED_OUT, CANCELLED, SYSTEM_ERROR ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);

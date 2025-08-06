@@ -119,10 +119,18 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
             EnvironmentCreateResult response = objectMapper.convertValue(object, EnvironmentCreateResult.class);
             Log.infof("Environment create response: %s", response);
             try {
-                if (response == null || !response.getStatus().isSuccess()) {
+                if (response == null || response.getStatus() == null) {
+                    Log.error("Environment response or status is null: " + response);
                     callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
-                } else {
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
+                    return;
+                }
+                switch (response.getStatus()) {
+                    case SUCCESS -> callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
+
+                    // with rollback (if configured)
+                    // TODO should FAILED status from ENV. Driver skip rollback like in other Adapters?
+                    case FAILED, TIMED_OUT, CANCELLED, SYSTEM_ERROR ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);

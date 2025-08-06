@@ -1,8 +1,11 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -103,11 +106,22 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                     "Collected results from repository manager.");
 
             try {
-                if (response == null || !response.getStatus().isSuccess()) {
+                if (response == null || response.getStatus() == null) {
+                    Log.error("Repository promotion response or status is null: " + response);
                     callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
-                } else {
-                    Log.infof("Repository promote response: %s", response.toString());
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
+                    return;
+                }
+                switch (response.getStatus()) {
+                    case SUCCESS -> {
+                        Log.infof("Repository promote response: %s", response.toString());
+                        callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
+                    }
+                    // no rollback (f.e. on promotion validation which is not recoverable)
+                    case FAILED ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), object, null, Set.of(SKIP_ROLLBACK));
+                    // with rollback (if configured)
+                    case TIMED_OUT, CANCELLED, SYSTEM_ERROR ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);

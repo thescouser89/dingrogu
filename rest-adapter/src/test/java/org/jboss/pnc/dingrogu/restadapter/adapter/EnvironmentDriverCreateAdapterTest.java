@@ -141,6 +141,19 @@ class EnvironmentDriverCreateAdapterTest {
     }
 
     @Test
+    void systemErrorCallback() {
+        // given a bad response from environment driver
+        EnvironmentCreateResult response = EnvironmentCreateResult.builder().status(ResultStatus.SYSTEM_ERROR).build();
+
+        String correlationId = "123";
+        environmentDriverCreateAdapter.callback(correlationId, response);
+
+        // verify that the fail callback is called
+        Mockito.verify(callbackEndpoint)
+                .fail(environmentDriverCreateAdapter.getRexTaskName(correlationId), response, null, null);
+    }
+
+    @Test
     void noResponseCallback() {
         // given a null response from environment driver
         EnvironmentCreateResult response = null;

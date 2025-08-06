@@ -1,7 +1,10 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
 import static org.mockito.ArgumentMatchers.any;
+
+import java.util.Set;
 
 import jakarta.inject.Inject;
 
@@ -97,6 +100,25 @@ class CausewayBuildPushAdapterTest {
 
     @Test
     void failCallback() {
+
+        // given a bad response from causeway
+        PushResult pushResult = PushResult.builder()
+                .buildId("1234")
+                .brewBuildId(5)
+                .result(ResultStatus.FAILED)
+                .brewBuildUrl("brew build url")
+                .build();
+
+        String correlationId = "correlationid-1234";
+        causewayBuildPushAdapter.callback(correlationId, pushResult);
+
+        // verify that the fail callback is called
+        Mockito.verify(callbackEndpoint)
+                .fail(causewayBuildPushAdapter.getRexTaskName(correlationId), pushResult, null, Set.of(SKIP_ROLLBACK));
+    }
+
+    @Test
+    void systemErrorCallback() {
 
         // given a bad response from causeway
         PushResult pushResult = PushResult.builder()

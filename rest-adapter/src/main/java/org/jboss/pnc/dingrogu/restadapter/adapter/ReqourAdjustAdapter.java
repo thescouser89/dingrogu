@@ -1,10 +1,13 @@
 package org.jboss.pnc.dingrogu.restadapter.adapter;
 
+import static org.jboss.pnc.rex.common.enums.ResponseFlag.SKIP_ROLLBACK;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -112,11 +115,25 @@ public class ReqourAdjustAdapter implements Adapter<ReqourAdjustDTO> {
         try {
             AdjustResponse response = objectMapper.convertValue(object, AdjustResponse.class);
             try {
-                if (response == null || !response.getCallback().getStatus().isSuccess()) {
-                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
-                } else {
-                    Log.infof("Adjust response: %s", response.toString());
-                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
+                if (response == null || response.getCallback().getStatus() == null) {
+                    Log.error("Adjust response or status is null: " + response);
+                    callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
+                    return;
+                }
+
+                switch (response.getCallback().getStatus()) {
+                    case SUCCESS -> {
+                        Log.infof("Adjust response: %s", response.toString());
+                        callbackEndpoint.succeed(getRexTaskName(correlationId), response, null, null);
+                    }
+
+                    // no rollback
+                    case FAILED ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), response, null, Set.of(SKIP_ROLLBACK));
+
+                    // with rollback (if configured)
+                    case TIMED_OUT, CANCELLED, SYSTEM_ERROR ->
+                        callbackEndpoint.fail(getRexTaskName(correlationId), response, null, null);
                 }
             } catch (Exception e) {
                 Log.error("Error happened in callback adapter", e);
