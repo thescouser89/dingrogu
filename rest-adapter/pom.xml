@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jboss.pnc.dingrogu</groupId>
         <artifactId>parent</artifactId>
-        <version>3.2.14-SNAPSHOT</version>
+        <version>3.2.14</version>
     </parent>
 
     <artifactId>rest-adapter</artifactId>
