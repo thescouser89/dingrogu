@@ -24,7 +24,7 @@
         <quarkus.package.jar.type>uber-jar</quarkus.package.jar.type>
         <version.javadoc.plugin>3.11.2</version.javadoc.plugin>
         <version.source.plugin>3.3.1</version.source.plugin>
-        <version.pnc>3.2.5</version.pnc>
+        <version.pnc>3.2.6</version.pnc>
         <version.rex>1.2.0</version.rex>
         <tagSuffix />
     </properties>
