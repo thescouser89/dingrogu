@@ -18,6 +18,7 @@ import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.api.reqour.dto.ReqourCallback;
@@ -603,14 +604,35 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private TaskResponse<EnvironmentDriverResult> getEnvironmentDriverResult(Set<TaskDTO> tasks, String correlationId) {
 
-        EnvironmentDriverResult failedResponse = EnvironmentDriverResult.builder()
-                .completionStatus(CompletionStatus.SYSTEM_ERROR)
+        // Environment Driver uses the EnvironmentCreateResult DTO. We need to convert it to EnvironmentDriverResult
+
+        EnvironmentCreateResult failedResult = EnvironmentCreateResult.builder()
+                .status(ResultStatus.SYSTEM_ERROR)
                 .build();
-        return getTaskResult(
+
+        EnvironmentCreateResult emptyResult = EnvironmentCreateResult.builder()
+                .status(null)
+                .build();
+        TaskResponse<EnvironmentCreateResult> taskResponse = getTaskResult(
                 tasks,
                 environmentDriverCreateAdapter.getRexTaskName(correlationId),
-                failedResponse,
-                EnvironmentDriverResult.class);
+                failedResult,
+                emptyResult,
+                EnvironmentCreateResult.class);
+
+        EnvironmentDriverResult environmentDriverResult = null;
+        if (taskResponse.getDTO().isPresent()) {
+            EnvironmentCreateResult finalResult = taskResponse.getDTO().get();
+            environmentDriverResult = EnvironmentDriverResult.builder()
+                    .completionStatus(toCompletionStatus(finalResult.getStatus()))
+                    .build();
+        }
+
+        return new TaskResponse<>(environmentDriverResult, taskResponse.errorMessage);
+    }
+
+    private CompletionStatus toCompletionStatus(ResultStatus resultStatus) {
+        return CompletionStatus.valueOf(resultStatus.name());
     }
 
     private TaskResponse<RepourResult> toRepourResult(TaskResponse<AdjustResponse> response) {
@@ -649,9 +671,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 .callback(failedCallback)
                 .build();
 
+        // for now, an empty reqour task probably means it failed
         return getTaskResult(
                 tasks,
                 reqourAdjustAdapter.getRexTaskName(correlationId),
+                failedResponse,
                 failedResponse,
                 AdjustResponse.class);
     }
@@ -662,6 +686,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 tasks,
                 buildDriverAdapter.getRexTaskName(correlationId),
                 failedResponse,
+                null,
                 BuildCompleted.class,
                 "Builder pod has failed to start multiple times.");
     }
@@ -679,6 +704,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 tasks,
                 repositoryDriverPromoteAdapter.getRexTaskName(correlationId),
                 failedResponse,
+                null,
                 RepositoryPromoteResult.class);
 
         // PNC-Orch wants RepositoryManagerResult, not RepositoryPromoteResult. We need to convert
@@ -725,8 +751,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Set<TaskDTO> tasks,
             String rexTaskName,
             T failedResponse,
+            T emptyResponse,
             Class<T> clazz) {
-        return getTaskResult(tasks, rexTaskName, failedResponse, clazz, "Task retried multiple times.");
+        return getTaskResult(tasks, rexTaskName, failedResponse, emptyResponse, clazz, "Task retried multiple times.");
     }
 
     /**
@@ -745,13 +772,14 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Set<TaskDTO> tasks,
             String rexTaskName,
             T failedResponse,
+            T emptyResponse,
             Class<T> clazz,
             String multipleRollbackErrorMessage) {
 
         Optional<TaskDTO> optionalTask = findTask(tasks, rexTaskName);
 
         if (optionalTask.isEmpty()) {
-            return new TaskResponse<>(failedResponse, rexTaskName + " task is not present");
+            return new TaskResponse<>(emptyResponse, rexTaskName + " task is not present");
         }
 
         TaskDTO task = optionalTask.get();
