@@ -606,10 +606,14 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         EnvironmentDriverResult failedResponse = EnvironmentDriverResult.builder()
                 .completionStatus(CompletionStatus.SYSTEM_ERROR)
                 .build();
+        EnvironmentDriverResult emptyResponse = EnvironmentDriverResult.builder()
+                .completionStatus(null)
+                .build();
         return getTaskResult(
                 tasks,
                 environmentDriverCreateAdapter.getRexTaskName(correlationId),
                 failedResponse,
+                emptyResponse,
                 EnvironmentDriverResult.class);
     }
 
@@ -649,9 +653,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 .callback(failedCallback)
                 .build();
 
+        // for now, an empty reqour task probably means it failed
         return getTaskResult(
                 tasks,
                 reqourAdjustAdapter.getRexTaskName(correlationId),
+                failedResponse,
                 failedResponse,
                 AdjustResponse.class);
     }
@@ -662,6 +668,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 tasks,
                 buildDriverAdapter.getRexTaskName(correlationId),
                 failedResponse,
+                null,
                 BuildCompleted.class,
                 "Builder pod has failed to start multiple times.");
     }
@@ -679,6 +686,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 tasks,
                 repositoryDriverPromoteAdapter.getRexTaskName(correlationId),
                 failedResponse,
+                null,
                 RepositoryPromoteResult.class);
 
         // PNC-Orch wants RepositoryManagerResult, not RepositoryPromoteResult. We need to convert
@@ -725,8 +733,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Set<TaskDTO> tasks,
             String rexTaskName,
             T failedResponse,
+            T emptyResponse,
             Class<T> clazz) {
-        return getTaskResult(tasks, rexTaskName, failedResponse, clazz, "Task retried multiple times.");
+        return getTaskResult(tasks, rexTaskName, failedResponse, emptyResponse, clazz, "Task retried multiple times.");
     }
 
     /**
@@ -745,13 +754,14 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             Set<TaskDTO> tasks,
             String rexTaskName,
             T failedResponse,
+            T emptyResponse,
             Class<T> clazz,
             String multipleRollbackErrorMessage) {
 
         Optional<TaskDTO> optionalTask = findTask(tasks, rexTaskName);
 
         if (optionalTask.isEmpty()) {
-            return new TaskResponse<>(failedResponse, rexTaskName + " task is not present");
+            return new TaskResponse<>(emptyResponse, rexTaskName + " task is not present");
         }
 
         TaskDTO task = optionalTask.get();
