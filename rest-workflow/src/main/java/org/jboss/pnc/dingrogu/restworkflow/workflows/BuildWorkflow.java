@@ -18,6 +18,7 @@ import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ResultStatus;
+import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.api.reqour.dto.ReqourCallback;
@@ -603,18 +604,35 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private TaskResponse<EnvironmentDriverResult> getEnvironmentDriverResult(Set<TaskDTO> tasks, String correlationId) {
 
-        EnvironmentDriverResult failedResponse = EnvironmentDriverResult.builder()
-                .completionStatus(CompletionStatus.SYSTEM_ERROR)
+        // Environment Driver uses the EnvironmentCreateResult DTO. We need to convert it to EnvironmentDriverResult
+
+        EnvironmentCreateResult failedResult = EnvironmentCreateResult.builder()
+                .status(ResultStatus.SYSTEM_ERROR)
                 .build();
-        EnvironmentDriverResult emptyResponse = EnvironmentDriverResult.builder()
-                .completionStatus(null)
+
+        EnvironmentCreateResult emptyResult = EnvironmentCreateResult.builder()
+                .status(null)
                 .build();
-        return getTaskResult(
+        TaskResponse<EnvironmentCreateResult> taskResponse = getTaskResult(
                 tasks,
                 environmentDriverCreateAdapter.getRexTaskName(correlationId),
-                failedResponse,
-                emptyResponse,
-                EnvironmentDriverResult.class);
+                failedResult,
+                emptyResult,
+                EnvironmentCreateResult.class);
+
+        EnvironmentDriverResult environmentDriverResult = null;
+        if (taskResponse.getDTO().isPresent()) {
+            EnvironmentCreateResult finalResult = taskResponse.getDTO().get();
+            environmentDriverResult = EnvironmentDriverResult.builder()
+                    .completionStatus(toCompletionStatus(finalResult.getStatus()))
+                    .build();
+        }
+
+        return new TaskResponse<>(environmentDriverResult, taskResponse.errorMessage);
+    }
+
+    private CompletionStatus toCompletionStatus(ResultStatus resultStatus) {
+        return CompletionStatus.valueOf(resultStatus.name());
     }
 
     private TaskResponse<RepourResult> toRepourResult(TaskResponse<AdjustResponse> response) {
