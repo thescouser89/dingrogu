@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jboss.pnc.dingrogu</groupId>
         <artifactId>parent</artifactId>
-        <version>3.2.15-SNAPSHOT</version>
+        <version>3.2.15</version>
     </parent>
 
     <artifactId>api</artifactId>
