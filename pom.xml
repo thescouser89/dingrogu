@@ -133,7 +133,7 @@
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
                 <artifactId>spi</artifactId>
-                <version>3.2.6</version>
+                <version>3.2.8</version>
             </dependency>
             <dependency>
                 <groupId>com.squareup.retrofit2</groupId>
