@@ -623,9 +623,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         EnvironmentDriverResult environmentDriverResult = null;
         if (taskResponse.getDTO().isPresent()) {
             EnvironmentCreateResult finalResult = taskResponse.getDTO().get();
-            environmentDriverResult = EnvironmentDriverResult.builder()
-                    .completionStatus(toCompletionStatus(finalResult.getStatus()))
-                    .build();
+            if (finalResult.getStatus() != null) {
+                environmentDriverResult = EnvironmentDriverResult.builder()
+                        .completionStatus(toCompletionStatus(finalResult.getStatus()))
+                        .build();
+            }
         }
 
         return new TaskResponse<>(environmentDriverResult, taskResponse.errorMessage);
