@@ -23,7 +23,7 @@ quarkus:
       max-body-size: 100M
     # Add CORS
     cors:
-      ~: true
+      enabled: true
       origins: "/.*/"
     # add compression
     enable-compression: true
@@ -54,7 +54,7 @@ quarkus:
         # set this to empty because default config set the wrong path
         ssl-truststore-location: ""
   oidc:
-    enabled: false
+    enabled: true
   oidc-client:
     enabled: true
     auth-server-url: http://localhost:8180/auth/realms/quarkus
