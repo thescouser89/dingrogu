@@ -5,6 +5,6 @@ package org.jboss.pnc.dingrogu.common;
  */
 public class AuthorizationConstants {
 
-    public final static String DINGROGU_ROLE = "pnc-rhpam-user";
+    public final static String DINGROGU_ROLE = "pnc-app-dingrogu-user";
     public final static String ADMIN_ROLE = "pnc-users-admin";
 }
