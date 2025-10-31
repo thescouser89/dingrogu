@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.All;
 import io.quarkus.logging.Log;
 import io.quarkus.oidc.client.Tokens;
+import io.quarkus.security.ForbiddenException;
+import io.quarkus.security.UnauthorizedException;
 
 /**
  * Adapter endpoint: Each Rex task will call the Adapter endpoint for that task. The endpoint will translate the Rex DTO
@@ -74,7 +76,13 @@ public class AdapterEndpointImpl implements AdapterEndpoint {
      */
     @ServerExceptionMapper
     public RestResponse<String> mapException(RuntimeException e) {
-        return RestResponse.status(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        if (e instanceof UnauthorizedException) {
+            return RestResponse.status(Response.Status.UNAUTHORIZED, e.getMessage());
+        } else if (e instanceof ForbiddenException) {
+            return RestResponse.status(Response.Status.FORBIDDEN, e.getMessage());
+        } else {
+            return RestResponse.status(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
     @Override
