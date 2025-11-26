@@ -24,8 +24,9 @@
         <quarkus.package.jar.type>uber-jar</quarkus.package.jar.type>
         <version.javadoc.plugin>3.12.0</version.javadoc.plugin>
         <version.source.plugin>3.3.1</version.source.plugin>
-        <version.pnc>3.3.0</version.pnc>
+        <version.pnc>3.3.1</version.pnc>
         <version.rex>1.2.2</version.rex>
+        <version.commons-lang>3.20.0</version.commons-lang>
         <tagSuffix />
     </properties>
 
@@ -236,6 +237,11 @@
                 <groupId>org.jboss.pnc.logging</groupId>
                 <artifactId>quarkus-logging-kafka-deployment</artifactId>
                 <version>${quarkus-logging-kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${version.commons-lang}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
