@@ -12,6 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationResponse;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
+import org.jboss.pnc.api.reqour.dto.RepositoryCloneResponse;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
@@ -83,11 +84,24 @@ public class ReqourCloneRepositoryAdapter implements Adapter<ReqourCloneReposito
 
     @Override
     public void callback(String correlationId, Object object) {
-
         try {
-            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
-        } catch (Exception e) {
-            Log.error("Error happened in callback adapter", e);
+            RepositoryCloneResponse response = objectMapper.convertValue(object, RepositoryCloneResponse.class);
+            try {
+                if (response != null && response.getCallback().getStatus().isSuccess()) {
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
+                } else {
+                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+                }
+            } catch (Exception e) {
+                Log.error("Error happened in callback adapter", e);
+            }
+        } catch (IllegalArgumentException e) {
+            // if we cannot cast object to RepositoryCloneResponse, it's probably a failure
+            try {
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+            } catch (Exception ex) {
+                Log.error("Error happened in callback adapter", ex);
+            }
         }
     }
 

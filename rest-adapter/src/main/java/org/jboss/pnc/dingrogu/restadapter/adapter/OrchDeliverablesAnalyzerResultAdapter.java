@@ -12,6 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.dingrogu.api.dto.adapter.OrchDeliverablesAnalyzerResultDTO;
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.api.endpoint.WorkflowEndpoint;
@@ -86,9 +87,23 @@ public class OrchDeliverablesAnalyzerResultAdapter implements Adapter<OrchDelive
     @Override
     public void callback(String correlationId, Object object) {
         try {
-            callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
-        } catch (Exception e) {
-            Log.error("Error happened in callback adapter", e);
+            ResultStatus resultStatus = objectMapper.convertValue(object, ResultStatus.class);
+            try {
+                if (resultStatus != null && resultStatus.isSuccess()) {
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), object, null, null);
+                } else {
+                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+                }
+            } catch (Exception e) {
+                Log.error("Error happened in callback adapter", e);
+            }
+        } catch (IllegalArgumentException e) {
+            // if we cannot cast object to ResultStatus, it's probably a failure
+            try {
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+            } catch (Exception ex) {
+                Log.error("Error happened in callback adapter", ex);
+            }
         }
     }
 

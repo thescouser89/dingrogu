@@ -78,14 +78,22 @@ public class DeliverablesAnalyzerAdapter implements Adapter<DeliverablesAnalyzer
     public void callback(String correlationId, Object object) {
         try {
             AnalysisReport report = objectMapper.convertValue(object, AnalysisReport.class);
-            if (report != null && report.isSuccess()) {
-                callbackEndpoint.succeed(getRexTaskName(correlationId), report, null, null);
-            } else {
-                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+            try {
+                if (report != null && report.isSuccess()) {
+                    callbackEndpoint.succeed(getRexTaskName(correlationId), report, null, null);
+                } else {
+                    callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+                }
+            } catch (Exception e) {
+                Log.error("Error happened in callback adapter", e);
             }
-        } catch (Exception e) {
-            Log.error("Error happened in callback adapter", e);
-            callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+        } catch (IllegalArgumentException e) {
+            // if we cannot cast object to AnalysisReport, it's probably a failure
+            try {
+                callbackEndpoint.fail(getRexTaskName(correlationId), object, null, null);
+            } catch (Exception ex) {
+                Log.error("Error happened in callback adapter", ex);
+            }
         }
     }
 
