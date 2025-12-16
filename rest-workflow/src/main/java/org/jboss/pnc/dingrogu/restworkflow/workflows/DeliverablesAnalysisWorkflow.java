@@ -14,7 +14,6 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Result;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
@@ -181,7 +180,10 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
             final String errorId = UUID.randomUUID().toString();
             final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
                     .reason("Unknown system error")
-                    .proposal(String.format("There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)", errorId))
+                    .proposal(
+                            String.format(
+                                    "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
+                                    errorId))
                     .build();
             Log.warnf("ErrorId=%s Analysis failed - both analysis and orchResult were empty.", errorId);
             return OperationOutcome.fail(exceptionResolution);
@@ -193,13 +195,11 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
         if (!analysisRes.isSuccess()) {
             return OperationOutcome.process(
                     workflowHelper.toOperationResult(analysisRes.getResultStatus()),
-                    analysisRes.getExceptionResolution()
-            );
+                    analysisRes.getExceptionResolution());
         } else {
             return OperationOutcome.process(
                     workflowHelper.toOperationResult(orchRes.getResult()),
-                    orchRes.getExceptionResolution()
-            );
+                    orchRes.getExceptionResolution());
         }
     }
 }

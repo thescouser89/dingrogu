@@ -89,7 +89,8 @@ public class OrchClient {
     public void completeOperation(String orchUrl, OperationOutcome operationOutcome, String operationId) {
         String orchUrlWithoutPath = URI.create(orchUrl).resolve("/").toString();
 
-        HttpResponse<JsonNode> response = Unirest.post(orchUrlWithoutPath + "pnc-rest/v2/operations/" + operationId + "/complete")
+        HttpResponse<JsonNode> response = Unirest
+                .post(orchUrlWithoutPath + "pnc-rest/v2/operations/" + operationId + "/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
