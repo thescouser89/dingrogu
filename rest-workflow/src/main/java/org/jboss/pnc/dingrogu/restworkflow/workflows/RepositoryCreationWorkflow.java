@@ -12,6 +12,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationResponse;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneResponse;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCloneRepositoryDTO;
 import org.jboss.pnc.dingrogu.api.dto.adapter.ReqourCreateRepositoryDTO;
@@ -133,7 +134,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
         Set<EdgeDTO> edges = Set.of(edgeDTO);
 
         ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
-                .mdcHeaderKeyMapping(org.jboss.pnc.common.log.MDCUtils.HEADER_KEY_MAPPING)
+                .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
                 .build();
         return new CreateGraphRequest(correlationId.getId(), rexQueueName, configurationDTO, edges, vertices);
     }
@@ -214,6 +215,7 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
             case GROUP_BUILD -> JobNotificationType.GROUP_BUILD;
             case PRODUCT_MILESTONE_CLOSE -> JobNotificationType.PRODUCT_MILESTONE_CLOSE;
             case SCM_REPOSITORY_CREATION -> JobNotificationType.SCM_REPOSITORY_CREATION;
+            case OPERATION -> JobNotificationType.OPERATION;
         };
     }
 
