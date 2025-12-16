@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.causeway.dto.push.BuildPushCompleted;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
-import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 
@@ -86,15 +86,14 @@ public class OrchClient {
         }
     }
 
-    public void completeOperation(String orchUrl, OperationResult result, String operationId) {
-
+    public void completeOperation(String orchUrl, OperationOutcome operationOutcome, String operationId) {
         String orchUrlWithoutPath = URI.create(orchUrl).resolve("/").toString();
 
-        HttpResponse<JsonNode> response = Unirest.post(
-                orchUrlWithoutPath + "pnc-rest/v2/operations/" + operationId + "/complete?result=" + result.name())
+        HttpResponse<JsonNode> response = Unirest.post(orchUrlWithoutPath + "pnc-rest/v2/operations/" + operationId + "/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
                 .headers(ClientHelper.getClientHeaders(tokens))
+                .body(operationOutcome)
                 .asJson();
 
         if (!response.isSuccess()) {

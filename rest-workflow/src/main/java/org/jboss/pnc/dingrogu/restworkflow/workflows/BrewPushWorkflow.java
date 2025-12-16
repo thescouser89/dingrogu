@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,8 +11,9 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.causeway.dto.push.PushResult;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Result;
-import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.BrewPushDTO;
@@ -155,23 +157,40 @@ public class BrewPushWorkflow implements Workflow<BrewPushWorkflowDTO> {
                     orchBuildPushResultAdapter,
                     Result.class);
 
-            OperationResult operationResult;
             Log.infof("Brew push result: %s", push);
             Log.infof("Orch push result: %s", pushOrchResult);
 
-            if (push.isEmpty() || pushOrchResult.isEmpty()) {
-                operationResult = OperationResult.FAILED;
-            } else {
-                if (push.get().getResult().isSuccess() && pushOrchResult.get().getResult().isSuccess()) {
-                    operationResult = OperationResult.SUCCESSFUL;
-                } else {
-                    operationResult = workflowHelper.toOperationResult(push.get().getResult());
-                }
-            }
-
-            orchClient.completeOperation(dto.getOrchUrl(), operationResult, dto.getOperationId());
+            final OperationOutcome operationOutcome = processOperationOutcome(push, pushOrchResult);
+            orchClient.completeOperation(dto.getOrchUrl(), operationOutcome, dto.getOperationId());
         }
 
         return Response.ok().build();
+    }
+
+    private OperationOutcome processOperationOutcome(Optional<PushResult> push, Optional<Result> pushOrchResult) {
+        if (push.isEmpty() || pushOrchResult.isEmpty()) {
+            final String errorId = UUID.randomUUID().toString();
+            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
+                    .reason("Unknown system error")
+                    .proposal(String.format("There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)", errorId))
+                    .build();
+            Log.warnf("ErrorId=%s Brew push failed - both push and pushOrchResult were empty.", errorId);
+            return OperationOutcome.fail(exceptionResolution);
+        }
+
+        var pushRes = push.get();
+        var orchRes = pushOrchResult.get();
+
+        if (!pushRes.getResult().isSuccess()) {
+            return OperationOutcome.process(
+                    workflowHelper.toOperationResult(pushRes.getResult()),
+                    pushRes.getExceptionResolution()
+            );
+        } else {
+            return OperationOutcome.process(
+                    workflowHelper.toOperationResult(orchRes.getResult()),
+                    orchRes.getExceptionResolution()
+            );
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,6 +11,8 @@ import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
+import org.jboss.pnc.api.dto.ExceptionResolution;
+import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.api.dto.Result;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.common.log.MDCUtils;
@@ -161,24 +164,42 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                     notificationRequest.getTask().getCorrelationID(),
                     deliverablesAnalyzerAdapter,
                     AnalysisReport.class);
-            Optional<Result> orchResultSender = workflowHelper
+            Optional<Result> orchResult = workflowHelper
                     .getTaskData(tasks, notificationRequest.getTask().getCorrelationID(), orchAdapter, Result.class);
 
-            OperationResult operationResult;
-            Log.infof("Orch result: %s", orchResultSender);
             Log.infof("Analysis result: %s", analysis);
-            if (analysis.isEmpty() || orchResultSender.isEmpty()) {
-                operationResult = OperationResult.FAILED;
-            } else {
-                if (!analysis.get().isSuccess()) {
-                    operationResult = OperationResult.FAILED;
-                } else {
-                    operationResult = workflowHelper.toOperationResult(orchResultSender.get().getResult());
-                }
-            }
+            Log.infof("Orch result: %s", orchResult);
 
-            orchClient.completeOperation(dto.getOrchUrl(), operationResult, dto.getOperationId());
+            final OperationOutcome operationOutcome = processOperationOutcome(analysis, orchResult);
+            orchClient.completeOperation(dto.getOrchUrl(), operationOutcome, dto.getOperationId());
         }
         return Response.ok().build();
+    }
+
+    private OperationOutcome processOperationOutcome(Optional<AnalysisReport> analysis, Optional<Result> orchResult) {
+        if (analysis.isEmpty() || orchResult.isEmpty()) {
+            final String errorId = UUID.randomUUID().toString();
+            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
+                    .reason("Unknown system error")
+                    .proposal(String.format("There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)", errorId))
+                    .build();
+            Log.warnf("ErrorId=%s Analysis failed - both analysis and orchResult were empty.", errorId);
+            return OperationOutcome.fail(exceptionResolution);
+        }
+
+        var analysisRes = analysis.get();
+        var orchRes = orchResult.get();
+
+        if (!analysisRes.isSuccess()) {
+            return OperationOutcome.process(
+                    workflowHelper.toOperationResult(analysisRes.getResultStatus()),
+                    analysisRes.getExceptionResolution()
+            );
+        } else {
+            return OperationOutcome.process(
+                    workflowHelper.toOperationResult(orchRes.getResult()),
+                    orchRes.getExceptionResolution()
+            );
+        }
     }
 }
