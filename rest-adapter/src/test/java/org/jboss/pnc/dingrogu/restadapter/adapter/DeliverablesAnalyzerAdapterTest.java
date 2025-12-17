@@ -97,7 +97,7 @@ class DeliverablesAnalyzerAdapterTest {
 
         // given a bad response from causeway
         AnalysisReport report = AnalysisReport.builder()
-                .resultStatus(ResultStatus.SUCCESS)
+                .resultStatus(ResultStatus.FAILED)
                 .results(Instancio.createList(FinderResult.class))
                 .build();
 
