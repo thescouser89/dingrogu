@@ -12,6 +12,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisReport;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalyzePayload;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.dto.HeartbeatConfig;
+import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DeliverablesAnalyzerDTO;
 import org.jboss.pnc.dingrogu.restadapter.client.DeliverablesAnalyzerClient;
 import org.jboss.pnc.rex.api.CallbackEndpoint;
@@ -81,7 +82,7 @@ class DeliverablesAnalyzerAdapterTest {
     void successCallback() {
         // given a success response from dela
         AnalysisReport report = AnalysisReport.builder()
-                .success(true)
+                .resultStatus(ResultStatus.SUCCESS)
                 .results(List.of(FinderResult.builder().build()))
                 .build();
 
@@ -96,7 +97,7 @@ class DeliverablesAnalyzerAdapterTest {
 
         // given a bad response from causeway
         AnalysisReport report = AnalysisReport.builder()
-                .success(false)
+                .resultStatus(ResultStatus.SUCCESS)
                 .results(Instancio.createList(FinderResult.class))
                 .build();
 
