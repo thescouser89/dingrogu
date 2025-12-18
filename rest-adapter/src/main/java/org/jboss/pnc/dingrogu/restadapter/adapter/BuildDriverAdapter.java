@@ -98,7 +98,7 @@ public class BuildDriverAdapter implements Adapter<BuildDriverDTO> {
 
         BuildRequest buildRequest = BuildRequest.builder()
                 .projectName(dto.getProjectName())
-                .scmUrl(adjustResponse.getInternalUrl().getReadonlyUrl())
+                .scmUrl(adjustResponse.getInternalUrl().getReadwriteUrl())
                 .scmRevision(adjustResponse.getDownstreamCommit())
                 .scmTag(adjustResponse.getTag())
                 .command(dto.getBuildCommand())
