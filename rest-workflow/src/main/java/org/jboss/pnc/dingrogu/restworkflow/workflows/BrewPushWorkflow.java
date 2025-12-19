@@ -177,21 +177,22 @@ public class BrewPushWorkflow implements Workflow<BrewPushWorkflowDTO> {
                                     "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
                                     errorId))
                     .build();
-            Log.warnf("ErrorId=%s Brew push failed - both push and pushOrchResult were empty.", errorId);
-            return OperationOutcome.fail(exceptionResolution);
+            Log.warnf("ErrorId=%s Brew push failed - no response from push or pushOrchResult received.", errorId);
+            return OperationOutcome.systemError(exceptionResolution);
         }
 
         var pushRes = push.get();
         var orchRes = pushOrchResult.get();
 
+        // If build push failed, send failed operation result back to orchestrator
+        // Otherwise check the status of orchestration result and report back success or failure
         if (!pushRes.getResult().isSuccess()) {
             return OperationOutcome.process(
                     workflowHelper.toOperationResult(pushRes.getResult()),
                     pushRes.getExceptionResolution());
-        } else {
-            return OperationOutcome.process(
-                    workflowHelper.toOperationResult(orchRes.getResult()),
-                    orchRes.getExceptionResolution());
         }
+        return OperationOutcome.process(
+                workflowHelper.toOperationResult(orchRes.getResult()),
+                orchRes.getExceptionResolution());
     }
 }

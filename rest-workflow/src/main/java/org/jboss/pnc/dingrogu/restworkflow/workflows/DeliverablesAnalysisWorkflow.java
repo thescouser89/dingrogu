@@ -185,21 +185,22 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
                                     "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
                                     errorId))
                     .build();
-            Log.warnf("ErrorId=%s Analysis failed - both analysis and orchResult were empty.", errorId);
-            return OperationOutcome.fail(exceptionResolution);
+            Log.warnf("ErrorId=%s Analysis failed - no response from analysis or orchResult received.", errorId);
+            return OperationOutcome.systemError(exceptionResolution);
         }
 
         var analysisRes = analysis.get();
         var orchRes = orchResult.get();
 
+        // If analysis failed, send failed operation result back to orchestrator
+        // Otherwise check the status of orchestration result and report back success or failure
         if (!analysisRes.isSuccess()) {
             return OperationOutcome.process(
                     workflowHelper.toOperationResult(analysisRes.getResultStatus()),
                     analysisRes.getExceptionResolution());
-        } else {
-            return OperationOutcome.process(
-                    workflowHelper.toOperationResult(orchRes.getResult()),
-                    orchRes.getExceptionResolution());
         }
+        return OperationOutcome.process(
+                workflowHelper.toOperationResult(orchRes.getResult()),
+                orchRes.getExceptionResolution());
     }
 }
