@@ -186,13 +186,13 @@ public interface Adapter<T> {
             Request rollbackRequest)
             throws Exception {
 
-        Request startAdjust = new Request(
+        Request remoteStart = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getStartAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 TaskHelper.getHTTPHeaders(),
                 t);
 
-        Request cancelAdjust = new Request(
+        Request remoteCancel = new Request(
                 Request.Method.POST,
                 new URI(AdapterEndpoint.getCancelAdapterEndpoint(adapterUrl, getAdapterName(), correlationId)),
                 TaskHelper.getHTTPHeaders(),
@@ -206,8 +206,8 @@ public interface Adapter<T> {
 
         return CreateTaskDTO.builder()
                 .name(getRexTaskName(correlationId))
-                .remoteStart(startAdjust)
-                .remoteCancel(cancelAdjust)
+                .remoteStart(remoteStart)
+                .remoteCancel(remoteCancel)
                 .callerNotifications(callerNotification)
                 .milestoneTask(milestoneTask)
                 .remoteRollback(rollbackRequest)
