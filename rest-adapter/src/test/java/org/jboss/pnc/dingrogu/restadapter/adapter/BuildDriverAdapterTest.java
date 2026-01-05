@@ -118,7 +118,7 @@ class BuildDriverAdapterTest {
         // verify that the build request sent to build driver is generated properly
         assertThat(generated.getCommand()).isEqualTo(dto.getBuildCommand());
         assertThat(generated.isDebugEnabled()).isEqualTo(dto.isDebugEnabled());
-        assertThat(generated.getScmUrl()).isEqualTo(adjustResponse.getInternalUrl().getReadonlyUrl());
+        assertThat(generated.getScmUrl()).isEqualTo(adjustResponse.getInternalUrl().getReadwriteUrl());
         assertThat(generated.getScmRevision()).isEqualTo(adjustResponse.getDownstreamCommit());
         assertThat(generated.getScmTag()).isEqualTo(adjustResponse.getTag());
         assertThat(generated.getWorkingDirectory()).isEqualTo(environmentCreateResult.getWorkingDirectory());
