@@ -168,31 +168,48 @@ public class BrewPushWorkflow implements Workflow<BrewPushWorkflowDTO> {
     }
 
     private OperationOutcome processOperationOutcome(Optional<PushResult> push, Optional<Result> pushOrchResult) {
-        if (push.isEmpty() || pushOrchResult.isEmpty()) {
-            final String errorId = UUID.randomUUID().toString();
-            final ExceptionResolution exceptionResolution = ExceptionResolution.builder()
-                    .reason("Unknown system error")
-                    .proposal(
-                            String.format(
-                                    "There is an internal server error, please contact PNC team at #forum-pnc-users (with the following ID: %s)",
-                                    errorId))
-                    .build();
-            Log.warnf("ErrorId=%s Brew push failed - no response from push or pushOrchResult received.", errorId);
-            return OperationOutcome.systemError(exceptionResolution);
+        // 1. Priority: specific push failure
+        if (push.isPresent() && !push.get().getResult().isSuccess()) {
+            return toPushOutcome(push.get());
         }
 
-        var pushRes = push.get();
-        var orchRes = pushOrchResult.get();
-
-        // If build push failed, send failed operation result back to orchestrator
-        // Otherwise check the status of orchestration result and report back success or failure
-        if (!pushRes.getResult().isSuccess()) {
-            return OperationOutcome.process(
-                    workflowHelper.toOperationResult(pushRes.getResult()),
-                    pushRes.getExceptionResolution());
+        // 2. Priority: orch result (covers both success and failure)
+        if (pushOrchResult.isPresent()) {
+            return toOrchOutcome(pushOrchResult.get());
         }
+
+        // 3. Priority: remaining push success (failure case covered in 1.)
+        if (push.isPresent()) {
+            return toPushOutcome(push.get());
+        }
+
+        // 4. Fallback: System Error
+        return handleSystemError();
+    }
+
+    private OperationOutcome toPushOutcome(PushResult res) {
         return OperationOutcome.process(
-                workflowHelper.toOperationResult(orchRes.getResult()),
-                orchRes.getExceptionResolution());
+                workflowHelper.toOperationResult(res.getResult()),
+                res.getExceptionResolution());
+    }
+
+    private OperationOutcome toOrchOutcome(Result res) {
+        return OperationOutcome.process(
+                workflowHelper.toOperationResult(res.getResult()),
+                res.getExceptionResolution());
+    }
+
+    private OperationOutcome handleSystemError() {
+        final String errorId = UUID.randomUUID().toString();
+        Log.warnf("ErrorId=%s Brew push failed - no response from push and pushOrchResult received.", errorId);
+
+        return OperationOutcome.systemError(
+                ExceptionResolution.builder()
+                        .reason("Unknown system error")
+                        .proposal(
+                                String.format(
+                                        "There is an internal server error, please contact PNC team at #forum-pnc-users (ID: %s)",
+                                        errorId))
+                        .build());
     }
 }
