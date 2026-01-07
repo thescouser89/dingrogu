@@ -176,22 +176,17 @@ public class DeliverablesAnalysisWorkflow implements Workflow<DeliverablesAnalys
     }
 
     private OperationOutcome processOperationOutcome(Optional<AnalysisReport> analysis, Optional<Result> orchResult) {
-        // 1. Priority: specific analysis failure
+        // 1. If both results present, send orch result (success or failure)
+        if (analysis.isPresent() && orchResult.isPresent()) {
+            return toOrchOutcome(orchResult.get());
+        }
+
+        // 2. If analysis present, but failed, return the analysis error
         if (analysis.isPresent() && !analysis.get().isSuccess()) {
             return toAnalysisOutcome(analysis.get());
         }
 
-        // 2. Priority: orch result (covers both success and failure)
-        if (orchResult.isPresent()) {
-            return toOrchOutcome(orchResult.get());
-        }
-
-        // 3. Priority: remaining analysis success (failure case covered in 1.)
-        if (analysis.isPresent()) {
-            return toAnalysisOutcome(analysis.get());
-        }
-
-        // 4. Fallback: System Error
+        // 3. Fallback: System Error
         return handleSystemError();
     }
 

@@ -168,22 +168,17 @@ public class BrewPushWorkflow implements Workflow<BrewPushWorkflowDTO> {
     }
 
     private OperationOutcome processOperationOutcome(Optional<PushResult> push, Optional<Result> pushOrchResult) {
-        // 1. Priority: specific push failure
+        // 1. If both results present, send orch result (success or failure)
+        if (push.isPresent() && pushOrchResult.isPresent()) {
+            return toOrchOutcome(pushOrchResult.get());
+        }
+
+        // 2. If push present, but failed, return the push error
         if (push.isPresent() && !push.get().getResult().isSuccess()) {
             return toPushOutcome(push.get());
         }
 
-        // 2. Priority: orch result (covers both success and failure)
-        if (pushOrchResult.isPresent()) {
-            return toOrchOutcome(pushOrchResult.get());
-        }
-
-        // 3. Priority: remaining push success (failure case covered in 1.)
-        if (push.isPresent()) {
-            return toPushOutcome(push.get());
-        }
-
-        // 4. Fallback: System Error
+        // 3. Fallback: System Error
         return handleSystemError();
     }
 
