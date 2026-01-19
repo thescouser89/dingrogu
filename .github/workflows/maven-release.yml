@@ -11,9 +11,9 @@ on:
 
 jobs:
     call-release-job:
+      permissions:
+        contents: write # needed to push commit and tag back to the repository
       uses: project-ncl/shared-github-actions/.github/workflows/maven-release.yml@v0.0.6
       with:
         ref_to_release: ${{ inputs.ref_to_release }}
-      secrets:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      secrets: inherit
