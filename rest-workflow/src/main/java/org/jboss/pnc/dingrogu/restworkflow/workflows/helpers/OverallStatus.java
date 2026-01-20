@@ -2,8 +2,8 @@ package org.jboss.pnc.dingrogu.restworkflow.workflows.helpers;
 
 import java.util.Optional;
 
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
-import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.api.enums.orch.CompletionStatus;
+import org.jboss.pnc.api.orch.dto.ProcessException;
 
 public class OverallStatus {
     public CompletionStatus completionStatus;
