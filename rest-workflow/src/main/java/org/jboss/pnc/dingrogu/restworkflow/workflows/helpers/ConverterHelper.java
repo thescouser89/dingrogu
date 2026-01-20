@@ -1,15 +1,14 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows.helpers;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.jboss.pnc.api.enums.ArtifactQuality;
 import org.jboss.pnc.api.enums.BuildCategory;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryArtifact;
+import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.TargetRepository;
 
 public class ConverterHelper {
 
@@ -29,7 +28,7 @@ public class ConverterHelper {
                                 .sha256(ra.getSha256())
                                 .filename(ra.getFilename())
                                 .deployPath(ra.getDeployPath())
-                                .importDate(ra.getImportDate() == null ? null : Date.from(ra.getImportDate()))
+                                .importDate(ra.getImportDate())
                                 .originUrl(ra.getOriginUrl())
                                 .size(ra.getSize())
                                 .targetRepository(convertTargetRepository(ra.getTargetRepository()))
@@ -46,7 +45,7 @@ public class ConverterHelper {
         if (targetRepository == null) {
             return null;
         }
-        return TargetRepository.newBuilder()
+        return TargetRepository.refBuilder()
                 .temporaryRepo(targetRepository.getTemporaryRepo())
                 .identifier(targetRepository.getIdentifier())
                 .repositoryType(convertRepositoryType(targetRepository.getRepositoryType()))
