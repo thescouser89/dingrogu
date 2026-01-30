@@ -19,6 +19,9 @@ rexclient:
 
 quarkus:
   http:
+    auth:
+      # required for LDAP: build-time property
+      basic: true
     limits:
       max-body-size: 100M
     # Add CORS
@@ -62,3 +65,21 @@ quarkus:
     client-id: dustin
     credentials:
       secret: 1234
+
+  security:
+    ldap:
+      # enable LDAP: build-time property
+      enabled: true
+      cache:
+        enabled: true
+        max-age: 5m
+      dir-context:
+        url: ldaps://ldap-server.com
+      identity-mapping:
+        search-base-dn: ou=company.com
+
+"%test":
+  quarkus:
+    security:
+      ldap:
+        enabled: false
