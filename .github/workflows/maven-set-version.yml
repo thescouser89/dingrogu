@@ -20,6 +20,6 @@ jobs:
         contents: write # needed to push commit and tag back to the repository
       uses: project-ncl/shared-github-actions/.github/workflows/maven-set-version.yml@main
       with:
-        new_version: ${{ inpus.new_version }}
+        new_version: ${{ inputs.new_version }}
         ref_for_version: ${{ inputs.ref_for_version }}
       secrets: inherit
