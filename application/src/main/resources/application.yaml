@@ -78,6 +78,11 @@ quarkus:
       identity-mapping:
         search-base-dn: ou=company.com
 
+pnc_client_auth:
+    type: OIDC # or LDAP
+    ldap_credentials:
+        path: /mnt/secrets/ldap_credentials # file must be in format: <username>:<password>
+
 "%test":
   quarkus:
     security:

@@ -11,9 +11,9 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.api.dto.OperationOutcome;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
 import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
@@ -23,7 +23,7 @@ import kong.unirest.core.Unirest;
 public class OrchClient {
 
     @Inject
-    Tokens tokens;
+    PNCClientAuth pncClientAuth;
 
     @Retry
     public void submitBuildPushResult(String orchUrl, String buildId, BuildPushCompleted result) {
@@ -34,7 +34,7 @@ public class OrchClient {
                 .post(orchUrlWithoutPath + "pnc-rest/v2/builds/" + buildId + "/brew-push/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(result)
                 .asJson();
 
@@ -53,7 +53,7 @@ public class OrchClient {
         HttpResponse<JsonNode> response = Unirest.post(orchUrlWithoutPath + "pnc-rest/v2/deliverable-analyses/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(result)
                 .asJson();
 
@@ -75,7 +75,7 @@ public class OrchClient {
                 .post(orchUrlWithoutPath + "pnc-rest/v2/bpm/repository-creation/completed")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(result)
                 .asJson();
 
@@ -93,7 +93,7 @@ public class OrchClient {
                 .post(orchUrlWithoutPath + "pnc-rest/v2/operations/" + operationId + "/complete")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(operationOutcome)
                 .asJson();
 

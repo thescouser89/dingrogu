@@ -12,9 +12,9 @@ import org.jboss.pnc.api.reqour.dto.CancelRequest;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationRequest;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneRequest;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
 import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
@@ -24,7 +24,7 @@ import kong.unirest.core.Unirest;
 public class ReqourClient {
 
     @Inject
-    Tokens tokens;
+    PNCClientAuth pncClientAuth;
 
     @Retry
     public void adjust(String reqourUrl, AdjustRequest request) {
@@ -33,7 +33,7 @@ public class ReqourClient {
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/adjust")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(request)
                 .asJson();
 
@@ -53,7 +53,7 @@ public class ReqourClient {
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/cancel")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(cancelRequest)
                 .asJson();
 
@@ -70,7 +70,7 @@ public class ReqourClient {
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/clone")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(request)
                 .asJson();
 
@@ -86,7 +86,7 @@ public class ReqourClient {
         HttpResponse<JsonNode> response = Unirest.post(reqourUrl + "/internal-scm")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(request)
                 .asJson();
 

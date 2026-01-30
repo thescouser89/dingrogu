@@ -51,6 +51,10 @@
             <artifactId>quarkus-oidc</artifactId>
         </dependency>
         <dependency>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>quarkus-pnc-client-auth</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-elytron-security-ldap</artifactId>
         </dependency>

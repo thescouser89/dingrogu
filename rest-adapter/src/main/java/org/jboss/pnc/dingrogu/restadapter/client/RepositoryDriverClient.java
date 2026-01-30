@@ -8,9 +8,9 @@ import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateRequest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryCreateResponse;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteRequest;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
 import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
@@ -20,7 +20,7 @@ import kong.unirest.core.Unirest;
 public class RepositoryDriverClient {
 
     @Inject
-    Tokens tokens;
+    PNCClientAuth pncClientAuth;
 
     @Retry
     public RepositoryCreateResponse setup(String repositoryDriverUrl, RepositoryCreateRequest request) {
@@ -28,7 +28,7 @@ public class RepositoryDriverClient {
         HttpResponse<RepositoryCreateResponse> response = Unirest.post(repositoryDriverUrl + "/create")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(request)
                 .asObject(RepositoryCreateResponse.class);
 
@@ -46,7 +46,7 @@ public class RepositoryDriverClient {
         HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/seal")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(buildContentId)
                 .asJson();
 
@@ -63,7 +63,7 @@ public class RepositoryDriverClient {
         HttpResponse<JsonNode> response = Unirest.put(repositoryDriverUrl + "/promote")
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(request)
                 .asJson();
 

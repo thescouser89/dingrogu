@@ -11,14 +11,13 @@ import jakarta.ws.rs.core.MultivaluedMap;
 
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 import org.jboss.pnc.common.log.MDCUtils;
-
-import io.quarkus.oidc.client.OidcClient;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
 @ApplicationScoped
 public class AuthorizationClientHttpFactory implements ClientHeadersFactory {
 
     @Inject
-    OidcClient oidcClient;
+    PNCClientAuth pncClientAuth;
 
     @Override
     public MultivaluedMap<String, String> update(
@@ -27,7 +26,7 @@ public class AuthorizationClientHttpFactory implements ClientHeadersFactory {
         MultivaluedMap<String, String> result = new MultivaluedHashMap<>();
 
         // Add authorization header
-        result.add(AUTHORIZATION, "Bearer " + oidcClient.getTokens().await().indefinitely().getAccessToken());
+        result.add(AUTHORIZATION, pncClientAuth.getHttpAuthorizationHeaderValue());
 
         // Add MDC headers
         Map<String, String> mdcHeaders = MDCUtils.getHeadersFromMDC();
