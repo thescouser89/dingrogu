@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.dingrogu.api.dto.CorrelationId;
 import org.jboss.pnc.dingrogu.api.dto.adapter.DummyDTO;
 import org.jboss.pnc.dingrogu.api.dto.workflow.DummyWorkflowDTO;
