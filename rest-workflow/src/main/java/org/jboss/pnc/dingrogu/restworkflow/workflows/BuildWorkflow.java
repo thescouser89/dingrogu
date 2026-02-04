@@ -456,7 +456,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                         .scmTag(reqourResultGet.getTag())
                         .scmBuildConfigRevision(reqourResultGet.getUpstreamCommit())
                         .scmBuildConfigRevisionInternal(reqourResultGet.isRefRevisionInternal())
-                        .user(User.builder().id("0").build())
+                        .user(User.builder().id("0").build()) //TODO remove after PNC 3.4.1
+                        .artifactRepositories(List.of()) //TODO remove after PNC 3.4.1
                         .build();
             }
         }
