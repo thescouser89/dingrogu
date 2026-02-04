@@ -25,6 +25,8 @@
         <version.javadoc.plugin>3.12.0</version.javadoc.plugin>
         <version.source.plugin>3.4.0</version.source.plugin>
         <version.pnc>3.4.0</version.pnc>
+        <version.pnc-api>3.4.1</version.pnc-api>
+        <version.pnc-common>3.4.0</version.pnc-common>
         <version.rex>1.2.2</version.rex>
         <version.commons-lang>3.20.0</version.commons-lang>
         <tagSuffix />
@@ -122,21 +124,26 @@
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
                 <artifactId>pnc-api</artifactId>
-                <version>3.4.1</version>
+                <version>${version.pnc-api}</version>
                 <classifier>jakarta</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
+                <artifactId>pnc-api-constants</artifactId>
+                <version>${version.pnc-api}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.pnc</groupId>
                 <artifactId>pnc-common</artifactId>
-                <version>3.4.0</version>
+                <version>${version.pnc-common}</version>
                 <classifier>jakarta</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jboss.pnc</groupId>
                 <artifactId>spi</artifactId>
-                <version>3.4.0</version>
+                <version>${version.pnc}</version>
                 <exclusions>
-                    <!-- it's bringing in the non-jakarta pnc-api. yuck! -->
+                    <!-- it's bringing in the non-jakarta pnc-common. yuck! -->
                     <exclusion>
                         <groupId>org.jboss.pnc</groupId>
                         <artifactId>pnc-common</artifactId>
