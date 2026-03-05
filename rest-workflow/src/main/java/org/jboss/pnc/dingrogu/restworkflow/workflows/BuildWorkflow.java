@@ -226,6 +226,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             BuildWorkDTO buildWorkDTO) {
 
         if (buildWithoutRepo) {
+            taskBuild.milestoneTask = taskAdjustReqour.name;
+
             // when we want to create tasks without the repo driver stuff
             return getCreateGraphRequestWithoutRepo(
                     taskAdjustReqour,
