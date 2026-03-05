@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jboss.pnc.dingrogu</groupId>
         <artifactId>parent</artifactId>
-        <version>3.3.3-SNAPSHOT</version>
+        <version>3.4.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>common</artifactId>
@@ -34,6 +34,11 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-common</artifactId>
+            <classifier>jakarta</classifier>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

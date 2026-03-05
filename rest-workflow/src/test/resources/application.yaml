@@ -31,3 +31,6 @@ quarkus:
     enabled: false
   oidc-client:
     enabled: false
+  index-dependency:
+    pnc-jandex:
+      group-id: "org.jboss.pnc"

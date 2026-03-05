@@ -1,6 +1,8 @@
 ---
 dingrogu:
   url: http://localhost:8080
+  # Configure the build workflow to skip repository-driver tasks
+  buildWithoutRepo: false
 rexclient:
   url: http://rex-newcastle-devel.apps.ocp-c1.prod.psi.redhat.com
   brew_push:
@@ -88,3 +90,7 @@ pnc_client_auth:
     security:
       ldap:
         enabled: false
+
+  index-dependency:
+    pnc-jandex:
+      group-id: "org.jboss.pnc"

@@ -42,6 +42,9 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
     @ConfigProperty(name = "dingrogu.url")
     String dingroguUrl;
 
+    @ConfigProperty(name = "dingrogu.buildWithoutRepo", defaultValue = "false")
+    boolean buildWithoutRepo;
+
     @Inject
     ObjectMapper objectMapper;
 
@@ -81,10 +84,15 @@ public class EnvironmentDriverCreateAdapter implements Adapter<EnvironmentDriver
         EnvironmentDriverCreateDTO dto = objectMapper
                 .convertValue(startRequest.getPayload(), EnvironmentDriverCreateDTO.class);
 
-        Map<String, Object> pastResults = startRequest.getTaskResults();
-        Object repoDriverSetup = pastResults.get(repositoryDriverSetupAdapter.getRexTaskName(correlationId));
-        RepositoryCreateResponse repositoryResponse = objectMapper
-                .convertValue(repoDriverSetup, RepositoryCreateResponse.class);
+        // empty repository dependency url, deploy url, and sidecar stuff
+        RepositoryCreateResponse repositoryResponse = RepositoryCreateResponse.builder().build();
+
+        if (!buildWithoutRepo) {
+            Map<String, Object> pastResults = startRequest.getTaskResults();
+            Object repoDriverSetup = pastResults.get(repositoryDriverSetupAdapter.getRexTaskName(correlationId));
+            repositoryResponse = objectMapper
+                    .convertValue(repoDriverSetup, RepositoryCreateResponse.class);
+        }
 
         EnvironmentDriver environmentDriver = environmentDriverProducer
                 .getEnvironmentDriver(dto.getEnvironmentDriverUrl());

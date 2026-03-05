@@ -20,12 +20,6 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
-import org.jboss.pnc.api.orch.dto.BuildDriverResultRest;
-import org.jboss.pnc.api.orch.dto.BuildExecutionConfigurationRest;
-import org.jboss.pnc.api.orch.dto.BuildResultRest;
-import org.jboss.pnc.api.orch.dto.EnvironmentDriverResultRest;
-import org.jboss.pnc.api.orch.dto.RepositoryManagerResultRest;
-import org.jboss.pnc.api.orch.dto.RepourResultRest;
 import org.jboss.pnc.api.repositorydriver.dto.RepositoryPromoteResult;
 import org.jboss.pnc.api.reqour.dto.AdjustResponse;
 import org.jboss.pnc.api.reqour.dto.ReqourCallback;
@@ -51,6 +45,12 @@ import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.ConverterHelper;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.OverallStatus;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.TaskResponse;
 import org.jboss.pnc.dto.User;
+import org.jboss.pnc.dto.internal.BuildDriverResultRest;
+import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
+import org.jboss.pnc.dto.internal.BuildResultRest;
+import org.jboss.pnc.dto.internal.EnvironmentDriverResultRest;
+import org.jboss.pnc.dto.internal.RepositoryManagerResultRest;
+import org.jboss.pnc.dto.internal.RepourResultRest;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.rex.api.QueueEndpoint;
 import org.jboss.pnc.rex.api.TaskEndpoint;
@@ -110,6 +110,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
+
+    @ConfigProperty(name = "dingrogu.buildWithoutRepo", defaultValue = "false")
+    public boolean buildWithoutRepo;
 
     @Inject
     QueueEndpoint queueEndpoint;
@@ -193,65 +196,15 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     startRequest,
                     buildWorkDTO.toRepositoryDriverPromoteDTO());
 
-            List<CreateTaskDTO> tasks = List.of(
+            CreateGraphRequest graphRequest = getCreateGraphRequest(
                     taskAdjustReqour,
                     taskRepoSetup,
                     taskCreateEnv,
                     taskBuild,
                     taskCompleteEnv,
                     taskRepoSeal,
-                    taskRepoPromote);
-            Map<String, CreateTaskDTO> vertices = getVertices(tasks);
-
-            EdgeDTO adjustReqourToRepoSetup = EdgeDTO.builder()
-                    .source(taskRepoSetup.name)
-                    .target(taskAdjustReqour.name)
-                    .build();
-            EdgeDTO repoSetupToCreateEnv = EdgeDTO.builder()
-                    .source(taskCreateEnv.name)
-                    .target(taskRepoSetup.name)
-                    .build();
-            EdgeDTO createEnvToBuild = EdgeDTO.builder().source(taskBuild.name).target(taskCreateEnv.name).build();
-            EdgeDTO adjustReqourToBuild = EdgeDTO.builder()
-                    .source(taskBuild.name)
-                    .target(taskAdjustReqour.name)
-                    .build();
-            EdgeDTO buildToCompleteEnv = EdgeDTO.builder().source(taskCompleteEnv.name).target(taskBuild.name).build();
-
-            // WARN: NCL-9060: dependency tasks like reqour adjust are deleted if the taskCompleteEnv has no dependents.
-            // Adding that edge artifically so that the dependency tasks are not deleted prematurely
-            EdgeDTO completeToRepoSealEnv = EdgeDTO.builder()
-                    .source(taskRepoSeal.name)
-                    .target(taskCompleteEnv.name)
-                    .build();
-            EdgeDTO buildToRepoSeal = EdgeDTO.builder().source(taskRepoSeal.name).target(taskBuild.name).build();
-            EdgeDTO repoSealToRepoPromote = EdgeDTO.builder()
-                    .source(taskRepoPromote.name)
-                    .target(taskRepoSeal.name)
-                    .build();
-
-            Set<EdgeDTO> edges = Set.of(
-                    adjustReqourToRepoSetup,
-                    repoSetupToCreateEnv,
-                    createEnvToBuild,
-                    adjustReqourToBuild,
-                    buildToCompleteEnv,
-                    completeToRepoSealEnv,
-                    buildToRepoSeal,
-                    repoSealToRepoPromote);
-
-            ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
-                    .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
-                    // set default value for heartbeat delay and interval to all the tasks
-                    .heartbeatInitialDelay(Duration.ofMinutes(2))
-                    .heartbeatInterval(Duration.ofSeconds(30))
-                    .build();
-            CreateGraphRequest graphRequest = new CreateGraphRequest(
-                    buildWorkDTO.getCorrelationId(),
-                    rexQueueName,
-                    configurationDTO,
-                    edges,
-                    vertices);
+                    taskRepoPromote,
+                    buildWorkDTO);
             setRexQueueSize(queueEndpoint, rexQueueName, rexQueueSize);
             taskEndpoint.start(graphRequest);
 
@@ -260,6 +213,157 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         } catch (Exception e) {
             throw new WorkflowSubmissionException(e);
         }
+    }
+
+    private CreateGraphRequest getCreateGraphRequest(
+            CreateTaskDTO taskAdjustReqour,
+            CreateTaskDTO taskRepoSetup,
+            CreateTaskDTO taskCreateEnv,
+            CreateTaskDTO taskBuild,
+            CreateTaskDTO taskCompleteEnv,
+            CreateTaskDTO taskRepoSeal,
+            CreateTaskDTO taskRepoPromote,
+            BuildWorkDTO buildWorkDTO) {
+
+        if (buildWithoutRepo) {
+            // when we want to create tasks without the repo driver stuff
+            return getCreateGraphRequestWithoutRepo(
+                    taskAdjustReqour,
+                    taskCreateEnv,
+                    taskBuild,
+                    taskCompleteEnv,
+                    buildWorkDTO);
+        } else {
+            return getCreateGraphRequestRegular(
+                    taskAdjustReqour,
+                    taskRepoSetup,
+                    taskCreateEnv,
+                    taskBuild,
+                    taskCompleteEnv,
+                    taskRepoSeal,
+                    taskRepoPromote,
+                    buildWorkDTO);
+        }
+
+    }
+
+    private CreateGraphRequest getCreateGraphRequestRegular(
+            CreateTaskDTO taskAdjustReqour,
+            CreateTaskDTO taskRepoSetup,
+            CreateTaskDTO taskCreateEnv,
+            CreateTaskDTO taskBuild,
+            CreateTaskDTO taskCompleteEnv,
+            CreateTaskDTO taskRepoSeal,
+            CreateTaskDTO taskRepoPromote,
+            BuildWorkDTO buildWorkDTO) {
+        List<CreateTaskDTO> tasks = List.of(
+                taskAdjustReqour,
+                taskRepoSetup,
+                taskCreateEnv,
+                taskBuild,
+                taskCompleteEnv,
+                taskRepoSeal,
+                taskRepoPromote);
+        Map<String, CreateTaskDTO> vertices = getVertices(tasks);
+
+        EdgeDTO adjustReqourToRepoSetup = EdgeDTO.builder()
+                .source(taskRepoSetup.name)
+                .target(taskAdjustReqour.name)
+                .build();
+        EdgeDTO repoSetupToCreateEnv = EdgeDTO.builder()
+                .source(taskCreateEnv.name)
+                .target(taskRepoSetup.name)
+                .build();
+        EdgeDTO createEnvToBuild = EdgeDTO.builder().source(taskBuild.name).target(taskCreateEnv.name).build();
+        EdgeDTO adjustReqourToBuild = EdgeDTO.builder()
+                .source(taskBuild.name)
+                .target(taskAdjustReqour.name)
+                .build();
+        EdgeDTO buildToCompleteEnv = EdgeDTO.builder().source(taskCompleteEnv.name).target(taskBuild.name).build();
+
+        // WARN: NCL-9060: dependency tasks like reqour adjust are deleted if the taskCompleteEnv has no dependents.
+        // Adding that edge artifically so that the dependency tasks are not deleted prematurely
+        EdgeDTO completeToRepoSealEnv = EdgeDTO.builder()
+                .source(taskRepoSeal.name)
+                .target(taskCompleteEnv.name)
+                .build();
+        EdgeDTO buildToRepoSeal = EdgeDTO.builder().source(taskRepoSeal.name).target(taskBuild.name).build();
+        EdgeDTO repoSealToRepoPromote = EdgeDTO.builder()
+                .source(taskRepoPromote.name)
+                .target(taskRepoSeal.name)
+                .build();
+
+        Set<EdgeDTO> edges = Set.of(
+                adjustReqourToRepoSetup,
+                repoSetupToCreateEnv,
+                createEnvToBuild,
+                adjustReqourToBuild,
+                buildToCompleteEnv,
+                completeToRepoSealEnv,
+                buildToRepoSeal,
+                repoSealToRepoPromote);
+
+        ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
+                .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
+                // set default value for heartbeat delay and interval to all the tasks
+                .heartbeatInitialDelay(Duration.ofMinutes(2))
+                .heartbeatInterval(Duration.ofSeconds(30))
+                .build();
+        CreateGraphRequest graphRequest = new CreateGraphRequest(
+                buildWorkDTO.getCorrelationId(),
+                rexQueueName,
+                configurationDTO,
+                edges,
+                vertices);
+        return graphRequest;
+    }
+
+    /**
+     * We skip the repository driver stuff
+     */
+    private CreateGraphRequest getCreateGraphRequestWithoutRepo(
+            CreateTaskDTO taskAdjustReqour,
+            CreateTaskDTO taskCreateEnv,
+            CreateTaskDTO taskBuild,
+            CreateTaskDTO taskCompleteEnv,
+            BuildWorkDTO buildWorkDTO) {
+        List<CreateTaskDTO> tasks = List.of(
+                taskAdjustReqour,
+                taskCreateEnv,
+                taskBuild,
+                taskCompleteEnv);
+        Map<String, CreateTaskDTO> vertices = getVertices(tasks);
+
+        EdgeDTO adjustReqourToCreateEnv = EdgeDTO.builder()
+                .source(taskCreateEnv.name)
+                .target(taskAdjustReqour.name)
+                .build();
+        EdgeDTO createEnvToBuild = EdgeDTO.builder().source(taskBuild.name).target(taskCreateEnv.name).build();
+        EdgeDTO adjustReqourToBuild = EdgeDTO.builder()
+                .source(taskBuild.name)
+                .target(taskAdjustReqour.name)
+                .build();
+        EdgeDTO buildToCompleteEnv = EdgeDTO.builder().source(taskCompleteEnv.name).target(taskBuild.name).build();
+
+        Set<EdgeDTO> edges = Set.of(
+                adjustReqourToCreateEnv,
+                createEnvToBuild,
+                adjustReqourToBuild,
+                buildToCompleteEnv);
+
+        ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
+                .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
+                // set default value for heartbeat delay and interval to all the tasks
+                .heartbeatInitialDelay(Duration.ofMinutes(2))
+                .heartbeatInterval(Duration.ofSeconds(30))
+                .build();
+        CreateGraphRequest graphRequest = new CreateGraphRequest(
+                buildWorkDTO.getCorrelationId(),
+                rexQueueName,
+                configurationDTO,
+                edges,
+                vertices);
+        return graphRequest;
     }
 
     private Request getCleanBuildEnvOnFailure(BuildWorkDTO buildWorkDTO, String rexTaskName) {
@@ -397,6 +501,78 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private BuildResultRest generateBuildResultRest(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
 
+        if (buildWithoutRepo) {
+            // when we are skipping repo driver results
+            return generateBuildResultRestWithoutRepo(request, tasks, correlationId);
+        } else {
+            return generateBuildResultRestRegular(request, tasks, correlationId);
+        }
+    }
+
+    /**
+     * Generate build result rest, assuming the repo driver results are all good.
+     */
+    private BuildResultRest generateBuildResultRestWithoutRepo(
+            StartRequest request,
+            Set<TaskDTO> tasks,
+            String correlationId) {
+
+        TaskResponse<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
+        TaskResponse<RepourResultRest> repourResult = toRepourResultRest(reqourResult);
+
+        // fake result
+        TaskResponse<CompletionStatus> repoCreateResponse = new TaskResponse<>(CompletionStatus.SUCCESS);
+
+        TaskResponse<EnvironmentDriverResultRest> environmentDriverResult = getEnvironmentDriverResultRest(
+                tasks,
+                correlationId);
+
+        TaskResponse<BuildCompleted> buildCompleted = getBuildCompleted(tasks, correlationId);
+        TaskResponse<BuildDriverResultRest> buildDriverResult = getBuildDriverResultRest(buildCompleted);
+
+        // fake result
+        TaskResponse<CompletionStatus> repoSealResponse = new TaskResponse<>(CompletionStatus.SUCCESS);
+
+        // fake result
+        TaskResponse<RepositoryManagerResultRest> repoResult = new TaskResponse<>(
+                RepositoryManagerResultRest.builder().build());
+
+        OverallStatus overallStatus = determineCompletionStatus(
+                repoResult,
+                buildCompleted,
+                repourResult,
+                environmentDriverResult,
+                repoCreateResponse,
+                repoSealResponse);
+
+        // BuildExecutionConfiguration needed for legacy reasons
+        // PNC-Orch just extracts the reqour data in buildExecutionConfiguration
+        BuildExecutionConfigurationRest buildExecutionConfigurationRest = getBuildExecutionConfigurationRest(
+                reqourResult);
+        BuildResultRest buildResultRest = BuildResultRest.builder()
+                .completionStatus(overallStatus.completionStatus)
+                .processException(overallStatus.processException.orElse(null))
+                .buildExecutionConfiguration(buildExecutionConfigurationRest)
+                .buildDriverResult(buildDriverResult.getDTO().orElse(null))
+                .repositoryManagerResult(repoResult.getDTO().orElse(null))
+                .environmentDriverResult(environmentDriverResult.getDTO().orElse(null))
+                .repourResult(repourResult.getDTO().orElse(null))
+                .build();
+
+        try {
+            Log.infof("Build result: %s", objectMapper.writeValueAsString(buildResultRest));
+        } catch (JsonProcessingException e) {
+            // do nothing
+        }
+
+        return buildResultRest;
+    }
+
+    private BuildResultRest generateBuildResultRestRegular(
+            StartRequest request,
+            Set<TaskDTO> tasks,
+            String correlationId) {
+
         TaskResponse<AdjustResponse> reqourResult = getReqourResult(tasks, correlationId);
         TaskResponse<RepourResultRest> repourResult = toRepourResultRest(reqourResult);
 
@@ -456,7 +632,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                         .scmTag(reqourResultGet.getTag())
                         .scmBuildConfigRevision(reqourResultGet.getUpstreamCommit())
                         .scmBuildConfigRevisionInternal(reqourResultGet.isRefRevisionInternal())
-                        .user(User.builder().id("0").build())
+                        .user(User.builder().id("0").build()) //TODO remove after PNC 3.4.1
+                        .artifactRepositories(List.of()) //TODO remove after PNC 3.4.1
                         .build();
             }
         }

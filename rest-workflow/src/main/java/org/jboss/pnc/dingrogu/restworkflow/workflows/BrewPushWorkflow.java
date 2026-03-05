@@ -203,7 +203,7 @@ public class BrewPushWorkflow implements Workflow<BrewPushWorkflowDTO> {
                         .reason("Unknown system error")
                         .proposal(
                                 String.format(
-                                        "There is an internal server error, please contact PNC team at #forum-pnc-users (ID: %s)",
+                                        "There is an internal server error (ID: %s), please contact PNC team at #forum-pnc-users",
                                         errorId))
                         .build());
     }
