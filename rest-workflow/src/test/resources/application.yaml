@@ -21,6 +21,7 @@ quarkus:
   arc:
     # Do not remove the adapter implementations since we'll dynamically use them in the adapter endpoint
     unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
+    exclude-types: org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuthImpl
   swagger-ui:
     always-include: false
   otel:

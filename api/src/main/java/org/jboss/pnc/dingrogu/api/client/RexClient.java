@@ -8,6 +8,7 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 import org.jboss.pnc.rex.dto.ServerResponseDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
@@ -15,8 +16,6 @@ import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.OidcClient;
-import io.quarkus.oidc.client.Tokens;
 import okhttp3.*;
 
 /**
@@ -35,10 +34,7 @@ public class RexClient {
     ObjectMapper objectMapper;
 
     @Inject
-    Tokens token;
-
-    @Inject
-    OidcClient oidcClient;
+    PNCClientAuth pncClientAuth;
 
     public void submitWorkflow(CreateGraphRequest createGraphRequest) throws Exception {
 
@@ -50,7 +46,7 @@ public class RexClient {
 
         Request request = new Request.Builder().url(url)
                 .post(requestBody)
-                .addHeader("Authorization", "Bearer " + token.getAccessToken())
+                .addHeader("Authorization", pncClientAuth.getHttpAuthorizationHeaderValueWithCachedToken())
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -114,7 +110,7 @@ public class RexClient {
         Log.info("About to submit callback: " + objectMapper.writeValueAsString(object));
         Request request = new Request.Builder().url(url)
                 .post(requestBody)
-                .addHeader("Authorization", "Bearer " + token.getAccessToken())
+                .addHeader("Authorization", pncClientAuth.getHttpAuthorizationHeaderValueWithCachedToken())
                 .build();
 
         try (Response response = CLIENT.newCall(request).execute()) {
@@ -138,7 +134,7 @@ public class RexClient {
         MediaType json = MediaType.get("application/json; charset=utf-8");
         Request request = new Request.Builder().url(url)
                 .get()
-                .addHeader("Authorization", "Bearer " + token.getAccessToken())
+                .addHeader("Authorization", pncClientAuth.getHttpAuthorizationHeaderValueWithCachedToken())
                 .build();
         try (Response response = CLIENT.newCall(request).execute()) {
             Log.info(response.message());

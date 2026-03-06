@@ -13,17 +13,13 @@ import jakarta.ws.rs.core.Response;
 
 import org.jboss.pnc.dingrogu.api.endpoint.AdapterEndpoint;
 import org.jboss.pnc.dingrogu.restadapter.adapter.Adapter;
-import org.jboss.pnc.rex.api.TaskEndpoint;
 import org.jboss.pnc.rex.model.requests.StartRequest;
 import org.jboss.pnc.rex.model.requests.StopRequest;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.quarkus.arc.All;
 import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
 import io.quarkus.security.ForbiddenException;
 import io.quarkus.security.UnauthorizedException;
 
@@ -37,15 +33,6 @@ import io.quarkus.security.UnauthorizedException;
  */
 @ApplicationScoped
 public class AdapterEndpointImpl implements AdapterEndpoint {
-
-    @Inject
-    ObjectMapper objectMapper;
-
-    @Inject
-    Tokens tokens;
-
-    @Inject
-    TaskEndpoint taskEndpoint;
 
     /**
      * Get all the implementations of the Adapter interface

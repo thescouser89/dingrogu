@@ -5,12 +5,12 @@ import jakarta.inject.Inject;
 
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
-import io.quarkus.oidc.client.Tokens;
 import kong.unirest.core.ContentType;
 import kong.unirest.core.HttpResponse;
 import kong.unirest.core.JsonNode;
@@ -19,7 +19,7 @@ import kong.unirest.core.Unirest;
 @ApplicationScoped
 public class GenericClient {
     @Inject
-    Tokens tokens;
+    PNCClientAuth pncClientAuth;
 
     @Inject
     ObjectMapper objectMapper;
@@ -35,7 +35,7 @@ public class GenericClient {
         HttpResponse<JsonNode> response = Unirest.post(request.getUri().toString())
                 .contentType(ContentType.APPLICATION_JSON)
                 .accept(ContentType.APPLICATION_JSON)
-                .headers(ClientHelper.getClientHeaders(tokens))
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .body(request.getAttachment())
                 .asJson();
 

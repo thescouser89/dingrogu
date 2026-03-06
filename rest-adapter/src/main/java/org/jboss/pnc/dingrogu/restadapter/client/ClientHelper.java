@@ -5,8 +5,8 @@ import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import java.util.Map;
 
 import org.jboss.pnc.common.log.MDCUtils;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
-import io.quarkus.oidc.client.Tokens;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -17,10 +17,10 @@ public class ClientHelper {
      * @param tokens
      * @return
      */
-    public static Map<String, String> getClientHeaders(Tokens tokens) {
+    public static Map<String, String> getClientHeaders(PNCClientAuth pncClientAuth) {
 
         Map<String, String> headers = MDCUtils.getHeadersFromMDC();
-        headers.put(AUTHORIZATION, "Bearer " + tokens.getAccessToken());
+        headers.put(AUTHORIZATION, pncClientAuth.getHttpAuthorizationHeaderValueWithCachedToken());
         return headers;
     }
 }
