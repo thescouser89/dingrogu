@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.dto.ExceptionResolution;
 import org.jboss.pnc.api.reqour.dto.InternalSCMCreationResponse;
 import org.jboss.pnc.api.reqour.dto.RepositoryCloneResponse;
 import org.jboss.pnc.common.log.MDCUtils;
@@ -157,6 +157,9 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
         Set<TaskDTO> tasks = taskEndpoint.byCorrelation(correlationId);
 
         if (NotificationHelper.areAllRexTasksInFinalState(tasks)) {
+            Log.infof("Right now I should be sending a notification to the caller");
+            tasks.forEach(taskDTO -> Log.infof("Task: %s, state: %s", taskDTO.getName(), taskDTO.getState()));
+
             RepositoryCreationDTO dto = objectMapper
                     .convertValue(notificationRequest.getAttachment(), RepositoryCreationDTO.class);
             Optional<InternalSCMCreationResponse> creationResponse = workflowHelper.getTaskData(
@@ -170,40 +173,58 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
                     reqourCloneRepositoryAdapter,
                     RepositoryCloneResponse.class);
 
-            OperationResult operationResult;
             Log.infof("Creation result: %s", creationResponse);
             Log.infof("Clone result: %s", cloneResponse);
 
-            if (creationResponse.isEmpty() || cloneResponse.isEmpty()) {
-                operationResult = OperationResult.FAILED;
-            } else {
-                if (creationResponse.get().getCallback().getStatus().isSuccess()) {
-                    operationResult = workflowHelper.toOperationResult(cloneResponse.get().getCallback().getStatus());
-                } else {
-                    operationResult = workflowHelper
-                            .toOperationResult(creationResponse.get().getCallback().getStatus());
-                }
-            }
-
-            // generate result for Orch
-            // TODO replace with the one from pnc-api
-            RepositoryCreationResult result = RepositoryCreationResult.builder()
-                    .status(opResultToResultStatus(operationResult))
-                    .repoCreatedSuccessfully(true)
-                    .internalScmUrl(creationResponse.get().getReadwriteUrl())
-                    .externalUrl(dto.getExternalRepoUrl())
-                    .preBuildSyncEnabled(dto.isPreBuildSyncEnabled())
-                    .taskId(Long.parseLong(dto.getTaskId()))
-                    .jobType(convertJobType(dto.getJobNotificationType()))
-                    .buildConfiguration(dto.getBuildConfiguration())
-                    .build();
-
+            final RepositoryCreationResult result = buildCreationResult(creationResponse, cloneResponse, dto);
             Log.infof("Sending creation result back to orch: %s", result);
 
             orchClient.completeRepositoryCreation(dto.getOrchUrl(), result);
         }
 
         return Response.ok().build();
+    }
+
+    private RepositoryCreationResult buildCreationResult(
+            Optional<InternalSCMCreationResponse> creationResponse,
+            Optional<RepositoryCloneResponse> cloneResponse,
+            RepositoryCreationDTO dto) {
+        final org.jboss.pnc.api.enums.ResultStatus resultStatus;
+        final ExceptionResolution exceptionResolution;
+
+        if (creationResponse.isPresent() && cloneResponse.isPresent()) {
+            resultStatus = cloneResponse.get().getCallback().getStatus();
+            exceptionResolution = cloneResponse.get().getCallback().getExceptionResolution();
+        } else if (creationResponse.isPresent()) {
+            resultStatus = creationResponse.get().getCallback().getStatus();
+            exceptionResolution = creationResponse.get().getCallback().getExceptionResolution();
+        } else {
+            Log.warnf("Creation failed - creationResponse and cloneResponse are empty.");
+
+            resultStatus = org.jboss.pnc.api.enums.ResultStatus.SYSTEM_ERROR;
+            exceptionResolution = ExceptionResolution.builder()
+                    .reason("Unknown system error")
+                    .proposal("There is an internal server error, please contact PNC team at #forum-pnc-users")
+                    .build();
+        }
+
+        final boolean isRepoCreatedSuccessfully = creationResponse
+                .map(response -> response.getCallback().getStatus().isSuccess())
+                .orElse(false);
+        final String internalScmUrl = creationResponse.map(response -> response.getReadwriteUrl()).orElse(null);
+
+        // TODO replace with the one from pnc-api
+        return RepositoryCreationResult.builder()
+                .status(convertResultStatus(resultStatus))
+                .exceptionResolution(exceptionResolution)
+                .repoCreatedSuccessfully(isRepoCreatedSuccessfully)
+                .internalScmUrl(internalScmUrl)
+                .externalUrl(dto.getExternalRepoUrl())
+                .preBuildSyncEnabled(dto.isPreBuildSyncEnabled())
+                .taskId(Long.parseLong(dto.getTaskId()))
+                .jobType(convertJobType(dto.getJobNotificationType()))
+                .buildConfiguration(dto.getBuildConfiguration())
+                .build();
     }
 
     private JobNotificationType convertJobType(org.jboss.pnc.api.enums.JobNotificationType jobNotificationType) {
@@ -219,13 +240,13 @@ public class RepositoryCreationWorkflow implements Workflow<RepositoryCreationDT
         };
     }
 
-    private ResultStatus opResultToResultStatus(OperationResult operationResult) {
-        return switch (operationResult) {
-            case SUCCESSFUL -> ResultStatus.SUCCESS;
+    private ResultStatus convertResultStatus(org.jboss.pnc.api.enums.ResultStatus resultStatus) {
+        return switch (resultStatus) {
+            case SUCCESS -> ResultStatus.SUCCESS;
             case FAILED -> ResultStatus.FAILED;
-            case TIMEOUT -> ResultStatus.TIMED_OUT;
+            case TIMED_OUT -> ResultStatus.TIMED_OUT;
             case SYSTEM_ERROR -> ResultStatus.SYSTEM_ERROR;
-            default -> throw new IllegalArgumentException("Unexpected value: " + operationResult);
+            default -> throw new IllegalArgumentException("Unexpected value: " + resultStatus);
         };
     }
 }
