@@ -4,9 +4,15 @@ on:
   push:
     branches: [ "main" ]
 
+permissions: {}
+
 jobs:
     call-snapshot-job:
-      uses: project-ncl/shared-github-actions/.github/workflows/maven-snapshot.yml@v0.0.12
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-snapshot.yml@6345eaa3c4ee9d39c0dc7a0fba462d52fa82ae4a # v0.0.12
       with:
         project_name: 'project-ncl/dingrogu'
-      secrets: inherit
+      secrets:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        QUAY_DEVEL_USERNAME: ${{ secrets.QUAY_DEVEL_USERNAME }}
+        QUAY_DEVEL_PASSWORD: ${{ secrets.QUAY_DEVEL_PASSWORD }}

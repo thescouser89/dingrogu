@@ -8,10 +8,12 @@
 
 name: Java CI with Maven
 
+permissions: {}
+
 on:
   pull_request:
     branches: [ "*" ]
 
 jobs:
     call-maven-ci:
-      uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@v0.0.12
+      uses: project-ncl/shared-github-actions/.github/workflows/maven-ci.yml@6345eaa3c4ee9d39c0dc7a0fba462d52fa82ae4a # v0.0.12
