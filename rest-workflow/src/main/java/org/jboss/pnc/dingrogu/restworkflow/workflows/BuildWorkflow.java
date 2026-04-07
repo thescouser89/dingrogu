@@ -535,9 +535,14 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         // fake result
         TaskResponse<CompletionStatus> repoSealResponse = new TaskResponse<>(CompletionStatus.SUCCESS);
 
+        CompletionStatus completionStatus = CompletionStatus.valueOf(
+                buildCompleted.getDTO()
+                        .orElse(BuildCompleted.builder().buildStatus(ResultStatus.FAILED).build())
+                        .getBuildStatus()
+                        .name());
         // fake result
         TaskResponse<RepositoryManagerResultRest> repoResult = new TaskResponse<>(
-                RepositoryManagerResultRest.builder().build());
+                RepositoryManagerResultRest.builder().completionStatus(completionStatus).build());
 
         OverallStatus overallStatus = determineCompletionStatus(
                 repoResult,
