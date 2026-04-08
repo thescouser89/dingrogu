@@ -1,5 +1,6 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -109,6 +110,7 @@ public class BrewPushWorkflow implements Workflow<BrewPushWorkflowDTO> {
 
             ConfigurationDTO configurationDTO = ConfigurationDTO.builder()
                     .mdcHeaderKeyMapping(MDCUtils.HEADER_KEY_MAPPING)
+                    .heartbeatInterval(Duration.ofSeconds(30))
                     .build();
 
             CreateGraphRequest graphRequest = new CreateGraphRequest(

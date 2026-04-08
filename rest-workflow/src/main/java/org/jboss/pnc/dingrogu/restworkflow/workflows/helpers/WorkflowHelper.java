@@ -36,7 +36,19 @@ public class WorkflowHelper {
         }
 
         ServerResponseDTO finalResponse = responses.get(responses.size() - 1);
-        T report = objectMapper.convertValue(finalResponse.getBody(), result);
+
+        T report;
+        try {
+            report = objectMapper.convertValue(finalResponse.getBody(), result);
+        } catch (IllegalArgumentException e) {
+            Log.errorf(
+                    "Failed to convert Rex body into %s. The body was %s.",
+                    e,
+                    result.getSimpleName(),
+                    finalResponse.getBody().toString());
+            // If Rex can't commit result (failure or success), it will default to its own class for internal failure.
+            return Optional.empty();
+        }
         return Optional.ofNullable(report);
     }
 
