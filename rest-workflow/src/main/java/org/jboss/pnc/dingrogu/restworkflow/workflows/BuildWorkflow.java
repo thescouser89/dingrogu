@@ -1,22 +1,28 @@
 package org.jboss.pnc.dingrogu.restworkflow.workflows;
 
+import static org.apache.commons.lang3.text.WordUtils.capitalize;
+
 import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.pnc.api.bifrost.dto.Checksums;
 import org.jboss.pnc.api.builddriver.dto.BuildCompleted;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.AttachmentType;
 import org.jboss.pnc.api.enums.ResultStatus;
 import org.jboss.pnc.api.enums.orch.CompletionStatus;
 import org.jboss.pnc.api.environmentdriver.dto.EnvironmentCreateResult;
@@ -40,10 +46,12 @@ import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverPromoteAdapter
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSealAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.RepositoryDriverSetupAdapter;
 import org.jboss.pnc.dingrogu.restadapter.adapter.ReqourAdjustAdapter;
+import org.jboss.pnc.dingrogu.restadapter.client.BifrostClient;
 import org.jboss.pnc.dingrogu.restadapter.client.GenericClient;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.ConverterHelper;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.OverallStatus;
 import org.jboss.pnc.dingrogu.restworkflow.workflows.helpers.TaskResponse;
+import org.jboss.pnc.dto.Attachment;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.internal.BuildDriverResultRest;
 import org.jboss.pnc.dto.internal.BuildExecutionConfigurationRest;
@@ -68,6 +76,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.slf4j.MDC;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.quarkus.logging.Log;
@@ -108,6 +117,9 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     @Inject
     GenericClient genericClient;
 
+    @Inject
+    BifrostClient bifrostClient;
+
     @ConfigProperty(name = "dingrogu.url")
     public String ownUrl;
 
@@ -125,6 +137,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
     private static final Set<State> STATE_FAILED = Set
             .of(State.FAILED, State.START_FAILED, State.STOP_FAILED, State.ROLLBACK_FAILED);
+
+    private static final Set<String> BUILD_WORKFLOW_TAGS = Set.of("build-log", "alignment-log");
 
     @Override
     @Deprecated
@@ -400,7 +414,6 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         String correlationId = notificationRequest.getTask().getCorrelationID();
         Set<TaskDTO> tasks = taskEndpoint.byCorrelation(correlationId);
-
         if (NotificationHelper.areAllRexTasksInFinalState(tasks)) {
 
             String buildId = MDC.get(MDCHeaderKeys.BUILD_ID.getMdcKey());
@@ -418,13 +431,17 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
             // we set the notification attachment to be the StartRequest in submitWorkflow method
             StartRequest request = objectMapper.convertValue(notificationRequest.getAttachment(), StartRequest.class);
+
             if (request == null) {
                 Log.info("No start request in the notification message");
             } else {
                 Log.info("Sending request to rex callback");
+
                 ProcessStageUtils
                         .logProcessStageBegin(ProcessStage.FINALIZING_BUILD.name(), "Submitting final result to Orch");
-                BuildResultRest buildResult = generateBuildResultRest(request, tasks, correlationId);
+
+                BuildWorkDTO workDTO = objectMapper.convertValue(request.getPayload(), BuildWorkDTO.class);
+                BuildResultRest buildResult = generateBuildResultRest(workDTO, tasks, correlationId);
 
                 if (buildResult.getProcessException() != null || buildResult.getCompletionStatus().isFailed()) {
                     // if the build has failed
@@ -501,13 +518,13 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         return vertices;
     }
 
-    private BuildResultRest generateBuildResultRest(StartRequest request, Set<TaskDTO> tasks, String correlationId) {
+    private BuildResultRest generateBuildResultRest(BuildWorkDTO workDTO, Set<TaskDTO> tasks, String correlationId) {
 
         if (buildWithoutRepo) {
             // when we are skipping repo driver results
-            return generateBuildResultRestWithoutRepo(request, tasks, correlationId);
+            return generateBuildResultRestWithoutRepo(workDTO, tasks, correlationId);
         } else {
-            return generateBuildResultRestRegular(request, tasks, correlationId);
+            return generateBuildResultRestRegular(workDTO, tasks, correlationId);
         }
     }
 
@@ -515,7 +532,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
      * Generate build result rest, assuming the repo driver results are all good.
      */
     private BuildResultRest generateBuildResultRestWithoutRepo(
-            StartRequest request,
+            BuildWorkDTO workDTO,
             Set<TaskDTO> tasks,
             String correlationId) {
 
@@ -544,13 +561,21 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
         TaskResponse<RepositoryManagerResultRest> repoResult = new TaskResponse<>(
                 RepositoryManagerResultRest.builder().completionStatus(completionStatus).build());
 
+        TaskResponse<List<Attachment>> logAttachments = getLogAttachments(
+                tasks,
+                correlationId,
+                workDTO.getBifrostUrl(),
+                workDTO.getBuildContentId(),
+                BUILD_WORKFLOW_TAGS);
+
         OverallStatus overallStatus = determineCompletionStatus(
                 repoResult,
                 buildCompleted,
                 repourResult,
                 environmentDriverResult,
                 repoCreateResponse,
-                repoSealResponse);
+                repoSealResponse,
+                logAttachments);
 
         // BuildExecutionConfiguration needed for legacy reasons
         // PNC-Orch just extracts the reqour data in buildExecutionConfiguration
@@ -576,7 +601,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
     }
 
     private BuildResultRest generateBuildResultRestRegular(
-            StartRequest request,
+            BuildWorkDTO workDTO,
             Set<TaskDTO> tasks,
             String correlationId) {
 
@@ -596,13 +621,21 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
 
         TaskResponse<RepositoryManagerResultRest> repoResult = getRepositoryManagerResultRest(tasks, correlationId);
 
+        TaskResponse<List<Attachment>> logAttachments = getLogAttachments(
+                tasks,
+                correlationId,
+                workDTO.getBifrostUrl(),
+                workDTO.getBuildContentId(),
+                BUILD_WORKFLOW_TAGS);
+
         OverallStatus overallStatus = determineCompletionStatus(
                 repoResult,
                 buildCompleted,
                 repourResult,
                 environmentDriverResult,
                 repoCreateResponse,
-                repoSealResponse);
+                repoSealResponse,
+                logAttachments);
 
         // BuildExecutionConfiguration needed for legacy reasons
         // PNC-Orch just extracts the reqour data in buildExecutionConfiguration
@@ -616,6 +649,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 .repositoryManagerResult(repoResult.getDTO().orElse(null))
                 .environmentDriverResult(environmentDriverResult.getDTO().orElse(null))
                 .repourResult(repourResult.getDTO().orElse(null))
+                .attachments(logAttachments.getDTO().orElse(null))
                 .build();
 
         try {
@@ -653,7 +687,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
             TaskResponse<RepourResultRest> repourResult,
             TaskResponse<EnvironmentDriverResultRest> environmentDriverResult,
             TaskResponse<CompletionStatus> repoCreateResponse,
-            TaskResponse<CompletionStatus> repoSealResponse) {
+            TaskResponse<CompletionStatus> repoSealResponse,
+            TaskResponse<List<Attachment>> logAttachments) {
 
         OverallStatus overallStatus = new OverallStatus();
 
@@ -717,6 +752,8 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                     repourResult.addToErrorMessage("Failed at reqour step"));
         }
 
+        handleLogAttachments(logAttachments, overallStatus);
+
         return overallStatus;
     }
 
@@ -736,6 +773,91 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 .attachment(buildResult)
                 .build();
         genericClient.send(toSend);
+    }
+
+    private static void handleLogAttachments(
+            TaskResponse<List<Attachment>> logAttachments,
+            OverallStatus overallStatus) {
+        // ON SUCCESSFUL BUILD PROCESS, all standard logs must be present
+        if (!overallStatus.completionStatus.isFailed()) {
+            if (logAttachments.getDTO().isEmpty()) {
+                overallStatus.set(
+                        CompletionStatus.SYSTEM_ERROR,
+                        logAttachments.addToErrorMessage("Successful build is missing logs"));
+                return;
+            }
+
+            if (logAttachments.getDTO().isPresent() && logAttachments.getDTO().get().isEmpty()) {
+                overallStatus.set(
+                        CompletionStatus.SYSTEM_ERROR,
+                        logAttachments.addToErrorMessage("Successful build is missing logs"));
+                return;
+            }
+
+            Set<String> requiredNames = BUILD_WORKFLOW_TAGS.stream()
+                    .map(BuildWorkflow::fromTag)
+                    .collect(Collectors.toSet());
+            Set<String> presentNames = logAttachments.getDTO()
+                    .get()
+                    .stream()
+                    .map(Attachment::getName)
+                    .collect(Collectors.toSet());
+            if (!requiredNames.containsAll(presentNames)) {
+                overallStatus.set(
+                        CompletionStatus.SYSTEM_ERROR,
+                        logAttachments.addToErrorMessage("Build Result is SUCCESS but missing some logs."));
+                return;
+            }
+        }
+
+        if (logAttachments.getErrorMessage().isPresent()) {
+            overallStatus.set(
+                    CompletionStatus.SYSTEM_ERROR,
+                    logAttachments.addToErrorMessage("Failed at generating log checksums step"));
+        }
+    }
+
+    private TaskResponse<List<Attachment>> getLogAttachments(
+            Set<TaskDTO> tasks,
+            String correlationId,
+            String bifrostUrl,
+            String buildId,
+            Set<String> tags) {
+        var reference = new TypeReference<Map<String, Checksums>>() {
+        };
+
+        List<Attachment> attachments = new ArrayList<>();
+        for (String tag : tags) {
+            Optional<Checksums> checksums;
+            try {
+                checksums = bifrostClient.getChecksums(bifrostUrl, buildId, tag);
+            } catch (Exception e) {
+                TaskHelper.LIVE_LOG.error("Error getting checksums build {} and tag {}", buildId, tag, e);
+
+                return new TaskResponse<>(attachments, e.getMessage());
+            }
+
+            checksums.ifPresent(
+                    (check) -> attachments.add(
+                            Attachment.builder()
+                                    .name(fromTag(tag))
+                                    .url(bifrostClient.generateGetFinalLogsURL(bifrostUrl, buildId, tag).toString())
+                                    .md5(check.getMd5())
+                                    .type(AttachmentType.LOG)
+                                    .build()));
+        }
+
+        return new TaskResponse<>(attachments.isEmpty() ? null : attachments, null);
+    }
+
+    /**
+     * 'build-log' -> 'Build Log'
+     *
+     * @param tag final-log tag
+     * @return Name of Attachment
+     */
+    private static String fromTag(String tag) {
+        return capitalize(tag.replace('-', ' '));
     }
 
     private TaskResponse<CompletionStatus> getRepositoryCreateResponse(Set<TaskDTO> tasks, String correlationId) {

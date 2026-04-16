@@ -31,6 +31,8 @@ public class BuildWorkDTO {
     String repositoryDriverUrl;
     String buildDriverUrl;
     String environmentDriverUrl;
+    @NotNull
+    String bifrostUrl;
 
     String scmRepoURL;
     String scmRevision;
