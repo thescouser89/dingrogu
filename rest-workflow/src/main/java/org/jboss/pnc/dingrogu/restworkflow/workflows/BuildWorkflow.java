@@ -559,7 +559,11 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                         .name());
         // fake result
         TaskResponse<RepositoryManagerResultRest> repoResult = new TaskResponse<>(
-                RepositoryManagerResultRest.builder().completionStatus(completionStatus).build());
+                RepositoryManagerResultRest.builder()
+                        .completionStatus(completionStatus)
+                        .builtArtifacts(Collections.emptyList())
+                        .dependencies(Collections.emptyList())
+                        .build());
 
         TaskResponse<List<Attachment>> logAttachments = getLogAttachments(
                 tasks,
