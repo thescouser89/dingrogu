@@ -841,14 +841,12 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                 return new TaskResponse<>(attachments, e.getMessage());
             }
 
-            checksums.ifPresent(
-                    (check) -> attachments.add(
-                            Attachment.builder()
-                                    .name(fromTag(tag))
-                                    .url(bifrostClient.generateGetFinalLogsURL(bifrostUrl, buildId, tag).toString())
-                                    .md5(check.getMd5())
-                                    .type(AttachmentType.LOG)
-                                    .build()));
+            checksums.ifPresent((check) -> attachments.add(Attachment.builder()
+                    .name(fromTag(tag))
+                    .url(bifrostClient.generateGetFinalLogsURL(bifrostUrl, buildId, tag).toString())
+                    .sha256(check.getSha256())
+                    .type(AttachmentType.LOG)
+                    .build()));
         }
 
         return new TaskResponse<>(attachments.isEmpty() ? null : attachments, null);
