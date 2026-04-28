@@ -846,7 +846,7 @@ public class BuildWorkflow implements Workflow<BuildWorkDTO> {
                             Attachment.builder()
                                     .name(fromTag(tag))
                                     .url(bifrostClient.generateGetFinalLogsURL(bifrostUrl, buildId, tag).toString())
-                                    .md5(check.getMd5())
+                                    .sha256(check.getSha256())
                                     .type(AttachmentType.LOG)
                                     .build()));
         }
