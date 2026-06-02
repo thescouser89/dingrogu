@@ -20,6 +20,8 @@ rexclient:
     queue_size: 10
 
 quarkus:
+  application:
+    name: dingrogu
   http:
     auth:
       # required for LDAP: build-time property
@@ -42,9 +44,6 @@ quarkus:
     unremovable-types: org.jboss.pnc.dingrogu.restadapter.adapter.**
   swagger-ui:
     always-include: true
-  otel:
-    sdk:
-      disabled: true
   log:
     handler:
       kafka:
