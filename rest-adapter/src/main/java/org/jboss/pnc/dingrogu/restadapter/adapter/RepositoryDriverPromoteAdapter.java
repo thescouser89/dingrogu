@@ -82,7 +82,7 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
                 .buildCategory(repoPromoteDTO.getBuildCategory())
                 .tempBuild(repoPromoteDTO.isTempBuild())
                 .callback(callback)
-                // .heartBeat(startRequest.getHeartbeatConfig().getRequest())
+                .heartBeat(startRequest.getHeartbeatConfig().getRequest())
                 .buildConfigurationId(repoPromoteDTO.getBuildConfigurationId())
                 .build();
 
@@ -151,8 +151,8 @@ public class RepositoryDriverPromoteAdapter implements Adapter<RepositoryDriverP
     public void cancel(String correlationId, StopRequest stopRequest) {
     }
 
-    // @Override
-    // public boolean shouldUseHeartbeat() {
-    //     return true;
-    // }
+    @Override
+    public boolean shouldUseHeartbeat() {
+        return true;
+    }
 }
