@@ -93,6 +93,7 @@ public class RepositoryDriverSetupAdapter implements Adapter<RepositoryDriverSet
         RepositoryCreateRequest createRequest = new RepositoryCreateRequest(
                 repositorySetupDTO.getBuildContentId(),
                 BuildType.valueOf(repositorySetupDTO.getBuildType()),
+                repositorySetupDTO.getBuildCategory(),
                 repositorySetupDTO.isTempBuild(),
                 repositorySetupDTO.isBrewPullActive(),
                 repositoriesToCreate);
