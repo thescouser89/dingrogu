@@ -110,6 +110,7 @@ public class BuildWorkDTO {
                 .repositoryDriverUrl(repositoryDriverUrl)
                 .buildContentId(buildContentId)
                 .buildType(buildTypeName)
+                .buildCategory(buildCategory)
                 .tempBuild(tempBuild)
                 .brewPullActive(brewPullActive)
                 .genericParameters(genericParameters)
