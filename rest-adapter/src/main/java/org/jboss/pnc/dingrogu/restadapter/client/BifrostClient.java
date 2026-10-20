@@ -5,10 +5,12 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.bifrost.dto.Checksums;
 import org.jboss.pnc.dingrogu.common.TaskHelper;
+import org.jboss.pnc.quarkus.client.auth.runtime.PNCClientAuth;
 
 import io.quarkus.logging.Log;
 import kong.unirest.core.ContentType;
@@ -20,11 +22,15 @@ public class BifrostClient {
     public static final String CHECKSUMS_ENDPOINT_TEMPLATE = "/final-log/%s/%s/checksums";
     public static final String GET_FINALLOGS_ENDPOINT_TEMPLATE = "/final-log/%s/%s";
 
+    @Inject
+    PNCClientAuth pncClientAuth;
+
     @Retry
     public Optional<Checksums> getChecksums(String bifrostUrl, String buildId, String tag) {
         Log.infof("Bifrost checksums request for: %s and tag: %s", buildId, tag);
         HttpResponse<Checksums> response = Unirest.get(bifrostUrl + CHECKSUMS_ENDPOINT_TEMPLATE.formatted(buildId, tag))
                 .accept(ContentType.APPLICATION_JSON)
+                .headers(ClientHelper.getClientHeaders(pncClientAuth))
                 .asObject(Checksums.class);
 
         return switch (response.getStatus()) {
